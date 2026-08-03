@@ -23,6 +23,7 @@ npm run build:static && npx wrangler deploy
 
 1. Variable del repo `CF_DEPLOY_ENABLED=true` (*Settings → Variables*).
 2. Secreto `CLOUDFLARE_API_TOKEN` con permiso de Workers en la cuenta (*Settings → Secrets*).
+3. Variable `CLOUDFLARE_ACCOUNT_ID` con el ID de la cuenta (empieza por `c68c7dde…`; no es secreto, está en la URL del panel de Cloudflare).
 
 Mientras no existan, el workflow hace snapshot + gate y el deploy se hace manual con el comando de arriba. Si la fuente falla 7 ejecuciones seguidas, la Action abre un issue (DATOS.md §6).
 
