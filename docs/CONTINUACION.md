@@ -22,7 +22,7 @@ La noche del 03/08 los tres trabajamos en paralelo desde puntos distintos y hay 
 | `f1-scaffold` (cc) | Scaffold + **contenido y diseño**: hero partido con fotos, 8 rutas + 404, FAQ con JSON-LD, contacto, i18n de 17 locales con `en.json` completo (258 cadenas) y la marca blindada | **Base recomendada**: es la que está verificada con evidencia y la que MAD ha visto |
 | `f1-scaffold-kimi` | **Scaffold paralelo** partiendo de antes del mío (su propio header/footer/`lib/site.ts`, su `i18n-build`, `build-stamp`, `export-static`) **+ dos piezas que a la base le faltan: `scripts/gate.mjs` y `test/static-html.test.mjs`, y `eslint.config.mjs`** | Rescatar el **gate, los tests y el eslint**; descartar el scaffold duplicado. Comparar su `i18n-build` con el de la base por si trae algo mejor |
 | `f2-contenido` (Codex) | Prosa en `content/es/{problemas,como-trabajamos,cofundadores}.md` + su propio `en.json` (189 entradas) | Fundir la prosa con `content/es/site.ts` (decidir **una** fuente: o markdown o TS, no las dos) y **fusionar los `en.json`**, no sobrescribir |
-| ~~`f2-contenido` — páginas del pie~~ **YA EN PRODUCCIÓN** | Las 5 rutas legales y de respaldo (`/respaldo`, `/aviso-legal`, `/privacidad`, `/cookies`, `/accesibilidad`) se portaron a esta rama y se desplegaron el 03/08 desde la rama `legal-pie` (commit 2e63b85), con los 21 idiomas y el pie reestructurado | **Nada pendiente aquí.** Al reconciliar, la versión buena es la de `legal-pie` (`content/es/legal.ts`), NO el markdown de `f2-contenido`: ese quedó superado. D6–D8 cerradas por MAD |
+| ~~`f2-contenido` — páginas del pie~~ **FUSIONADO Y EN PRODUCCIÓN** | Las 5 rutas legales y de respaldo (`/respaldo`, `/aviso-legal`, `/privacidad`, `/cookies`, `/accesibilidad`) se portaron a esta rama y se desplegaron el 03/08 desde la rama `legal-pie` (commit 2e63b85), con los 21 idiomas y el pie reestructurado | **Nada pendiente aquí.** Al reconciliar, la versión buena es la de `legal-pie` (`content/es/legal.ts`), NO el markdown de `f2-contenido`: ese quedó superado. D6–D8 cerradas por MAD |
 
 Causa: se les dio el encargo antes de que existiera la rama con el esqueleto, y arrancaron desde `main`. Lección para la próxima tanda: **el encargo dice desde qué commit se parte**.
 
@@ -30,8 +30,13 @@ Causa: se les dio el encargo antes de que existiera la rama con el esqueleto, y 
 
 Después de reconciliar, actualiza esta tabla y borra la sección.
 
-> [!warning] **Antes del próximo `wrangler deploy`, lee esto.**
-> Lo que hay en producción hoy se desplegó desde la rama **`legal-pie`**, que es `f1-scaffold` + las cinco páginas del pie. Si despliegas desde `f1-scaffold` sin haber fusionado `legal-pie` antes, **borrarás de la web el aviso legal, la privacidad y las cookies**, y el sitio volverá a incumplir el artículo 10 de la LSSI-CE. Fusiona primero (`git merge legal-pie`) y comprueba que `/aviso-legal/` responde 200 después de publicar.
+> [!important] **Para publicar: `npm run deploy`. Nunca `npx wrangler deploy` a secas.**
+> `npm run deploy` compila y pasa por `scripts/antes-de-publicar.mjs`, que **aborta**
+> si falta una página legal o ha perdido sus datos, si algún idioma se ha quedado sin
+> páginas, si el sitemap no las lista o si queda texto sin traducir. Existe porque la
+> web estuvo a un despliegue de perder el aviso legal: producción salía de una rama y
+> el trabajo seguía en otra. Ya está todo fusionado en `f1-scaffold`, y el guardián
+> está para que no vuelva a depender de que alguien se acuerde.
 
 ## Cola de trabajo, por orden
 

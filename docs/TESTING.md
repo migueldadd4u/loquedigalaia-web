@@ -113,3 +113,33 @@ ya no lo reconocía y el enlace perdía el prefijo de idioma. Ocurría en los 12
 idiomas y sin ningún aviso. Arreglado en `scripts/i18n-build.mjs`: `translate()`
 blinda con centinelas los segmentos de URL además de la marca. La comprobación
 de enlaces del verificador existe para que no vuelva a pasar en silencio.
+
+## El guardián de publicación (2026-08-03)
+
+`scripts/antes-de-publicar.mjs` responde a una pregunta concreta de MAD: **¿qué
+hago para que nada se borre?** La respuesta no puede ser «acordarse»: es que el
+despliegue falle si lo que hay en `out/` no es publicable.
+
+`npm run deploy` compila y pasa por él antes de llamar a `wrangler`. Comprueba,
+por orden de gravedad:
+
+1. **Páginas legales** — que existan y conserven sus datos (los dos DNI, el
+   domicilio, los correos, el CIF de Add4u, la referencia a la Ley 3/1991, el
+   RGPD, la Ley 34/2002 y el deslinde de `/respaldo`). Sin esto la web incumple
+   el artículo 10 de la LSSI-CE.
+2. **Idiomas** — que cada locale declarado tenga todas sus páginas.
+3. **Rastro** — sitemap presente y con las rutas legales listadas.
+4. **Traducción** — delega en `verificar-i18n.mjs`.
+
+Probado provocando las tres regresiones que de verdad pueden ocurrir:
+
+| Se provoca | Qué dice | Salida |
+|---|---|---|
+| Borrar `out/aviso-legal/` | `/aviso-legal/ NO EXISTE — la web no se puede publicar sin ella` | 1 |
+| Borrar `out/eu/` entero | `/eu/ sin: aviso-legal, privacidad, cookies…` | 1 |
+| Vaciar los DNI y el CIF | `/aviso-legal/ ha perdido: 01178330V, B-84428879` | 1 |
+| Todo correcto | `✓ Publicable.` | 0 |
+
+Estado tras integrar el pie legal con la F2 de Codex: **135 rutas verificadas en
+producción (15 idiomas × 9 rutas), 0 fallos**, con las fotos y los heroes de
+Codex intactos y los 12 diccionarios cubriendo las 419 cadenas del inventario.
