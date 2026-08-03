@@ -13,6 +13,20 @@ Para verla: `npm install && npm run dev` (puerto 3210). El build de referencia e
 
 Los encargos tal y como se entregaron a cada agente están en [PROMPTS-AGENTES.md](PROMPTS-AGENTES.md).
 
+## ⚠️ Lo primero al retomar: reconciliar tres ramas
+
+La noche del 03/08 los tres trabajamos en paralelo desde puntos distintos y hay **duplicación real**. Nadie debe seguir construyendo hasta resolver esto:
+
+| Rama | Qué trae | Qué hacer |
+|---|---|---|
+| `f1-scaffold` (cc) | Scaffold + **contenido y diseño**: hero partido con fotos, 8 rutas + 404, FAQ con JSON-LD, contacto, i18n de 17 locales con `en.json` completo (258 cadenas) y la marca blindada | **Base recomendada**: es la que está verificada con evidencia y la que MAD ha visto |
+| `f1-scaffold-kimi` | **Scaffold paralelo** partiendo de antes del mío (su propio header/footer/`lib/site.ts`, su `i18n-build`, `build-stamp`, `export-static`) **+ dos piezas que a la base le faltan: `scripts/gate.mjs` y `test/static-html.test.mjs`, y `eslint.config.mjs`** | Rescatar el **gate, los tests y el eslint**; descartar el scaffold duplicado. Comparar su `i18n-build` con el de la base por si trae algo mejor |
+| `f2-contenido` (Codex) | Prosa en `content/es/{problemas,como-trabajamos,cofundadores}.md` + su propio `en.json` (189 entradas) | Fundir la prosa con `content/es/site.ts` (decidir **una** fuente: o markdown o TS, no las dos) y **fusionar los `en.json`**, no sobrescribir |
+
+Causa: se les dio el encargo antes de que existiera la rama con el esqueleto, y arrancaron desde `main`. Lección para la próxima tanda: **el encargo dice desde qué commit se parte**.
+
+Después de reconciliar, actualiza esta tabla y borra la sección.
+
 ## Cola de trabajo, por orden
 
 1. **Terminar F1** (rama `f1-scaffold`): el **multiidioma ya está operativo** (`npm run build:static` → 17 locales, inglés traducido al completo, sitemap con hreflang). Queda: suite `npm test` sobre el HTML renderizado, axe-core, y **las cifras reales del front office de ClonMAD en portada y en `/pulso`** (encargo de MAD). Gate en PLAN §F1.
