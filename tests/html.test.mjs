@@ -12,6 +12,7 @@ const ROOT = process.cwd();
 const OUT = join(ROOT, "out");
 const BASE = "https://loquedigalaia.com";
 const BRAND = "Lo que diga la IA";
+const PUBLIC_REPOSITORY = "https://github.com/migueldadd4u/loquedigalaia-web";
 
 /* Locales: content/locales.ts es la fuente única (la leen el selector y el
    pipeline i18n); el test no lleva su propia copia — lección de add4u. */
@@ -142,4 +143,35 @@ test("todos los enlaces internos resuelven a ficheros existentes", async () => {
       }
     }
   assert.deepEqual(broken, [], `enlaces rotos: ${broken.slice(0, 10).join(" · ")}`);
+});
+
+test("el pie enlaza el repositorio público en todas las páginas y locales", async () => {
+  const missing = [];
+  const untranslated = [];
+
+  for (const route of routes)
+    for (const l of locales) {
+      const where = `${l.prefix || "es"}${route}`;
+      const root = parse(await readFile(join(OUT, l.prefix, relOf(route)), "utf8"));
+      const links = root
+        .querySelectorAll("footer a")
+        .filter((a) => a.getAttribute("href") === PUBLIC_REPOSITORY);
+
+      if (links.length !== 1) {
+        missing.push(`${where} (${links.length})`);
+        continue;
+      }
+
+      const label = links[0].text.trim();
+      if (!label || (l.source !== "es" && label === "Contribuir en GitHub")) {
+        untranslated.push(`${where}: ${label || "sin texto"}`);
+      }
+    }
+
+  assert.deepEqual(missing, [], `enlace ausente o duplicado: ${missing.slice(0, 10).join(" · ")}`);
+  assert.deepEqual(
+    untranslated,
+    [],
+    `enlace sin traducir: ${untranslated.slice(0, 10).join(" · ")}`,
+  );
 });

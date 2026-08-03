@@ -28,7 +28,13 @@ export const pie = {
   grupos: [
     {
       titulo: "Respaldo",
-      enlaces: [{ href: "/respaldo/", label: "Qué hay detrás" }],
+      enlaces: [
+        { href: "/respaldo/", label: "Qué hay detrás" },
+        {
+          href: "https://github.com/migueldadd4u/loquedigalaia-web",
+          label: "Contribuir en GitHub",
+        },
+      ],
     },
     {
       titulo: "Legal",
