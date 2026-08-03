@@ -143,3 +143,22 @@ Probado provocando las tres regresiones que de verdad pueden ocurrir:
 Estado tras integrar el pie legal con la F2 de Codex: **135 rutas verificadas en
 producción (15 idiomas × 9 rutas), 0 fallos**, con las fotos y los heroes de
 Codex intactos y los 12 diccionarios cubriendo las 419 cadenas del inventario.
+
+### Un aviso que faltaba: frases largas idénticas al español
+
+MAD detectó a ojo que el `<title>` de la portada salía en castellano en
+asturiano, mientras el verificador decía que no quedaba nada sin traducir.
+
+La regla «valor igual a la clave = el traductor dice que en su idioma se escribe
+igual» es correcta para una palabra suelta y peligrosa para una frase larga: ahí
+es casi siempre un olvido disfrazado de decisión. El verificador lo avisa ahora,
+sin abortar, porque a veces coinciden de verdad:
+
+```
+  ✓ ast         419 entradas · ⚠ 4 frases largas idénticas al español
+      ⚠ sin traducir (o idéntica): La fábrica de milagros empresariales nativos de IA
+```
+
+Segunda lección, de método: lo que se miró era un `out/` anterior a la fusión.
+**Al dar algo por verificado hay que decir contra qué build**, o el «está bien»
+no significa nada.
