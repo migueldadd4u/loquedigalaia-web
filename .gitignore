@@ -7,6 +7,7 @@ dist/
 .next/
 .wrangler/
 out/
+public/build-stamp.json
 
 # Sistema
 .DS_Store

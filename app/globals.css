@@ -1,0 +1,87 @@
+@import "tailwindcss";
+
+/*
+ * Tokens de color — dirección de docs/IDENTIDAD.md (marfil, azul petróleo/grafito,
+ * verde salvia, cobre apagado). Pares texto/fondo elegidos para contraste AA
+ * (≥ 4.5:1 texto normal); el test de contraste computado llega en F4.
+ */
+@theme {
+  --color-ivory: #f7f4ec;
+  --color-ivory-soft: #efeadd;
+  --color-petrol: #16333c;
+  --color-petrol-deep: #10242b;
+  --color-sage: #3d6156;
+  --color-sage-light: #a7c8ba;
+  --color-copper: #8a6a35;
+  --color-copper-light: #d9b97e;
+}
+
+:root {
+  color-scheme: light dark;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--color-ivory);
+  color: var(--color-petrol);
+  font-family:
+    ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue",
+    Arial, sans-serif;
+  line-height: 1.6;
+}
+
+@media (prefers-color-scheme: dark) {
+  body {
+    background-color: var(--color-petrol-deep);
+    color: var(--color-ivory);
+  }
+}
+
+/* Focus visible siempre (docs/ACCESIBILIDAD.md — nunca outline:none sin sustituto). */
+:focus-visible {
+  outline: 3px solid var(--color-copper);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :focus-visible {
+    outline-color: var(--color-copper-light);
+  }
+}
+
+/* Enlaces: nunca solo color — subrayado por defecto en texto corrido. */
+a {
+  text-underline-offset: 0.15em;
+}
+
+/* Sin animaciones esenciales si el usuario pide movimiento reducido. */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Marcador de contenido pendiente (F1). Visible y localizable por el gate F2. */
+.todo-contenido {
+  border: 2px dashed var(--color-copper);
+  border-radius: 0.5rem;
+  padding: 1rem 1.25rem;
+  font-style: italic;
+}
+
+@media (prefers-color-scheme: dark) {
+  .todo-contenido {
+    border-color: var(--color-copper-light);
+  }
+}
