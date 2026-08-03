@@ -68,3 +68,97 @@ Encargo de MAD: cifras del front office en portada y `/pulso`, `scripts/snapshot
 | **Gate completo** | `npm run gate` (lint + build estático + tests) | ✅ **45/45 tests** · tsc sin errores · 280 HTML · 419 cadenas en inventario · con traducción: en, zh, ja |
 
 Notas: `--input` solo sustituye al sample de fuentes que lo tienen (nunca a jarvis). `pending.json` y `source-status.json` son estado entre ejecuciones del cron. Los 9 diccionarios restantes (ko, zh-TW, ca, gl, eu, va, oc-aranes, ast, pt) los asume cc (commit 46c8e98); el test de diccionarios los declara pendientes con tope decreciente.
+## Los 21 idiomas, traducidos y verificados (2026-08-03)
+
+Antes solo estaba el inglés; el resto de la web se veía en español. Ahora los
+12 diccionarios están completos y la comprobación es automática, no visual.
+
+`node scripts/verificar-i18n.mjs out` mira el **HTML ya generado** y busca texto
+que siga en español. Distingue dos fallos, porque se arreglan distinto:
+
+- **ROTO** — había traducción y aun así salió en español. Fallo del pipeline.
+- **SIN** — no hay traducción para esa cadena. Falta trabajo de traducción.
+
+Además valida lo que el pipeline impone en silencio (caracteres prohibidos,
+nombres propios que no deben traducirse, cifras que no pueden perderse) y que
+ningún enlace interno se haya traducido.
+
+Salida del 03/08, tras completar los diccionarios:
+
+```
+Inventario: 393 cadenas · a traducir: 380
+
+DICCIONARIOS
+  ✓ en 380 · zh 380 · ko 380 · ja 380 · pt 380 · zh-TW 380
+  ✓ oc-aranes 380 · ast 380 · ca 380 · eu 380 · gl 380 · va 380
+
+HTML GENERADO (texto que sigue en español)
+  idioma       páginas   ROTO   SIN
+  ✓ (los 13 con diccionario)   15      0     0
+
+ENLACES INTERNOS
+  ✓ los 20 locales: todos apuntan a una ruta real
+
+✓ Nada queda sin traducir y ningún enlace se ha roto.
+```
+
+Verificado también contra producción: `/aviso-legal/` responde 200 en los 21
+idiomas con su título traducido y los datos identificativos presentes.
+
+### Un fallo que llevaba tiempo publicado
+
+La clave corta `manifiesto` traducía el segmento dentro del propio enlace:
+`href="/manifiesto/"` salía como `href="/manifesto/"`, y de rebote `prefixLinks`
+ya no lo reconocía y el enlace perdía el prefijo de idioma. Ocurría en los 12
+idiomas y sin ningún aviso. Arreglado en `scripts/i18n-build.mjs`: `translate()`
+blinda con centinelas los segmentos de URL además de la marca. La comprobación
+de enlaces del verificador existe para que no vuelva a pasar en silencio.
+
+## El guardián de publicación (2026-08-03)
+
+`scripts/antes-de-publicar.mjs` responde a una pregunta concreta de MAD: **¿qué
+hago para que nada se borre?** La respuesta no puede ser «acordarse»: es que el
+despliegue falle si lo que hay en `out/` no es publicable.
+
+`npm run deploy` compila y pasa por él antes de llamar a `wrangler`. Comprueba,
+por orden de gravedad:
+
+1. **Páginas legales** — que existan y conserven sus datos (los dos DNI, el
+   domicilio, los correos, el CIF de Add4u, la referencia a la Ley 3/1991, el
+   RGPD, la Ley 34/2002 y el deslinde de `/respaldo`). Sin esto la web incumple
+   el artículo 10 de la LSSI-CE.
+2. **Idiomas** — que cada locale declarado tenga todas sus páginas.
+3. **Rastro** — sitemap presente y con las rutas legales listadas.
+4. **Traducción** — delega en `verificar-i18n.mjs`.
+
+Probado provocando las tres regresiones que de verdad pueden ocurrir:
+
+| Se provoca | Qué dice | Salida |
+|---|---|---|
+| Borrar `out/aviso-legal/` | `/aviso-legal/ NO EXISTE — la web no se puede publicar sin ella` | 1 |
+| Borrar `out/eu/` entero | `/eu/ sin: aviso-legal, privacidad, cookies…` | 1 |
+| Vaciar los DNI y el CIF | `/aviso-legal/ ha perdido: 01178330V, B-84428879` | 1 |
+| Todo correcto | `✓ Publicable.` | 0 |
+
+Estado tras integrar el pie legal con la F2 de Codex: **135 rutas verificadas en
+producción (15 idiomas × 9 rutas), 0 fallos**, con las fotos y los heroes de
+Codex intactos y los 12 diccionarios cubriendo las 419 cadenas del inventario.
+
+### Un aviso que faltaba: frases largas idénticas al español
+
+MAD detectó a ojo que el `<title>` de la portada salía en castellano en
+asturiano, mientras el verificador decía que no quedaba nada sin traducir.
+
+La regla «valor igual a la clave = el traductor dice que en su idioma se escribe
+igual» es correcta para una palabra suelta y peligrosa para una frase larga: ahí
+es casi siempre un olvido disfrazado de decisión. El verificador lo avisa ahora,
+sin abortar, porque a veces coinciden de verdad:
+
+```
+  ✓ ast         419 entradas · ⚠ 4 frases largas idénticas al español
+      ⚠ sin traducir (o idéntica): La fábrica de milagros empresariales nativos de IA
+```
+
+Segunda lección, de método: lo que se miró era un `out/` anterior a la fusión.
+**Al dar algo por verificado hay que decir contra qué build**, o el «está bien»
+no significa nada.
