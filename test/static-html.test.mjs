@@ -191,6 +191,36 @@ test("selector de idioma: aria-current en el locale activo y enlace al alternati
   }
 });
 
+test("la navegación ES/EN queda resuelta en HTML y no se rehidrata con copy español", async () => {
+  const headerSource = await readFile(
+    path.join(ROOT, "components", "site-header.tsx"),
+    "utf8",
+  );
+  assert.doesNotMatch(headerSource, /["']use client["']|usePathname/);
+
+  for (const currentRoute of ROUTES) {
+    for (const locale of LOCALES) {
+      const content = await html(locale, currentRoute);
+      for (const targetRoute of ROUTES.slice(1)) {
+        const escapedRoute = targetRoute.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+        const tag = content.match(
+          new RegExp(`<a data-route-link="${escapedRoute}"[^>]*>`),
+        )?.[0];
+        assert.ok(tag, `${locale}${currentRoute}: falta enlace a ${targetRoute}`);
+        assert.ok(
+          tag.includes(`href="${localePath(targetRoute, locale)}"`),
+          `${locale}${currentRoute}: href incorrecto para ${targetRoute}`,
+        );
+        assert.equal(
+          tag.includes('aria-current="page"'),
+          targetRoute === currentRoute,
+          `${locale}${currentRoute}: aria-current incorrecto en ${targetRoute}`,
+        );
+      }
+    }
+  }
+});
+
 test("i18n post-build: copy F2 traducido, marca y assets preservados", async () => {
   const enHome = await html("en", "/");
   assert.match(enHome, /Skip to main content/, "en/: skip-link sin traducir");

@@ -26,7 +26,7 @@ El foco no es hablar más, sino atender antes, mejor y de forma continuada.
 
 **La necesidad expresada.** En el Barómetro Sanitario de 2025, el 19,9 % de la población adulta declaró haber necesitado consultar a un profesional por un problema de salud o malestar emocional durante los doce meses anteriores ([Ministerio de Sanidad, resultados globales del Barómetro Sanitario 2025](https://www.sanidad.gob.es/gabinete/notasPrensa.do?id=6873)).
 
-**La respuesta pública reconoce la brecha.** El Plan de Acción de Salud Mental 2025-2027 incluye reforzar recursos humanos, ampliar el acceso a psicoterapia, desarrollar alternativas comunitarias a la institucionalización y mejorar los sistemas de información ([Ministerio de Sanidad, Plan de Acción de Salud Mental 2025-2027](https://www.sanidad.gob.es/areas/calidadAsistencial/estrategias/saludMental/docs/Plan_accion_salud_mental_2025_27.pdf)).
+**La respuesta pública reconoce la brecha.** El Plan de Acción de Salud Mental 2025-2027 incluye reforzar recursos humanos, impulsar el acceso a formación de calidad en psicoterapia, desarrollar alternativas comunitarias a la institucionalización y mejorar los sistemas de información ([Ministerio de Sanidad, Plan de Acción de Salud Mental 2025-2027](https://www.sanidad.gob.es/areas/calidadAsistencial/estrategias/saludMental/docs/Plan_accion_salud_mental_2025_27.pdf)).
 
 **Nuestro foco.** Construir acceso temprano y seguimiento continuo alrededor de la persona. Medir tiempo hasta la primera atención, continuidad, recuperación funcional y capacidad de sostener la vida cotidiana.
 

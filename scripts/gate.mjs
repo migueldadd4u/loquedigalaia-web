@@ -143,6 +143,15 @@ for (const locale of LOCALES) {
   }
 }
 
+const headerSource = await readFile(
+  path.join(ROOT, "components", "site-header.tsx"),
+  "utf8",
+);
+check(
+  !/["']use client["']|usePathname/.test(headerSource),
+  "la cabecera ES/EN es estática y no revierte copy al hidratar",
+);
+
 // 2) F2 sustituye todos los placeholders, tanto en ES como en EN.
 for (const locale of LOCALES) {
   for (const route of ROUTES) {

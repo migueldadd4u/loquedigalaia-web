@@ -94,22 +94,39 @@ function rewriteInternalHrefs(tag, locale) {
   });
 }
 
-/** En páginas localizadas, aria-current pasa del enlace ES al del locale activo. */
-function swapLanguageSwitcher(tag, locale) {
-  const langMatch = tag.match(/data-lang-link="([a-z]+)"/);
-  if (!langMatch) return tag;
-  const linkLocale = langMatch[1];
-  const withoutCurrent = tag.replace(/\s*aria-current="page"/, "");
-  if (linkLocale === locale) {
-    return withoutCurrent.replace(/<a\b/, `<a aria-current="page"`);
-  }
-  return withoutCurrent;
+function setAttribute(tag, name, value) {
+  const pattern = new RegExp(`\\s${escapeRegExp(name)}="[^"]*"`);
+  if (pattern.test(tag)) return tag.replace(pattern, ` ${name}="${value}"`);
+  return tag.replace(/>$/, ` ${name}="${value}">`);
 }
 
-function localizeAnchors(html, locale) {
+function markCurrent(tag, current) {
+  const withoutCurrent = tag.replace(/\s*aria-current="page"/, "");
+  return current
+    ? withoutCurrent.replace(/>$/, ' aria-current="page">')
+    : withoutCurrent;
+}
+
+/**
+ * Fija navegación, selector de idioma y enlaces editoriales desde el HTML
+ * estático. SiteHeader es un componente de servidor, así que estos atributos
+ * no pueden revertir a español durante la hidratación de /en/.
+ */
+function localizeAnchors(html, locale, routePath) {
   return html.replace(/<a\b[^>]*>/g, (tag) => {
-    if (tag.includes("data-lang-link")) return swapLanguageSwitcher(tag, locale);
-    return rewriteInternalHrefs(tag, locale);
+    const langMatch = tag.match(/data-lang-link="([a-z]+)"/);
+    if (langMatch) {
+      const linkLocale = langMatch[1];
+      const target = localePath(routePath, linkLocale);
+      return markCurrent(setAttribute(tag, "href", target), linkLocale === locale);
+    }
+
+    const localized =
+      locale === DEFAULT_LOCALE ? tag : rewriteInternalHrefs(tag, locale);
+    const routeMatch = tag.match(/data-route-link="([^"]+)"/);
+    return routeMatch
+      ? markCurrent(localized, routeMatch[1] === routePath)
+      : localized;
   });
 }
 
@@ -156,14 +173,18 @@ async function main() {
     const baseHtml = await readFile(file, "utf8");
 
     // Versión canónica (es): misma página + canonical/hreflang.
-    const canonical = injectHeadLinks(baseHtml, routePath, DEFAULT_LOCALE);
+    const canonical = injectHeadLinks(
+      localizeAnchors(baseHtml, DEFAULT_LOCALE, routePath),
+      routePath,
+      DEFAULT_LOCALE,
+    );
     await writeFile(file, canonical, "utf8");
 
     // Versiones localizadas.
     for (const locale of dictionaryLocales) {
       let html = baseHtml.replace(`lang="${DEFAULT_LOCALE}"`, `lang="${locale}"`);
       html = applyDictionary(html, dictionaries.get(locale));
-      html = localizeAnchors(html, locale);
+      html = localizeAnchors(html, locale, routePath);
       html = injectHeadLinks(html, routePath, locale);
 
       const target = path.join(OUT, locale, routePath, "index.html");
