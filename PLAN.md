@@ -1,6 +1,6 @@
 # Plan de implantación — loquedigalaIA.com
 
-Estado: **v1 — listo para ejecutar F0/F1**. Ejecutores: Kimi K3 y/o Codex, con Claude como orquestador y gate de calidad. Contrato de trabajo en [AGENTS.md](AGENTS.md).
+Estado: **v1.1 — F0 CERRADA (03/08, D1–D5 resueltas en docs/DECISIONES.md); F1 y F2 en ejecución**. Ejecutores: Kimi K3 y/o Codex, con Claude como orquestador y gate de calidad. Contrato de trabajo en [AGENTS.md](AGENTS.md).
 
 ## 0. Principios que gobiernan este plan
 
@@ -20,10 +20,10 @@ Heredados de la refactorización de add4u.com y de los principios del panel de l
 | Framework | Next.js 16 + React 19 + TypeScript | App Router |
 | Build | vinext + Vite, export estático (`build:static`) | mismo pipeline que add4u-web |
 | Estilos | Tailwind CSS 4 | tokens de color desde docs/IDENTIDAD.md |
-| i18n | Español canónico en raíz + `/<locale>/` generado post-build a partir de diccionarios JSON (`content/i18n/<locale>.json`) | mismo mecanismo que add4u-web (hreflang, canónica, sin duplicar assets) |
+| i18n | **D1 cerrada**: mismos idiomas que add4u.com — español canónico en raíz + 16 locales (`en, ca, gl, eu, va→ca-ES-valencia, oc, ast, pt, br→pt-BR, mx/co/cl/pe/ar/uy/ec→es-*`) generados post-build desde diccionarios `content/i18n/<locale>.json` | mismo mecanismo que add4u-web (hreflang, canónica, sin duplicar assets); los es-* regionales reutilizan la fuente es |
 | Datos | JSON estáticos en `data/` validados por gate en build | ver docs/DATOS.md |
 | Tests | `node --test` sobre el HTML renderizado (contenido, hreflang, accesibilidad, datos) | mismo patrón que add4u-web |
-| Hosting | **Decisión D3**: Cloudflare (como add4u.com) o GitHub Pages (como el front-office del clon). Recomendación: Cloudflare Workers/Static Assets, para compartir metodología de deploy con add4u-web | |
+| Hosting | **D3 cerrada**: Cloudflare Workers/Static Assets, para compartir metodología de deploy con add4u-web. Resolución completa en docs/DECISIONES.md | |
 | CI | GitHub Actions: lint + test en PR; cron diario de datos (F3) | |
 
 ## 2. Arquitectura de contenidos (rutas)
@@ -66,7 +66,7 @@ Cada fase termina en un **gate determinista** (script `scripts/gate.mjs`, checks
 - **Gate F2**: cero `TODO-CONTENIDO` en build; test de i18n (ninguna clave sin traducir); revisión de copy contra REGLAS de tono.
 
 ### F3 — Datos vivos (Kimi K3 + Claude)
-- [ ] Implementar el contrato de [docs/DATOS.md](docs/DATOS.md): `scripts/snapshot.mjs` descarga los JSON publicados por los dos clones, valida contra `data/schema/pulso.schema.json`, aplica reglas (consenso, monotonía donde aplique, frescura) y escribe `data/pulso.json` + `data/history.json`.
+- [ ] Implementar el contrato de [docs/DATOS.md](docs/DATOS.md): `scripts/snapshot.mjs` descarga los JSON publicados por los clones, valida contra `data/schema/pulso.schema.json`, aplica reglas (consenso, monotonía donde aplique, frescura) y escribe `data/pulso.json` + `data/history.json`. **D4 cerrada**: fase 1 solo la fuente de ClonMAD; fase 2 agrega la de Jarvis y publica la suma; indicador obligatorio desde el día 1: **total de tokens consumidos** (acumulado, monotónico).
 - [ ] Fallback por indicador: si un dato no pasa el gate, se muestra el último válido con su fecha — nunca un número inventado, nunca una página rota.
 - [ ] GitHub Action con cron diario: snapshot → si hay cambios válidos → rebuild → deploy.
 - [ ] Mientras el frontal público del Clon de MAD siga retenido (NO-GO actual), la web consume `data/sample/` y `/pulso` muestra el estado «en construcción, datos de ejemplo» de forma explícita.
@@ -76,11 +76,11 @@ Cada fase termina en un **gate determinista** (script `scripts/gate.mjs`, checks
 - [ ] Pasar la checklist completa de [docs/ACCESIBILIDAD.md](docs/ACCESIBILIDAD.md) e integrarla al test suite (contrastes computados, alt, focus visible, orden de tabulación, `prefers-reduced-motion`).
 - [ ] Imágenes generadas con IA: siempre con el distintivo de transparencia (etiqueta visible «Imagen generada con IA» conforme al art. 50 del Reglamento europeo de IA) — componente `<AiImage>` que lo impone por construcción.
 - [ ] Imágenes reales (no IA) para los 8 problemas: fotografía documental con licencia verificada (Unsplash/Wikimedia con atribución en `public/images/CREDITS.md`).
-- [ ] Fotos de los fundadores y los clones: **solo si D2 está aprobada**; se añaden en el despliegue desde `assets-privados/` (gitignored), nunca al repo.
+- [ ] Fotos de los fundadores y los clones: **D2 cerrada (sí desde el día 1)** — se incorporan al build siguiendo docs/DECISIONES.md; los ficheros los aporta un fundador desde `assets-privados/`.
 - **Gate F4**: axe-core sin violaciones AA en las 7 rutas × 2 idiomas; toda `<img>` IA lleva el distintivo; CREDITS.md cubre el 100 % de las imágenes.
 
 ### F5 — Staging y formulario (Kimi K3)
-- [ ] Deploy a staging (workers.dev o Pages preview según D3).
+- [ ] Deploy a staging en Cloudflare y puesta en marcha del dominio real según la resolución de D3 (docs/DECISIONES.md); el alta en el registrador la ejecuta un fundador.
 - [ ] Formulario de contacto/cofundadores replicando el patrón de add4u-web (worker + D1 + honeypot + rate limit) si D3=Cloudflare.
 - [ ] Verificación E2E en staging: navegación, idiomas, formulario, /pulso con datos sample.
 - **Gate F5**: E2E verde documentado en `docs/TESTING.md` con evidencia (no vale «probado»).

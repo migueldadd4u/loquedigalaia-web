@@ -4,10 +4,12 @@ La web es estática en el despliegue y viva en los datos: un cron diario descarg
 
 ## Fuentes
 
+**D4 cerrada (03/08)**: fase 1 consume solo la fuente de ClonMAD; fase 2 agrega la de Jarvis y `/pulso` publica **la suma de ambos**. Indicador obligatorio desde el día 1: **total de tokens consumidos** (`id: tokens-consumidos-total`, acumulado, `monotonic: true`).
+
 | Fuente | Qué publica | Estado |
 |---|---|---|
-| Frontal público de ClonMADv3 | JSON de actividad/eficiencia del clon | **NO-GO actual** — su contrato público está en saneado; hasta entonces se usa `data/sample/` |
-| Frontal público de Jarvis | equivalente del segundo clon | URL pendiente (decisión D4) |
+| Frontal público de ClonMADv3 | JSON de actividad/eficiencia del clon (incluye tokens consumidos) | **NO-GO actual** — su contrato público está en saneado; hasta entonces se usa `data/sample/` |
+| Frontal público de Jarvis | equivalente del segundo clon | fase 2 — URL pendiente |
 
 Las URLs concretas viven en `data/sources.json` (versionado; solo URLs públicas, jamás credenciales).
 

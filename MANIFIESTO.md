@@ -1,6 +1,6 @@
 # Manifiesto de Lo que diga la IA
 
-> **Borrador v1.** Texto pendiente de validación por los fundadores (gate F0). Esta será la única fuente del contenido de `/manifiesto`.
+> **Texto definitivo** — revisado y validado por los fundadores el 2026-08-03 (D5 cerrada). Única fuente del contenido de `/manifiesto`; solo se admiten correcciones tipográficas vía QA.
 
 ## Por qué nace esto
 
@@ -47,8 +47,8 @@ Principios de nuestra comunidad (herederos del grupo que nos demostró que esto 
 3. Hay expertos y gente que empieza: el que sabe enseña, el que no, pregunta. Sin postureo.
 4. Esto tiene parte de jungla: ruido, ideas, pruebas, errores y caos controlado. Si buscas orden perfecto, te marearás.
 5. Existimos para compartir: herramientas, aprendizajes, hallazgos y cosas que funcionan. Compartir es la actitud más inteligente.
-6. No se viene a vender humo. Si vendes algo, que sea porque aporta. Si no, te cazan.
-7. Está el grupo y están las lianas: si detectas afinidad con alguien para un proyecto concreto, crea la liana y desarrolladla fuera. El grupo facilita conexiones y celebra lo que salga de ellas; no se apropia de nada.
+6. No se viene a vender humo. Si vendes algo, que sea porque aporta. Si no, mejor cierra la boca.
+7. Está el grupo y están las lianas: si detectas afinidad con alguien para un proyecto concreto, crea la liana y desarrolladla fuera, libertad absoluta para spin-offs. El grupo facilita conexiones y celebra lo que salga de ellas; no se apropia de nada.
 8. La fricción es buena: debate, choque, criterio. Faltar al respeto, no.
 9. Nadie está atado a nada: entrar no compromete y salir no requiere explicación.
 10. Nos interesa la IA, sí. Pero sobre todo qué haces con ella y para qué. La tecnología importa; el impacto, también.
