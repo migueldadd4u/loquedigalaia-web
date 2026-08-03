@@ -11,7 +11,7 @@ Heredados de la refactorización de add4u.com y de los principios del panel de l
 3. **Nada muere en silencio.** Todo pipeline de datos tiene gate, log y fallback visible.
 4. **Estática en el despliegue, viva en los datos.** El HTML se sirve estático; los datos se renuevan con rebuild diario.
 5. **Accesibilidad AA no negociable.** Es criterio de gate, no de pulido final.
-6. **Sin datos personales en el repo.** La identidad pública de los fundadores entra solo en el despliegue, cuando ellos lo aprueben (decisión D2).
+6. **Datos personales: los públicos de los fundadores sí; los de terceros nunca.** Aclarado el 03/08: nombres, fotos y contactos públicos de los fundadores pueden versionarse (D2 aprobada, toda esa información ya es pública); si algo es privado, ellos lo dirán. Datos de terceros, credenciales y rutas privadas siguen vetados.
 
 ## 1. Stack técnico (espejo de add4u-web)
 
@@ -76,7 +76,7 @@ Cada fase termina en un **gate determinista** (script `scripts/gate.mjs`, checks
 - [ ] Pasar la checklist completa de [docs/ACCESIBILIDAD.md](docs/ACCESIBILIDAD.md) e integrarla al test suite (contrastes computados, alt, focus visible, orden de tabulación, `prefers-reduced-motion`).
 - [ ] Imágenes generadas con IA: siempre con el distintivo de transparencia (etiqueta visible «Imagen generada con IA» conforme al art. 50 del Reglamento europeo de IA) — componente `<AiImage>` que lo impone por construcción.
 - [ ] Imágenes reales (no IA) para los 8 problemas: fotografía documental con licencia verificada (Unsplash/Wikimedia con atribución en `public/images/CREDITS.md`).
-- [ ] Fotos de los fundadores y los clones: **D2 cerrada (sí desde el día 1)** — se incorporan al build siguiendo docs/DECISIONES.md; los ficheros los aporta un fundador desde `assets-privados/`.
+- [ ] Fotos de los fundadores y los clones: **D2 cerrada (sí desde el día 1)** — pueden versionarse en `public/images/` directamente (aclaración 03/08); los ficheros los aporta un fundador.
 - **Gate F4**: axe-core sin violaciones AA en las 7 rutas × 2 idiomas; toda `<img>` IA lleva el distintivo; CREDITS.md cubre el 100 % de las imágenes.
 
 ### F5 — Staging y formulario (Kimi K3)
@@ -106,6 +106,6 @@ Kimi y Codex son intercambiables en cualquier tarea técnica: el contrato es la 
 ## 5. Riesgos ya conocidos
 
 - **El frontal del Clon de MAD está en NO-GO** (contrato JSON sin sanear). La web no debe bloquearse por esto: F3 arranca con sample y el switch a datos reales es un cambio de URL en `snapshot.mjs`.
-- **Fotos = datos personales.** Nada con caras entra al repo público. Pipeline: `assets-privados/` local → se inyectan en el build de producción tras D2.
+- **Fotos de los fundadores**: pueden ir directamente a `public/images/` (aclaración del 03/08 — su identidad es pública; D2 aprobada). `assets-privados/` queda reservado para lo que ellos marquen como privado. Caras de terceros reconocibles: solo con permiso documentado.
 - **Nombre del dominio con mayúsculas** (`loquedigalaIA.com`) es solo branding: DNS es case-insensitive; usar siempre minúsculas en configuración.
 - **No convertirse en web corporativa muerta**: si `/pulso` deja de actualizarse 7 días, el cron abre un issue automáticamente (nada muere en silencio).
