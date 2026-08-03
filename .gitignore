@@ -1,0 +1,14 @@
+# Material con datos personales (fotos con caras, etc.) — NUNCA se versiona
+assets-privados/
+
+# Dependencias y builds (a partir de F1)
+node_modules/
+dist/
+.next/
+.wrangler/
+out/
+
+# Sistema
+.DS_Store
+*.log
+.env*

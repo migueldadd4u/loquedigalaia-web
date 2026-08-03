@@ -1,0 +1,31 @@
+{
+  "clone": "clonmadv3",
+  "asOf": "2026-08-03T06:00:00Z",
+  "indicators": [
+    {
+      "id": "dias-construyendo",
+      "label": "Días construyendo en público",
+      "value": 1,
+      "unit": "días",
+      "asOf": "2026-08-03",
+      "source": "sample",
+      "monotonic": true
+    },
+    {
+      "id": "tareas-despachadas-7d",
+      "label": "Tareas despachadas (últimos 7 días)",
+      "value": 42,
+      "unit": "tareas",
+      "asOf": "2026-08-03",
+      "source": "sample"
+    },
+    {
+      "id": "canales-vigilados",
+      "label": "Canales de entrada vigilados",
+      "value": 6,
+      "unit": "canales",
+      "asOf": "2026-08-03",
+      "source": "sample"
+    }
+  ]
+}
