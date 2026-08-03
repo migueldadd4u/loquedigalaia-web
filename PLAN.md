@@ -93,7 +93,7 @@ Cada fase termina en un **gate determinista** (script `scripts/gate.mjs`, checks
 
 ### F5 — Staging y formulario (Kimi K3)
 - [ ] Deploy a staging en Cloudflare y puesta en marcha del dominio real según la resolución de D3 (docs/DECISIONES.md); el alta en el registrador la ejecuta un fundador.
-- [ ] Formulario de contacto/cofundadores replicando el patrón de add4u-web (worker + D1 + honeypot + rate limit) si D3=Cloudflare.
+- [ ] Formulario de contacto/cofundadores replicando el patrón de add4u-web (worker + D1 + honeypot + rate limit). **Requisito de los fundadores (03/08): el primer campo es la pregunta «¿Qué problema grande del mundo crees que puedes arreglar con nuestra ayuda?»** — abierta y obligatoria; el resto de campos, los mínimos (nombre y un canal de respuesta).
 - [ ] Verificación E2E en staging: navegación, idiomas, formulario, /pulso con datos sample.
 - **Gate F5**: E2E verde documentado en `docs/TESTING.md` con evidencia (no vale «probado»).
 

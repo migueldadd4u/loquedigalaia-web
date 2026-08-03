@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { home, problemas, origenes, site } from "@/content/es/site";
 import { Compass } from "@/components/Compass";
-import { AiImage } from "@/components/AiImage";
 import { readPulso } from "@/lib/pulso";
 
 function Section({
@@ -32,29 +31,54 @@ export default function Home() {
 
   return (
     <>
-      <section className="py-20">
-        <div className="mx-auto max-w-5xl px-4">
-          <Compass size={56} className="mb-6" />
-          <h1 className="text-4xl sm:text-5xl max-w-3xl">{home.heroTitulo}</h1>
-          <p className="mt-6 max-w-2xl text-lg" style={{ color: "var(--fg-soft)" }}>
+      <section className="hero">
+        <div className="hero-copy">
+          <Compass size={44} className="mb-6" />
+          <h1 className="text-4xl sm:text-5xl">{home.heroTitulo}</h1>
+          <p className="mt-6 text-lg" style={{ color: "rgba(246,243,234,0.85)" }}>
             {home.heroSub}
           </p>
           <div className="mt-8 flex flex-wrap gap-4">
             <Link
               href="/cofundadores/"
               className="no-underline rounded-md px-5 py-3 font-medium"
-              style={{ background: "var(--fg)", color: "var(--bg)" }}
+              style={{ background: "#f6f3ea", color: "#1c2a30" }}
             >
               {home.heroCta}
             </Link>
             <Link
               href="/manifiesto/"
               className="no-underline rounded-md px-5 py-3 font-medium border"
-              style={{ borderColor: "var(--fg)", color: "var(--fg)" }}
+              style={{ borderColor: "#f6f3ea", color: "#f6f3ea" }}
             >
               {home.heroCtaSecundaria}
             </Link>
           </div>
+          <figure className="hero-selfie">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/images/selfie-fundadores.jpg"
+              alt="Los dos fundadores, sonrientes, el día del lanzamiento"
+            />
+            <figcaption>
+              Fotografía real, sin IA: los dos fundadores el día del
+              lanzamiento.
+            </figcaption>
+          </figure>
+        </div>
+        <div className="hero-art">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/images/poster-lanzamiento.jpg"
+            alt="Cartel del lanzamiento oficial: los dos fundadores junto a sus clones Jarvis y ClonMADv3, 2 de agosto de 2026. Imagen generada con IA."
+          />
+          <p className="image-credit m-0">Imagen generada con IA · 2026</p>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            className="ai-badge"
+            src="/images/eu-ai-generated-white.svg"
+            alt="Etiqueta de la Unión Europea: contenido generado con inteligencia artificial"
+          />
         </div>
       </section>
 
@@ -163,31 +187,6 @@ export default function Home() {
               <a href={e.href}>{e.etiqueta}</a>
             </article>
           ))}
-        </div>
-        <div className="grid sm:grid-cols-2 gap-6 mt-8 items-start">
-          <figure className="m-0">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src="/images/selfie-fundadores.jpg"
-              alt="Los dos fundadores, sonrientes, en el acto de lanzamiento"
-              className="w-full h-auto rounded-lg"
-              loading="lazy"
-            />
-            <figcaption className="text-sm mt-2" style={{ color: "var(--fg-soft)" }}>
-              Los dos fundadores el día del lanzamiento. Fotografía real.
-            </figcaption>
-          </figure>
-          <div>
-            <AiImage
-              src="/images/poster-lanzamiento.jpg"
-              alt="Cartel del lanzamiento oficial: los dos fundadores junto a sus clones Jarvis y ClonMADv3, 2 de agosto de 2026"
-              badge="top-left"
-            />
-            <p className="text-sm mt-2 mb-0" style={{ color: "var(--fg-soft)" }}>
-              El cartel del lanzamiento: dos mentes humanas, dos inteligencias
-              artificiales, un mismo propósito.
-            </p>
-          </div>
         </div>
       </Section>
 
