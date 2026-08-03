@@ -146,10 +146,10 @@ test("los ocho diccionarios traducidos coinciden exactamente con el inventario",
   if (pendientes.length) {
     console.log(`  · diccionarios pendientes (${pendientes.length}): ${pendientes.join(", ")}`);
   }
-  // Tope actual: 9 (ko, zh-TW y las lenguas de España más el portugués). Este
+  // Tope actual: 8 (zh-TW y las lenguas de España más el portugués). Este
   // número solo puede BAJAR: bájalo al escribir cada diccionario nuevo.
   assert.ok(
-    pendientes.length <= 9,
+    pendientes.length <= 8,
     `hay ${pendientes.length} diccionarios sin escribir: ${pendientes.join(", ")}`,
   );
 });
