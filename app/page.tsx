@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { Placeholder } from "@/components/placeholder";
 import { SITE, VERBOS } from "@/lib/site";
 
 export const metadata: Metadata = {
@@ -15,7 +14,11 @@ export default function HomePage() {
         <h1 id="hero" className="text-4xl font-bold tracking-tight sm:text-5xl">
           {SITE.name}
         </h1>
-        <Placeholder>Tesis en una frase (PLAN.md §2, ruta `/`).</Placeholder>
+        <p className="mt-5 max-w-3xl text-xl">
+          Construimos con vocación de interés público: problemas grandes,
+          trabajo verificable y decisiones que cambian cuando cambia la
+          evidencia.
+        </p>
         <ul className="mt-8 grid gap-4 sm:grid-cols-2">
           {VERBOS.map((verbo) => (
             <li

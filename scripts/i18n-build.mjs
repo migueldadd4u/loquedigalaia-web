@@ -34,6 +34,13 @@ function escapeRegExp(text) {
   return text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
+function boundedKeyPattern(key) {
+  const characters = [...key];
+  const startsWithWord = /[\p{L}\p{N}]/u.test(characters[0]);
+  const endsWithWord = /[\p{L}\p{N}]/u.test(characters.at(-1));
+  return `${startsWithWord ? "(?<![\\p{L}\\p{N}])" : ""}${escapeRegExp(key)}${endsWithWord ? "(?![\\p{L}\\p{N}])" : ""}`;
+}
+
 /** canonical + hreflang (es, en, x-default) antes de </head>. */
 function injectHeadLinks(html, routePath, locale) {
   const tags = [
@@ -50,13 +57,30 @@ function injectHeadLinks(html, routePath, locale) {
   return html.replace("</head>", `${tags}</head>`);
 }
 
-/** Aplica el diccionario: claves más largas primero para evitar solapes. */
+/**
+ * Aplica el diccionario en una sola pasada. Las claves más largas tienen
+ * prioridad y los valores insertados no vuelven a traducirse: así una clave
+ * corta (p. ej. «la IA») no altera una traducción o un nombre ya resuelto.
+ */
 function applyDictionary(html, strings) {
   const keys = Object.keys(strings).sort((a, b) => b.length - a.length);
-  for (const key of keys) {
-    html = html.replace(new RegExp(escapeRegExp(key), "g"), strings[key]);
-  }
-  return html;
+  if (keys.length === 0) return html;
+
+  // Los enlaces y recursos son datos, no copy: nunca se traducen. También se
+  // protegen URL absolutas serializadas en el payload de React.
+  const protectedFragments = [];
+  const protect = (fragment) => {
+    const token = `\uE000${protectedFragments.length}\uE001`;
+    protectedFragments.push(fragment);
+    return token;
+  };
+  let protectedHtml = html
+    .replace(/\b(?:href|src|action)="[^"]*"/g, protect)
+    .replace(/https?:\/\/[^\s"'<>]+/g, protect);
+
+  const pattern = new RegExp(keys.map(boundedKeyPattern).join("|"), "gu");
+  protectedHtml = protectedHtml.replace(pattern, (key) => strings[key]);
+  return protectedHtml.replace(/\uE000(\d+)\uE001/g, (_, index) => protectedFragments[Number(index)]);
 }
 
 /** Prefija con /<locale>/ los enlaces internos de página; assets intactos. */

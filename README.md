@@ -1,6 +1,6 @@
 # loquedigalaIA.com
 
-Web pública de **Lo que diga la IA** — una *venture operating company* fundada por dos personas y sus dos clones de IA (**Jarvis** y **ClonMADv3**) para construir una factoría de unicornios improbables de gente buena que resuelve problemas grandes de la humanidad.
+Web pública de **Lo que diga la IA** — una *venture operating company* que los fundadores construyen junto a sus clones de IA (**Jarvis** y **ClonMADv3**) para crear una factoría de unicornios improbables de gente buena que resuelve problemas grandes de la humanidad.
 
 Este repositorio es **público**. Política de datos (aclarada por los fundadores el 03/08): la **identidad pública de los fundadores** (nombres, fotos ya publicadas, contactos públicos) puede versionarse aquí — es información que ellos ya han hecho pública; si algo es privado, lo dirán expresamente. Lo que **nunca** entra: datos de terceros, credenciales, tokens o rutas de máquinas privadas. Ver [AGENTS.md](AGENTS.md).
 
@@ -17,7 +17,7 @@ Este repositorio es **público**. Política de datos (aclarada por los fundadore
 |---|---|
 | [PLAN.md](PLAN.md) | Plan de implantación completo por fases, con gates y reparto de trabajo |
 | [AGENTS.md](AGENTS.md) | Contrato para los agentes ejecutores (Kimi K3, Codex) y el orquestador/QA (Claude) |
-| [MANIFIESTO.md](MANIFIESTO.md) | Borrador de la constitución y los principios (pendiente de validación de los fundadores) |
+| [MANIFIESTO.md](MANIFIESTO.md) | Texto definitivo y validado de la constitución y los principios; fuente única de `/manifiesto` |
 | [docs/DATOS.md](docs/DATOS.md) | Contrato de datos vivos: esquema, gate, fallback |
 | [docs/IDENTIDAD.md](docs/IDENTIDAD.md) | Brief de identidad visual y tono |
 | [docs/ACCESIBILIDAD.md](docs/ACCESIBILIDAD.md) | Checklist AA verificable |
@@ -34,9 +34,9 @@ Esqueleto creado en F1: Next.js 16 + React 19 + TypeScript + Tailwind CSS 4, exp
 | `npm run build:static` | Sello de build (`build-stamp.mjs`) → `next build` estático (`export-static.mjs`) → generación de `/en/` (`i18n-build.mjs`) en `out/` |
 | `npm run lint` | ESLint (flat config, reglas de Next) |
 | `npm test` | Build estático + suite `node --test` sobre el HTML exportado (rutas, lang/hreflang, un `<h1>`, landmarks, skip-link, selector de idioma, diccionario, accesibilidad en CSS, cero datos personales) |
-| `npm run gate` | Gate F1 completo: lint + test + checks binarios (`scripts/gate.mjs`) |
+| `npm run gate` | Gate F2 completo: lint + test + checks binarios de contenido, fuentes e i18n (`scripts/gate.mjs`) |
 
-Las 7 rutas de PLAN.md §2 viven en `app/` con contenido placeholder marcado `TODO-CONTENIDO` (el gate F2 exigirá que desaparezca). La utilidad compartida del mecanismo i18n es `scripts/i18n-client.mjs` (rutas, locales, diccionarios).
+Las 7 rutas de PLAN.md §2 viven en `app/`. `/manifiesto` lee directamente `MANIFIESTO.md`; las páginas editoriales leen `content/es/` y se renderizan como Markdown seguro, sin HTML crudo. El diccionario completo está en `content/i18n/en.json`; la utilidad compartida del mecanismo i18n es `scripts/i18n-client.mjs`.
 
 ## Publicación
 

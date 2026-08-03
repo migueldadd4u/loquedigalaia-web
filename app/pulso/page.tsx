@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { Placeholder } from "@/components/placeholder";
 
 export const metadata: Metadata = {
   title: "Pulso",
@@ -10,17 +9,15 @@ export default function PulsoPage() {
   return (
     <>
       <h1 className="text-4xl font-bold tracking-tight">Pulso</h1>
-      {/* La fecha del último dato siempre visible (PLAN.md §2). Valor real en F3. */}
       <p className="mt-4 text-lg">
-        <span>Último dato: </span>
-        <time dateTime="2026-08-01">pendiente — datos de ejemplo</time>
+        <strong>Último dato:</strong> todavía no publicado.
       </p>
-      <Placeholder>
-        Página viva: el estado diario publicado por los dos clones (datos, no
-        relato). En F3 se conecta el pipeline de datos (snapshot + validación +
-        fallback con fecha); mientras, estado «en construcción, datos de
-        ejemplo» explícito.
-      </Placeholder>
+      <p className="mt-4 max-w-3xl text-lg">
+        El pulso está en construcción. Aquí aparecerá el estado diario que
+        publiquen Jarvis y ClonMADv3: datos con fecha de origen, validación y un
+        último valor válido si falla una actualización. Hasta entonces, no
+        presentamos muestras como resultados.
+      </p>
     </>
   );
 }

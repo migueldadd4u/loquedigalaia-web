@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { Placeholder } from "@/components/placeholder";
 
 export const metadata: Metadata = {
   title: "Contacto",
@@ -10,12 +9,18 @@ export default function ContactoPage() {
   return (
     <article>
       <h1 className="text-4xl font-bold tracking-tight">Contacto</h1>
-      <p className="mt-4 text-lg">Solicitar conversación.</p>
-      <Placeholder>
-        CTA único: solicitar conversación. Sin formulario hasta F5 (patrón
-        worker + D1 si la decisión D3 es Cloudflare). El canal de contacto
-        definitivo lo aprueban los fundadores (sin datos personales en el repo).
-      </Placeholder>
+      <p className="mt-4 max-w-3xl text-xl">
+        Una buena conversación empieza por un problema concreto.
+      </p>
+      <p className="mt-4 max-w-3xl text-lg">
+        El canal de solicitud está en preparación. No recogemos datos personales
+        desde esta página hasta que esté operativo.
+      </p>
+      <p className="mt-8 text-lg">
+        <a href="/cofundadores/" className="font-semibold underline">
+          Conoce cómo empezar
+        </a>
+      </p>
     </article>
   );
 }

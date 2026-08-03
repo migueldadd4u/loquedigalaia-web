@@ -1,10 +1,6 @@
-/**
- * Suite F1 sobre el HTML renderizado (PLAN.md §1 y §3 — patrón add4u-web):
- * rutas existen, lang/hreflang correctos, un <h1> por página, landmarks,
- * skip-link, selector de idioma, diccionario aplicado y reglas de
- * accesibilidad presentes en el CSS. Se ejecuta tras `npm run build:static`.
- */
+/** Suite F2 sobre el HTML estático renderizado (PLAN.md §1 y §3). */
 
+import { createHash } from "node:crypto";
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readdir, readFile } from "node:fs/promises";
@@ -20,6 +16,25 @@ import {
 
 const ROOT = fileURLToPath(new URL("..", import.meta.url));
 const OUT = path.join(ROOT, "out");
+const VALIDATED_MANIFESTO_SHA256 =
+  "c472ec1446633d3f0c0507164ec5a9f3bdeb365c990929e4f758154c05bfcee4";
+const INSTITUTIONAL_SOURCE_HOSTS = new Set([
+  "aesia.digital.gob.es",
+  "digital-decade-desi.digital-strategy.ec.europa.eu",
+  "digital-strategy.ec.europa.eu",
+  "digital.gob.es",
+  "ec.europa.eu",
+  "govern.cat",
+  "pnsd.sanidad.gob.es",
+  "sepe.es",
+  "www.boe.es",
+  "www.hacienda.gob.es",
+  "www.ine.es",
+  "www.interior.gob.es",
+  "www.oecd.org",
+  "www.sanidad.gob.es",
+  "www.unesco.org",
+]);
 
 function htmlFile(locale, route) {
   return path.join(OUT, localePath(route, locale), "index.html");
@@ -27,6 +42,45 @@ function htmlFile(locale, route) {
 
 async function html(locale, route) {
   return readFile(htmlFile(locale, route), "utf8");
+}
+
+function decodeHtml(text) {
+  return text
+    .replace(/&#x([0-9a-f]+);/gi, (_, hex) => String.fromCodePoint(Number.parseInt(hex, 16)))
+    .replace(/&#(\d+);/g, (_, decimal) => String.fromCodePoint(Number(decimal)))
+    .replace(/&quot;/g, '"')
+    .replace(/&#x27;|&apos;/g, "'")
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">");
+}
+
+function normalizeText(text) {
+  return decodeHtml(text)
+    .replace(/\s+/g, " ")
+    .replace(/\s+([,.;:!?])/g, "$1")
+    .trim();
+}
+
+function articleText(content) {
+  const article = content.match(/<article\b[^>]*>([\s\S]*?)<\/article>/)?.[1] ?? "";
+  const clean = article
+    .replace(/<script\b[\s\S]*?<\/script>/gi, "")
+    .replace(/<style\b[\s\S]*?<\/style>/gi, "");
+  const segments = [...clean.matchAll(/>([^<>]+)</g)].map((match) => match[1]);
+  return normalizeText(segments.join(" "));
+}
+
+function markdownText(source) {
+  return normalizeText(
+    source
+      .replace(/<!--[\s\S]*?-->/g, "")
+      .replace(/\[([^\]]+)]\([^)]+\)/g, "$1")
+      .replace(/`([^`]+)`/g, "$1")
+      .replace(/^#{1,6}\s+/gm, "")
+      .replace(/^\s*(?:>\s*|[-+]\s+|\d+\.\s+)/gm, "")
+      .replace(/[\*_~]/g, ""),
+  );
 }
 
 test("el build exporta las 7 rutas × 2 idiomas", async () => {
@@ -137,24 +191,115 @@ test("selector de idioma: aria-current en el locale activo y enlace al alternati
   }
 });
 
-test("i18n post-build: diccionario aplicado en /en/ y assets sin duplicar", async () => {
+test("i18n post-build: copy F2 traducido, marca y assets preservados", async () => {
   const enHome = await html("en", "/");
   assert.match(enHome, /Skip to main content/, "en/: skip-link sin traducir");
   assert.match(enHome, />Manifesto</, "en/: nav sin traducir");
   assert.match(enHome, /AI multiplies/, "en/: verbos sin traducir");
+  assert.match(
+    enHome,
+    /We are building with a public-interest purpose/,
+    "en/: tesis sin traducir",
+  );
   assert.doesNotMatch(enHome, />Manifiesto</, "en/: queda español en la nav");
   assert.doesNotMatch(enHome, /<html lang="es"/, "en/: queda lang=es");
+  assert.doesNotMatch(enHome, /Lo que diga AI/, "en/: nombre de marca alterado");
+  assert.match(enHome, />Lo que diga la IA</, "en/: nombre de marca ausente");
   assert.ok(enHome.includes('href="/en/manifiesto/"'), "en/: nav sin prefijo /en/");
   assert.ok(enHome.includes("/_next/"), "en/: assets deben seguir en /_next/ (sin duplicar)");
 
-  const enContacto = await html("en", "/contacto/");
-  assert.match(enContacto, /Request a conversation/, "en/contacto/: CTA sin traducir");
+  const expectations = new Map([
+    ["/manifiesto/", "The Lo que diga la IA Manifesto"],
+    ["/problemas/", "Eight problems worth serious work"],
+    ["/como-trabajamos/", "A community that builds"],
+    ["/pulso/", "not yet published"],
+    ["/cofundadores/", "The door remains open"],
+    ["/contacto/", "A good conversation begins with a specific problem"],
+  ]);
+  for (const [route, expected] of expectations) {
+    assert.ok((await html("en", route)).includes(expected), `en${route}: copy sin traducir`);
+  }
 });
 
-test("contenido pendiente marcado TODO-CONTENIDO en las 7 rutas canónicas (F1)", async () => {
-  for (const route of ROUTES) {
-    const content = await html("es", route);
-    assert.ok(content.includes("TODO-CONTENIDO"), `es${route} sin marcador TODO-CONTENIDO`);
+test("F2 no deja TODO-CONTENIDO en ninguna de las 14 páginas", async () => {
+  for (const locale of LOCALES) {
+    for (const route of ROUTES) {
+      const content = await html(locale, route);
+      assert.ok(!content.includes("TODO-CONTENIDO"), `${locale}${route} conserva un placeholder`);
+    }
+  }
+});
+
+test("/manifiesto renderiza íntegra la fuente validada sin publicar su nota editorial", async () => {
+  const source = await readFile(path.join(ROOT, "MANIFIESTO.md"), "utf8");
+  const digest = createHash("sha256").update(source).digest("hex");
+  const content = await html("es", "/manifiesto/");
+  const publicSource = source.replace(/^(# [^\n]+\n\n)>[^\n]+\n\n/, "$1");
+
+  assert.equal(digest, VALIDATED_MANIFESTO_SHA256);
+  assert.notEqual(publicSource, source, "no se encontró la nota editorial esperada");
+  assert.ok(content.includes('data-content-source="MANIFIESTO.md"'));
+  assert.ok(content.includes(`data-content-sha256="${digest}"`));
+  assert.doesNotMatch(content, /D5 cerrada|vía QA/);
+  assert.equal(articleText(content), markdownText(publicSource));
+});
+
+test("/problemas: 8 secciones y cada bloque factual enlaza una fuente pública", async () => {
+  const source = await readFile(path.join(ROOT, "content", "es", "problemas.md"), "utf8");
+  const sections = source
+    .split(/^## /m)
+    .slice(1)
+    .filter((section) => /^[1-8]\. /.test(section));
+  assert.equal(sections.length, 8);
+
+  let evidenceCount = 0;
+  let focusCount = 0;
+  for (const section of sections) {
+    const [, ...bodyLines] = section.split("\n");
+    const paragraphs = bodyLines
+      .join("\n")
+      .split(/\n\s*\n/)
+      .map((item) => item.trim())
+      .filter(Boolean);
+    const evidence = paragraphs.filter(
+      (item) => /^\*\*[^*]+\.\*\*/.test(item) && !item.startsWith("**Nuestro foco.**"),
+    );
+    evidenceCount += evidence.length;
+    const focus = paragraphs.filter((item) => item.startsWith("**Nuestro foco.**"));
+    focusCount += focus.length;
+    assert.equal(focus.length, 1);
+    assert.ok(evidence.length >= 1);
+    assert.ok(evidence.every((item) => /\]\(https:\/\//.test(item)));
+    assert.ok(paragraphs.slice(1).every((item) => item.startsWith("**")));
+  }
+  assert.equal(focusCount, 8);
+
+  const urls = [...source.matchAll(/\]\((https:\/\/[^)]+)\)/g)].map((match) => match[1]);
+  assert.ok(urls.length >= evidenceCount);
+  assert.ok(urls.every((url) => INSTITUTIONAL_SOURCE_HOSTS.has(new URL(url).hostname)));
+  const es = await html("es", "/problemas/");
+  const en = await html("en", "/problemas/");
+  for (const url of new Set(urls)) {
+    const renderedUrl = url.replaceAll("&", "&amp;");
+    assert.ok(es.includes(`href="${renderedUrl}"`), `ES no renderiza ${url}`);
+    assert.ok(en.includes(`href="${renderedUrl}"`), `EN no conserva ${url}`);
+  }
+});
+
+test("el diccionario completo se usa, se renderiza y conserva todas las cifras", async () => {
+  const dictionary = JSON.parse(
+    await readFile(path.join(ROOT, "content", "i18n", "en.json"), "utf8"),
+  );
+  const es = (await Promise.all(ROUTES.map((route) => html("es", route)))).join("\n");
+  const en = (await Promise.all(ROUTES.map((route) => html("en", route)))).join("\n");
+  const numbers = (text) =>
+    (text.match(/\d+(?:[.,]\d+)*/g) ?? [])
+      .map((number) => number.replace(",", "."));
+
+  for (const [key, value] of Object.entries(dictionary.strings)) {
+    assert.ok(es.includes(key), `clave ES sin uso: ${key}`);
+    assert.ok(en.includes(value), `valor EN no renderizado: ${value}`);
+    assert.deepEqual(numbers(value), numbers(key), `la traducción altera cifras: ${key}`);
   }
 });
 
@@ -176,7 +321,7 @@ test("CSS: focus visible, color-scheme y prefers-reduced-motion presentes", asyn
   assert.ok(css.includes("prefers-reduced-motion"), "CSS sin prefers-reduced-motion");
 });
 
-test("cero datos personales en el HTML exportado (regla 1 de AGENTS.md)", async () => {
+test("el HTML público no filtra rutas locales ni correos electrónicos", async () => {
   for (const locale of LOCALES) {
     for (const route of ROUTES) {
       const content = await html(locale, route);

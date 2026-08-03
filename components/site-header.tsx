@@ -64,7 +64,7 @@ export function SiteHeader() {
               <a
                 data-lang-link="en"
                 href={enPath(pathname)}
-                aria-label="English version"
+                aria-label="Versión en inglés"
                 className="underline decoration-transparent hover:decoration-current aria-[current=page]:font-bold aria-[current=page]:no-underline"
               >
                 EN

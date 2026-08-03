@@ -1,7 +1,4 @@
-/**
- * Datos estructurales del sitio (F1). Sin contenido editorial: eso llega en F2.
- * Las cadenas visibles aquí deben tener traducción en content/i18n/en.json.
- */
+/** Datos estructurales compartidos; toda cadena visible tiene traducción EN. */
 
 export const SITE = {
   name: "Lo que diga la IA",
@@ -31,16 +28,4 @@ export const VERBOS = [
   "El humano elige",
   "El sistema ejecuta",
   "La realidad valida",
-] as const;
-
-/** Los 8 problemas foco (PLAN.md §2, fila `/problemas`). */
-export const PROBLEMAS = [
-  "Cárceles",
-  "Salud mental",
-  "Jóvenes y trabajo",
-  "Tecnología que cambia el mundo",
-  "Educación",
-  "Soberanía tecnológica",
-  "Vivienda",
-  "Administración pública",
 ] as const;

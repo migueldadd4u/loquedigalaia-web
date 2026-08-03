@@ -71,17 +71,3 @@ a {
     transition-duration: 0.01ms !important;
   }
 }
-
-/* Marcador de contenido pendiente (F1). Visible y localizable por el gate F2. */
-.todo-contenido {
-  border: 2px dashed var(--color-copper);
-  border-radius: 0.5rem;
-  padding: 1rem 1.25rem;
-  font-style: italic;
-}
-
-@media (prefers-color-scheme: dark) {
-  .todo-contenido {
-    border-color: var(--color-copper-light);
-  }
-}
