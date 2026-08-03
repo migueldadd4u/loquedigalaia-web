@@ -1,0 +1,64 @@
+{
+  "clonmadv3": {
+    "tokens-consumidos-total": {
+      "lastValid": {
+        "value": 1063908,
+        "unit": "tokens",
+        "label": "Tokens consumidos (total acumulado)",
+        "asOf": "2026-08-03",
+        "source": "sample"
+      },
+      "series": [
+        {
+          "asOf": "2026-08-03",
+          "value": 1063908
+        }
+      ]
+    },
+    "dias-construyendo": {
+      "lastValid": {
+        "value": 1,
+        "unit": "días",
+        "label": "Días construyendo en público",
+        "asOf": "2026-08-03",
+        "source": "sample"
+      },
+      "series": [
+        {
+          "asOf": "2026-08-03",
+          "value": 1
+        }
+      ]
+    },
+    "tareas-despachadas-7d": {
+      "lastValid": {
+        "value": 42,
+        "unit": "tareas",
+        "label": "Tareas despachadas (últimos 7 días)",
+        "asOf": "2026-08-03",
+        "source": "sample"
+      },
+      "series": [
+        {
+          "asOf": "2026-08-03",
+          "value": 42
+        }
+      ]
+    },
+    "canales-vigilados": {
+      "lastValid": {
+        "value": 6,
+        "unit": "canales",
+        "label": "Canales de entrada vigilados",
+        "asOf": "2026-08-03",
+        "source": "sample"
+      },
+      "series": [
+        {
+          "asOf": "2026-08-03",
+          "value": 6
+        }
+      ]
+    }
+  }
+}
