@@ -69,6 +69,7 @@ Cada fase termina en un **gate determinista** (script `scripts/gate.mjs`, checks
 - **Gate F1**: `npm run lint` y `npm test` verdes; build estático genera las 7 rutas × 2 idiomas.
 
 ### F2 — Contenido real es/en (Codex redacta, Claude revisa)
+- [ ] **Un hero generado con IA por página**, con la etiqueta oficial de la UE superpuesta como HTML (nunca en el bitmap) — mismo patrón que add4u.com (`PageHeroArt`). Requisito de los fundadores (03/08). Se usa el componente `AiImage`/hero del sitio; ninguna página interior se queda sin su ilustración.
 - [ ] Volcar MANIFIESTO.md a `/manifiesto` (una sola fuente: el markdown se importa, no se duplica).
 - [ ] Redactar los 8 problemas con datos citables (cada afirmación con fuente pública enlazada).
 - [ ] Página cofundadores con el mensaje: los primeros en apostar y poner dinero fueron los dos fundadores humanos, pero cualquiera es bienvenido y puede ser considerado cofundador aunque venga cinco años después.
@@ -81,6 +82,7 @@ Cada fase termina en un **gate determinista** (script `scripts/gate.mjs`, checks
 - [ ] Implementar el contrato de [docs/DATOS.md](docs/DATOS.md): `scripts/snapshot.mjs` descarga los JSON publicados por los clones, valida contra `data/schema/pulso.schema.json`, aplica reglas (consenso, monotonía donde aplique, frescura) y escribe `data/pulso.json` + `data/history.json`. **D4 cerrada**: fase 1 solo la fuente de ClonMAD; fase 2 agrega la de Jarvis y publica la suma; indicador obligatorio desde el día 1: **total de tokens consumidos** (acumulado, monotónico).
 - [ ] Fallback por indicador: si un dato no pasa el gate, se muestra el último válido con su fecha — nunca un número inventado, nunca una página rota.
 - [ ] GitHub Action con cron diario: snapshot → si hay cambios válidos → rebuild → deploy.
+- [ ] **Las cifras reales del front office público de ClonMAD tienen que verse: un extracto destacado en la portada y el detalle completo en `/pulso`** (requisito de los fundadores, 03/08). La portada muestra los indicadores de cabecera (empezando por el total de tokens); `/pulso` despliega todos, con su fecha, evolución y metodología.
 - [ ] Mientras el frontal público del Clon de MAD siga retenido (NO-GO actual), la web consume `data/sample/` y `/pulso` muestra el estado «en construcción, datos de ejemplo» de forma explícita.
 - **Gate F3**: `snapshot.mjs --dry-run` verde con los sample; la página `/pulso` nunca renderiza un dato sin fecha de origen.
 

@@ -15,7 +15,7 @@ export function SiteHeader() {
           style={{ color: "var(--fg)" }}
         >
           <Compass size={30} />
-          <span className="font-semibold tracking-tight">{site.nombre}</span>
+          <span className="brand-lqdia font-semibold tracking-tight">{site.nombre}</span>
         </Link>
         <nav aria-label="Principal" className="ms-auto">
           <ul className="flex flex-wrap gap-x-4 gap-y-1 text-sm">
@@ -56,6 +56,38 @@ export function SiteFooter() {
           <Link href="/manifiesto/">Manifiesto</Link> ·{" "}
           <Link href="/pulso/">Pulso</Link>
         </p>
+        <nav aria-label="Idiomas" className="lang-switcher w-full">
+          {/* Enlaces a la portada de cada idioma. El bloque queda fuera de la
+              traducción y del prefijado (clase lang-switcher); el de español usa
+              /#inicio para que el prefijador de enlaces no lo reescriba. */}
+          <ul className="flex flex-wrap gap-x-3 gap-y-1 list-none p-0 m-0 text-xs">
+            {[
+              ["/#inicio", "Español"],
+              ["/en/", "English"],
+              ["/ca/", "Català"],
+              ["/gl/", "Galego"],
+              ["/eu/", "Euskara"],
+              ["/va/", "Valencià"],
+              ["/oc/", "Aranés"],
+              ["/ast/", "Asturianu"],
+              ["/pt/", "Português"],
+              ["/br/", "Português (BR)"],
+              ["/mx/", "Español (MX)"],
+              ["/co/", "Español (CO)"],
+              ["/cl/", "Español (CL)"],
+              ["/pe/", "Español (PE)"],
+              ["/ar/", "Español (AR)"],
+              ["/uy/", "Español (UY)"],
+              ["/ec/", "Español (EC)"],
+            ].map(([href, label]) => (
+              <li key={href}>
+                <a href={href} style={{ color: "var(--fg-soft)" }}>
+                  {label}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </nav>
       </div>
     </footer>
   );

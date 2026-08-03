@@ -13,9 +13,9 @@ Para verla: `npm install && npm run dev` (puerto 3210). El build de referencia e
 
 ## Cola de trabajo, por orden
 
-1. **Terminar F1** (rama `f1-scaffold`): portar el mecanismo i18n post-build de add4u-web (17 locales, es canónico en raíz), suite `npm test` sobre el HTML renderizado y axe-core. Gate en PLAN §F1.
+1. **Terminar F1** (rama `f1-scaffold`): el **multiidioma ya está operativo** (`npm run build:static` → 17 locales, inglés traducido al completo, sitemap con hreflang). Queda: suite `npm test` sobre el HTML renderizado, axe-core, y **las cifras reales del front office de ClonMAD en portada y en `/pulso`** (encargo de MAD). Gate en PLAN §F1.
 2. **PR y merge a `main`** cuando el gate F1 esté verde. El PR debe llevar comandos + salida.
-3. **F2**: fotos reales (no IA) de los 8 problemas con licencia y `CREDITS.md`; diccionario `en.json`; capa agentes+SEO de PLAN §2.1 (espejos `.md` por página, `llms.txt`, sitemap, JSON-LD Organization/Dataset, Open Graph con el póster).
+3. **F2**: **un hero generado con IA por página** con la etiqueta oficial UE, como en add4u.com (encargo de MAD); fotos reales (no IA) de los 8 problemas con licencia y `CREDITS.md`; los 7 diccionarios que faltan (ca, gl, eu, va, oc-aranes, ast, pt — `en.json` ya está completo; partir de `content/i18n/_inventory.json`); capa agentes+SEO de PLAN §2.1 (espejos `.md` por página, `llms.txt`, JSON-LD Organization/Dataset, Open Graph).
 4. **F3**: `scripts/snapshot.mjs` con el contrato de [DATOS.md](DATOS.md). Ojo: la fuente real (front-office de ClonMADv3) sigue **retenida**; se trabaja contra `data/sample/` y el cambio a real es solo la URL en `data/sources.json`.
 5. **F5**: formulario (worker + D1, **primer campo obligatorio: «¿Qué problema grande del mundo crees que puedes arreglar con nuestra ayuda?»**), deploy a Cloudflare y dominio real. El alta de zona y los nameservers en IONOS los ejecuta un fundador — pedírselo, no intentarlo.
 6. **F6**: checks de producción (patrón deploy-check de add4u-web).
