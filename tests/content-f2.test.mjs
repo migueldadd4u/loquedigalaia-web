@@ -31,6 +31,7 @@ async function htmlRoot(relativePath) {
 
 test("cada página y el 404 llevan un único hero IA con etiqueta UE separada", async () => {
   const pages = [...ROUTES, ["/404", "404.html"]];
+  const heroSources = [];
 
   for (const [route, relativePath] of pages) {
     const root = await htmlRoot(relativePath);
@@ -43,6 +44,7 @@ test("cada página y el 404 llevan un único hero IA con etiqueta UE separada", 
       "img[src='/images/eu-ai-generated-white.svg'], img[src='/images/eu-ai-generated-black.svg']",
     );
     assert.ok(art?.getAttribute("src")?.startsWith("/images/"), `${route}: falta ilustración`);
+    heroSources.push(art.getAttribute("src"));
     assert.ok(art?.getAttribute("alt")?.trim(), `${route}: falta alt de la ilustración`);
     assert.equal(badges.length, 1, `${route}: falta o se duplica el distintivo UE`);
     assert.notEqual(
@@ -51,12 +53,19 @@ test("cada página y el 404 llevan un único hero IA con etiqueta UE separada", 
       `${route}: el distintivo debe ser un elemento HTML separado del bitmap`,
     );
   }
+
+  assert.equal(
+    new Set(heroSources).size,
+    pages.length,
+    "cada página debe tener una ilustración de hero propia",
+  );
 });
 
 test("los ocho problemas usan fotos reales optimizadas y acreditadas", async () => {
   const root = await htmlRoot("problemas/index.html");
   const figures = root.querySelectorAll("figure[data-real-photo='true']");
   const credits = await readFile(join(ROOT, "public", "images", "CREDITS.md"), "utf8");
+  const photoSources = [];
 
   assert.equal(figures.length, 8, "debe haber una fotografía real por problema");
   for (const figure of figures) {
@@ -67,7 +76,13 @@ test("los ocho problemas usan fotos reales optimizadas y acreditadas", async () 
 
     assert.match(avif ?? "", /^\/images\/problems\/.+\.avif$/);
     assert.match(jpeg ?? "", /^\/images\/problems\/.+\.jpg$/);
+    photoSources.push(avif);
     assert.ok(image?.getAttribute("alt")?.trim(), "cada foto real necesita alt");
+    assert.equal(
+      figure.querySelectorAll("img[src*='eu-ai-generated']").length,
+      0,
+      "una foto real no debe llevar distintivo de imagen generada",
+    );
     assert.ok(existsSync(join(ROOT, "public", avif)), `falta ${avif}`);
     assert.ok(existsSync(join(ROOT, "public", jpeg)), `falta ${jpeg}`);
     assert.ok(
@@ -75,6 +90,7 @@ test("los ocho problemas usan fotos reales optimizadas y acreditadas", async () 
       `CREDITS.md no cubre ${avif}`,
     );
   }
+  assert.equal(new Set(photoSources).size, 8, "cada problema necesita su propia foto");
 
   const html = await readFile(join(OUT, "problemas", "index.html"), "utf8");
   assert.doesNotMatch(html, /Fotografía real \(no IA\) pendiente|TODO-CONTENIDO/i);
@@ -82,11 +98,12 @@ test("los ocho problemas usan fotos reales optimizadas y acreditadas", async () 
   assert.match(credits, /CC BY|CC0/);
 });
 
-test("los ocho diccionarios traducidos coinciden exactamente con el inventario", async () => {
+test("los doce diccionarios traducidos coinciden exactamente con el inventario", async () => {
   const inventory = JSON.parse(
     await readFile(join(ROOT, "content", "i18n", "_inventory.json"), "utf8"),
   );
   const expectedKeys = [...inventory].sort();
+  const unsafeCharacters = /["<>&\\]/;
   // Cadenas que deben quedarse IDÉNTICAS en todos los idiomas: la marca, los
   // nombres de personas y organizaciones, los dominios y los correos. Se listan
   // aquí —y se guardan en los diccionarios con el valor igual a la clave— para
@@ -109,6 +126,13 @@ test("los ocho diccionarios traducidos coinciden exactamente con el inventario",
   ]);
 
   assert.ok(expectedKeys.length > 200, "el inventario parece incompleto");
+  for (const source of expectedKeys) {
+    assert.doesNotMatch(
+      source,
+      unsafeCharacters,
+      `el inventario contiene una cadena no traducible: ${source}`,
+    );
+  }
   const pendientes = [];
   for (const locale of DICTIONARIES) {
     const ruta = join(ROOT, "content", "i18n", `${locale}.json`);
@@ -133,6 +157,11 @@ test("los ocho diccionarios traducidos coinciden exactamente con el inventario",
       const translated = dictionary[source];
       assert.equal(typeof translated, "string", `${locale}: ${source}`);
       assert.ok(translated.trim(), `${locale}: traducción vacía para ${source}`);
+      assert.doesNotMatch(
+        translated,
+        unsafeCharacters,
+        `${locale}: la traducción contiene un carácter no permitido en ${source}`,
+      );
       if (source.length >= 30 && !unchangedAllowed.has(source)) {
         largas += 1;
         if (translated !== source) traducidas += 1;

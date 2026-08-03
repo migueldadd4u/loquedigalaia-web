@@ -287,7 +287,7 @@ a {
 .real-photo img {
   display: block;
   width: 100%;
-  aspect-ratio: 4 / 3;
+  aspect-ratio: 16 / 9;
   object-fit: cover;
 }
 .real-photo figcaption {

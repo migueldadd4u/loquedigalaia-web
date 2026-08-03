@@ -43,9 +43,11 @@ const APP_SEGMENTS = new Set(navSegments);
 const TRANSLATABLE_ATTRS = ["alt", "title", "aria-label"];
 const META_KEYS = new Set(["description"]);
 const OG_TW = /^(og:(title|description|image:alt)|twitter:(title|description|image:alt))$/;
+const SPECIAL = /["<>&\\]/;
 
 function translatable(core) {
   if (!core || core.length < 2) return false;
+  if (SPECIAL.test(core)) return false;
   if (/^[\d\s.,%·|/–—-]+$/.test(core)) return false;
   if (/^(https?:|mailto:|tel:|\/)/.test(core)) return false;
   return /\p{L}/u.test(core);
@@ -127,7 +129,6 @@ function prefixLinks(html, prefix) {
   return html;
 }
 
-const SPECIAL = /["<>&\\]/;
 const escRe = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 function buildReplacer(dict) {
   if (!dict) return null;

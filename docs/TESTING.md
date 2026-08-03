@@ -62,10 +62,10 @@ Encargo de MAD: cifras del front office en portada y `/pulso`, `scripts/snapshot
 | Suplantación de clon | payload `clonmadv3` en fuente de otro clon | ✅ descartado (bug encontrado y corregido en la misma sesión: `--input` solo aplica a fuentes con sample) |
 | Extracto en portada | `out/index.html` | ✅ tarjeta destacada encabezada por el total de tokens (1.063.908) + 3 indicadores secundarios, cada uno con fecha y «ejemplo» |
 | /pulso completo | `out/pulso/index.html` | ✅ fecha por indicador, flags stale/fallback visibles, sección Evolución (serie + sparkline SVG sin JS) y sección Metodología (6 reglas del gate + fuentes) |
-| **Suite HTML** | `node --test tests/html.test.mjs` | ✅ 6/6: 13 rutas × 21 locales existen, un h1 por página, canonical + 22 hreflang por página, marca y nombres intactos (0 centinelas), inglés completo (419/419 cadenas con clave en `en.json`), 0 enlaces internos rotos |
+| **Suite HTML** | `node --test tests/html.test.mjs` | ✅ 6/6: 13 rutas × 21 locales existen, un h1 por página, canonical + 22 hreflang por página, marca y nombres intactos (0 centinelas), inglés completo (418/418 cadenas con clave en `en.json`), 0 enlaces internos rotos |
 | **axe-core AA** | `node --test tests/a11y.test.mjs` | ✅ 26 páginas (13 es + 13 en) × wcag2a+wcag2aa, **0 violaciones**. `color-contrast` desactivada en jsdom (sin layout); contraste medido a mano arriba (≈12:1 en el hero) |
 | Canonical páginas legales | tests html + agents-seo | ⚠️ las 5 páginas del pie heredaban el canonical de `/` → corregido con `pageMetadata({path})` en cada una |
-| **Gate completo** | `npm run gate` (lint + build estático + tests) | ✅ **45/45 tests** · tsc sin errores · 280 HTML · 419 cadenas en inventario · con traducción: en, zh, ja |
+| **Gate completo** | `npm run gate` (lint + build estático + tests + guardián de publicación) | ✅ **45/45 tests** · tsc sin errores · 280 HTML · 418 cadenas en inventario · 12 diccionarios completos |
 
 Notas: `--input` solo sustituye al sample de fuentes que lo tienen (nunca a jarvis). `pending.json` y `source-status.json` son estado entre ejecuciones del cron. Los 9 diccionarios restantes (ko, zh-TW, ca, gl, eu, va, oc-aranes, ast, pt) los asume cc (commit 46c8e98); el test de diccionarios los declara pendientes con tope decreciente.
 ## Los 21 idiomas, traducidos y verificados (2026-08-03)
@@ -142,4 +142,4 @@ Probado provocando las tres regresiones que de verdad pueden ocurrir:
 
 Estado tras integrar el pie legal con la F2 de Codex: **135 rutas verificadas en
 producción (15 idiomas × 9 rutas), 0 fallos**, con las fotos y los heroes de
-Codex intactos y los 12 diccionarios cubriendo las 419 cadenas del inventario.
+Codex intactos y los 12 diccionarios cubriendo las 418 cadenas traducibles del inventario.

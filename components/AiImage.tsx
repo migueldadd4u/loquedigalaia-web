@@ -171,22 +171,3 @@ export function RealPhoto({
     </figure>
   );
 }
-
-/* Se conserva durante la transición para que cualquier hueco restante sea
-   visible en el gate; F2 debe terminar sin instancias de este componente. */
-export function PhotoPending({ label }: { label: string }) {
-  return (
-    <div
-      role="img"
-      aria-label={`Fotografía pendiente: ${label}`}
-      className="rounded-lg border flex items-center justify-center text-center p-6 min-h-36"
-      style={{
-        borderColor: "var(--border)",
-        background: "var(--bg-alt)",
-        color: "var(--fg-soft)",
-      }}
-    >
-      <span className="text-sm">Fotografía real (no IA) pendiente · {label}</span>
-    </div>
-  );
-}

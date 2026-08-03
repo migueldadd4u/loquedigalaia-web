@@ -3,6 +3,7 @@ import { spawnSync } from "node:child_process";
 const checks = [
   ["npm", ["run", "lint"]],
   ["npm", ["test"]],
+  ["npm", ["run", "antes-de-publicar"]],
 ];
 
 for (const [command, args] of checks) {
@@ -15,4 +16,4 @@ for (const [command, args] of checks) {
   if (result.status !== 0) process.exit(result.status ?? 1);
 }
 
-console.log("gate · lint, build estático y tests deterministas: OK");
+console.log("gate · lint, build estático, tests y guardián de publicación: OK");
