@@ -1,0 +1,56 @@
+# Despliegue a producción (Cloudflare Workers Static Assets).
+#
+# Tres caminos:
+#   1. push a main que toca data/** — el snapshot diario del pulso (07:47
+#      Europe/Madrid) commitea solo cuando hay datos nuevos, y ese push
+#      dispara el despliegue: la web se actualiza sola cada noche.
+#   2. schedule — red de seguridad diaria, por si un push se perdió.
+#   3. workflow_dispatch — botón manual «Run workflow».
+#
+# Secretos necesarios (Settings → Secrets and variables → Actions):
+#   CLOUDFLARE_API_TOKEN  — token con permiso «Workers Scripts: Edit»
+#   CLOUDFLARE_ACCOUNT_ID — id de la cuenta de Cloudflare
+#
+# wrangler lee ambas de las variables de entorno; no hace falta
+# wrangler-action ni login interactivo.
+
+name: Deploy producción
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'data/**'
+  schedule:
+    # 07:53 UTC = 08:53 CET / 09:53 CEST: siempre después del snapshot
+    # diario (07:47 Europe/Madrid) en cualquier época del año.
+    - cron: '53 7 * * *'
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-produccion
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      # build:static + tests HTML/a11y + verificación i18n + chequeo
+      # antes-de-publicar + wrangler deploy. Si algo falla, no se despliega.
+      - name: Build, gates y deploy
+        run: npm run deploy
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
