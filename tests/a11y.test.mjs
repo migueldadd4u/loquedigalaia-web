@@ -22,14 +22,20 @@ async function filesBelow(dir) {
 }
 
 /* Español (raíz, la fuente) e inglés (traducción completa): las dos caras del
-   contrato de contenido. Las variantes regionales heredan el mismo HTML. */
+   contrato de contenido. Las variantes regionales heredan el mismo HTML.
+   Prefijos locales leídos de la fuente única (content/locales.ts). */
+const localesSrc = await readFile(join(process.cwd(), "content", "locales.ts"), "utf8");
+const localePrefixes = new Set(
+  [...localesSrc.matchAll(/prefix: "([^"]+)"/g)].map(([, p]) => p).filter(Boolean),
+);
 const targets = (await filesBelow(OUT))
   .map((p) => relative(OUT, p).split(sep).join("/"))
   .filter((rel) => {
     if (!rel.endsWith(".html")) return false;
     if (rel === "404.html" || rel === "404/index.html") return false;
     if (rel.split("/").some((part) => part.startsWith("_"))) return false;
-    return !rel.includes("/") || rel.startsWith("en/"); // es en la raíz + /en/
+    const first = rel.split("/")[0];
+    return !localePrefixes.has(first) || first === "en"; // raíz (es) + en/
   })
   .sort();
 assert.ok(targets.length >= 16, `páginas para axe: ${targets.length}`);
