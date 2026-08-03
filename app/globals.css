@@ -93,6 +93,106 @@ a {
   left: 0;
 }
 
+/* Selector de idioma con banderas (mismo patrón que add4u.com). El bloque lleva
+   la clase .lang-switcher: el pipeline i18n no lo traduce ni le prefija enlaces. */
+.lang-switcher {
+  position: relative;
+  flex: none;
+}
+.lang-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: inherit;
+  font: inherit;
+  font-size: 13px;
+  padding: 6px 11px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: transparent;
+  cursor: pointer;
+  min-height: 36px;
+}
+.lang-button:hover {
+  border-color: var(--accent);
+}
+.lang-name {
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+.lang-caret {
+  font-size: 10px;
+  opacity: 0.8;
+}
+.lang-flag {
+  width: 22px;
+  height: 16px;
+  object-fit: cover;
+  border-radius: 3px;
+  display: block;
+  flex: none;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.12);
+}
+.lang-menu {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 10px);
+  background: var(--bg);
+  color: var(--fg);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 8px;
+  width: 224px;
+  max-height: min(72vh, 540px);
+  overflow-y: auto;
+  box-shadow: 0 18px 50px rgba(4, 20, 33, 0.28);
+  z-index: 60;
+}
+.lang-group {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--fg-soft);
+  margin: 10px 10px 4px;
+}
+.lang-group:first-child {
+  margin-top: 2px;
+}
+.lang-item {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 9px 10px;
+  border-radius: 9px;
+  color: var(--fg);
+  text-decoration: none;
+  font-size: 15px;
+  min-height: 44px;
+}
+.lang-item:hover {
+  background: var(--bg-alt);
+}
+.lang-item.active {
+  background: var(--bg-alt);
+  font-weight: 600;
+}
+/* Cuando el selector baja de línea queda pegado a la izquierda: si el menú siguiera
+   anclado a la derecha del botón, se saldría de la pantalla (pasó a 820 px). */
+@media (max-width: 1000px) {
+  .lang-menu {
+    left: 0;
+    right: auto;
+  }
+}
+@media (max-width: 800px) {
+  .lang-name {
+    display: none;
+  }
+  .lang-menu {
+    width: 210px;
+  }
+}
+
 /* Hero partido — heredero del hero de add4u.com pero sin velo sobre la imagen:
    el texto va sobre panel de tinta sólida (contraste AA garantizado) y el
    póster se ve entero, con la etiqueta UE superpuesta como HTML, nunca

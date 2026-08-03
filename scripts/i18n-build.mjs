@@ -22,25 +22,16 @@ const OUT = process.argv[2] ?? "out";
 const BASE = "https://loquedigalaia.com";
 const DICT_DIR = "content/i18n";
 
-const locales = [
-  { id: "es",        prefix: "",    hreflang: "es",              source: "es" },
-  { id: "en",        prefix: "en",  hreflang: "en",              source: "en" },
-  { id: "ca",        prefix: "ca",  hreflang: "ca",              source: "ca" },
-  { id: "gl",        prefix: "gl",  hreflang: "gl",              source: "gl" },
-  { id: "eu",        prefix: "eu",  hreflang: "eu",              source: "eu" },
-  { id: "va",        prefix: "va",  hreflang: "ca-ES-valencia",  source: "va" },
-  { id: "oc-aranes", prefix: "oc",  hreflang: "oc",              source: "oc-aranes" },
-  { id: "ast",       prefix: "ast", hreflang: "ast",             source: "ast" },
-  { id: "pt",        prefix: "pt",  hreflang: "pt-PT",           source: "pt" },
-  { id: "es-MX",     prefix: "mx",  hreflang: "es-MX",           source: "es" },
-  { id: "es-CO",     prefix: "co",  hreflang: "es-CO",           source: "es" },
-  { id: "es-CL",     prefix: "cl",  hreflang: "es-CL",           source: "es" },
-  { id: "es-PE",     prefix: "pe",  hreflang: "es-PE",           source: "es" },
-  { id: "es-AR",     prefix: "ar",  hreflang: "es-AR",           source: "es" },
-  { id: "es-UY",     prefix: "uy",  hreflang: "es-UY",           source: "es" },
-  { id: "es-EC",     prefix: "ec",  hreflang: "es-EC",           source: "es" },
-  { id: "pt-BR",     prefix: "br",  hreflang: "pt-BR",           source: "pt" },
-];
+// Los locales salen de content/locales.ts — fuente ÚNICA compartida con el selector.
+// Antes había aquí una copia a mano y en add4u eso ya provocó divergencias: se lee el
+// TS con una expresión regular para no necesitar transpilador en el script.
+const localesSource = await readFile(new URL("../content/locales.ts", import.meta.url), "utf8");
+const locales = [...localesSource.matchAll(
+  /\{\s*id:\s*"([^"]+)",\s*prefix:\s*"([^"]*)",\s*hreflang:\s*"([^"]+)",[^}]*?source:\s*"([^"]+)"\s*\}/g,
+)].map(([, id, prefix, hreflang, source]) => ({ id, prefix, hreflang, source }));
+if (locales.length < 17 || locales[0].prefix !== "") {
+  throw new Error(`i18n-build: se leyeron ${locales.length} locales de content/locales.ts; el formato ha cambiado`);
+}
 
 // Los segmentos con prefijo de idioma salen de la fuente única de navegación
 // (content/es/site.ts) — lección de add4u: una lista a mano diverge en cuanto
@@ -167,6 +158,10 @@ function localize(html, l, route, entries) {
   html = prefixLinks(html, l.prefix);
   html = html.replace(/<html lang="es">/, `<html lang="${l.hreflang}">`);
   html = html.replace(/\\"lang\\":\\"es\\"/g, `\\"lang\\":\\"${l.hreflang}\\"`);
+  html = html.replace(
+    /(<meta property="og:url" content=")[^"]*(")/,
+    `$1${localeUrl(l, route)}$2`,
+  );
   if (html.includes('rel="canonical"')) {
     html = html.replace(/(<link rel="canonical" href=")[^"]*(")/, `$1${localeUrl(l, route)}$2`);
   } else {
