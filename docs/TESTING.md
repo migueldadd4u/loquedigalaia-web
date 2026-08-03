@@ -33,4 +33,17 @@ Registro de comprobaciones ejecutadas (regla: ningún «verificado» sin comando
 | Sitemap con alternativas | `out/sitemap.xml` | ✅ 9 rutas × 17 locales + x-default |
 | Centinelas sin restaurar | grep en la salida | ✅ 0 |
 
+## 2026-08-03 (noche) — banderas y despliegue en Cloudflare
+
+| Comprobación | Método | Resultado |
+|---|---|---|
+| Selector con banderas | clic en el botón + volcado del menú | ✅ 21 entradas en tres grupos: Idiomas (Castellano, English, 中文简体, 한국어, 日本語, Português, 中文繁體), Lenguas de España (Aranés, Asturianu, Català, Euskera, Galego, Valencià) y Variantes por país (Argentina→Uruguay) |
+| Menú fuera de pantalla | viewport 820 px | ⚠️ se salía por la izquierda al bajar de línea el selector → anclado a la izquierda por debajo de 1000 px |
+| Hidratación | clic inmediato tras cargar | ⚠️ el menú no abre hasta que hidrata React (segundos); no es un fallo, pero conviene saberlo al probar |
+| Rutas de los idiomas nuevos | curl a `/zh/ /ja/ /ko/ /tw/` | ✅ 200 |
+| **Despliegue Cloudflare** | `npx wrangler deploy` | ✅ 303 ficheros en https://loquedigalaia.add4u.workers.dev |
+| Rutas en producción | 10 rutas × 2 pasadas seguidas | ✅ todas 200; `/noexiste/` → 404 propio |
+| Propagación | primeras llamadas tras desplegar | ⚠️ 404 intermitentes durante ~2 min hasta que se propaga el manifiesto de assets |
+| Dominio propio | `dig` + API de zonas | ⏳ sigue en IONOS; no hay zona en Cloudflare y el token no puede crearla (ver DESPLIEGUE.md) |
+
 Pendiente para el gate F1 completo (Kimi): suite `npm test` automatizada (hoy la verificación fue manual instrumentada), axe-core, y los 15 diccionarios que faltan (ca, gl, eu, va, oc, ast, pt — las variantes regionales de es/pt heredan su fuente).

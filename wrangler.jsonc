@@ -1,0 +1,17 @@
+{
+  // Despliegue estático en Cloudflare Workers (Static Assets), misma metodología
+  // que add4u.com. El sitio se sirve tal cual sale de `npm run build:static`:
+  // HTML por idioma, espejos Markdown, sitemap y llms.txt. Sin servidor.
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "loquedigalaia",
+  "compatibility_date": "2026-08-03",
+  "assets": {
+    "directory": "./out",
+    // 404.html propio (la página irreverente); las rutas existen como carpetas
+    // con index.html, así que no hace falta reescritura de SPA.
+    "not_found_handling": "404-page"
+  },
+  "observability": {
+    "enabled": true
+  }
+}
