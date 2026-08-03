@@ -1,23 +1,44 @@
-/* Imágenes generadas con IA: este componente impone el distintivo de transparencia
-   (Reglamento europeo de IA, art. 50). No renderizar imágenes IA fuera de él. */
+import Link from "next/link";
+
+/* Imágenes generadas con IA: este componente impone la etiqueta oficial de la
+   Unión Europea (mismo patrón que add4u.com) — obligatoria por el reglamento
+   europeo de IA (art. 50). La etiqueta va superpuesta como HTML, nunca
+   incrustada en el bitmap, y vive en un componente precisamente para que no
+   pueda faltar en ninguna imagen. No renderizar imágenes IA fuera de él. */
+const badgePos: Record<string, string> = {
+  "bottom-right": "bottom-2 right-2",
+  "bottom-left": "bottom-2 left-2",
+  "top-right": "top-2 right-2",
+  "top-left": "top-2 left-2",
+};
+
 export function AiImage({
   src,
   alt,
   className = "",
+  badge = "bottom-right",
 }: {
   src: string;
   alt: string;
   className?: string;
+  /** Esquina donde superponer la etiqueta UE: elegir la que no tape texto relevante de la imagen. */
+  badge?: keyof typeof badgePos;
 }) {
   return (
-    <figure className={`relative overflow-hidden rounded-lg ${className}`}>
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={src} alt={alt} className="w-full h-auto" loading="lazy" />
-      <figcaption
-        className="absolute bottom-0 right-0 text-xs px-2 py-1 rounded-tl-md"
-        style={{ background: "var(--fg)", color: "var(--bg)" }}
-      >
-        Imagen generada con IA
+    <figure className={`m-0 ${className}`}>
+      <span className="relative block overflow-hidden rounded-lg">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={src} alt={alt} className="w-full h-auto" loading="lazy" />
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          className={`absolute w-28 max-w-[40%] h-auto ${badgePos[badge]}`}
+          src="/images/eu-ai-generated-white.svg"
+          alt="Etiqueta de la Unión Europea: contenido totalmente generado con inteligencia artificial"
+        />
+      </span>
+      <figcaption className="text-xs mt-1" style={{ color: "var(--fg-soft)" }}>
+        Imagen generada con IA, etiquetada con el distintivo oficial de la UE.{" "}
+        <Link href="/faq/#etiqueta-ia">Por qué lo hacemos</Link>
       </figcaption>
     </figure>
   );

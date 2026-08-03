@@ -15,6 +15,7 @@ export const nav = [
   { href: "/como-trabajamos/", label: "Cómo trabajamos" },
   { href: "/pulso/", label: "Pulso" },
   { href: "/cofundadores/", label: "Cofundadores" },
+  { href: "/faq/", label: "Preguntas" },
   { href: "/contacto/", label: "Contacto" },
 ];
 

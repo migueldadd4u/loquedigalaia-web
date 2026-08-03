@@ -181,6 +181,7 @@ export default function Home() {
             <AiImage
               src="/images/poster-lanzamiento.jpg"
               alt="Cartel del lanzamiento oficial: los dos fundadores junto a sus clones Jarvis y ClonMADv3, 2 de agosto de 2026"
+              badge="top-left"
             />
             <p className="text-sm mt-2 mb-0" style={{ color: "var(--fg-soft)" }}>
               El cartel del lanzamiento: dos mentes humanas, dos inteligencias
