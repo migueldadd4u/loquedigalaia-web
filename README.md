@@ -2,7 +2,7 @@
 
 Web pública de **Lo que diga la IA** — una *venture operating company* fundada por dos personas y sus dos clones de IA (**Jarvis** y **ClonMADv3**) para construir una factoría de unicornios improbables de gente buena que resuelve problemas grandes de la humanidad.
 
-Este repositorio es **público**. Regla innegociable: **aquí no entra ningún dato personal** (nombres completos, correos, teléfonos, direcciones, tokens, rutas privadas). Ver [AGENTS.md](AGENTS.md).
+Este repositorio es **público**. Política de datos (aclarada por los fundadores el 03/08): la **identidad pública de los fundadores** (nombres, fotos ya publicadas, contactos públicos) puede versionarse aquí — es información que ellos ya han hecho pública; si algo es privado, lo dirán expresamente. Lo que **nunca** entra: datos de terceros, credenciales, tokens o rutas de máquinas privadas. Ver [AGENTS.md](AGENTS.md).
 
 ## Qué es esta web
 

@@ -34,4 +34,4 @@ Dos regímenes, siempre distinguibles:
 1. **Generadas con IA** — solo para conceptos/ilustración de la propia empresa. Siempre con distintivo visible «Imagen generada con IA» (transparencia conforme al Reglamento europeo de IA, art. 50). Componente `<AiImage>` lo impone.
 2. **Reales, no IA** — obligatorias para los 8 problemas de la constitución: fotografía documental con licencia y atribución en `public/images/CREDITS.md`. Los problemas de personas reales se ilustran con realidad, no con síntesis.
 
-Las fotos de los fundadores y del lanzamiento (poster «Jarvis & ClonMADv3») contienen caras reales: se gestionan fuera del repo (`assets-privados/`, gitignored) y entran solo en el build de producción tras la decisión D2.
+Las fotos de los fundadores y del lanzamiento (poster «Jarvis & ClonMADv3», selfie) pueden versionarse directamente en `public/images/` — aclaración de los fundadores del 03/08: su identidad es pública y D2 está aprobada; si algún material concreto es privado, lo dirán y va a `assets-privados/` (gitignored). Caras de terceros reconocibles: solo con permiso documentado.

@@ -4,8 +4,8 @@ Este repo lo construyen varios agentes (Kimi K3, Codex, Claude) coordinados por 
 
 ## Reglas innegociables
 
-1. **Repo público = cero datos personales.** Prohibido escribir en cualquier fichero versionado: nombres y apellidos de personas físicas, correos, teléfonos, direcciones postales, rutas locales de máquinas privadas (`/Users/...`), tokens, IDs de cuentas. Los fundadores se referencian como «los fundadores» o por sus clones públicos (Jarvis, ClonMADv3). Si una tarea parece requerir un dato personal, se para y se anota en docs/DECISIONES.md.
-2. **`assets-privados/` está en .gitignore y así se queda.** Nunca hacer `git add -f` sobre él.
+1. **Datos personales: la identidad pública de los fundadores SÍ; la de terceros NO.** Aclarado por los fundadores el 03/08: aunque el repo es público, pueden versionarse sus nombres, sus fotos ya publicadas y sus datos de contacto públicos — toda esa información ya es pública por decisión suya; si algo concreto es privado, ellos lo dirán expresamente y se retira. Sigue prohibido sin excepción: datos de cualquier otra persona, credenciales/tokens, correos o teléfonos no públicos, y rutas locales de máquinas privadas (`/Users/...`). Ante la duda con un dato de terceros, se para y se anota en docs/DECISIONES.md.
+2. **`assets-privados/` está en .gitignore** para material que los fundadores marquen como privado. El material público de los fundadores puede ir directamente a `public/images/`.
 3. **Commits con autor neutro.** El repo fija `user.name`/`user.email` locales neutros; no los cambies ni firmes con identidad personal.
 4. **Trabajo por rama + PR.** Nada directo a `main`. Un PR = una fase o una tarea de fase; el PR referencia el gate que satisface.
 5. **Ningún hallazgo sin comando ejecutado.** «Verificado» significa: comando + salida en la descripción del PR. Los gates son scripts, no opiniones.

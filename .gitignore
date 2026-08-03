@@ -12,3 +12,7 @@ out/
 .DS_Store
 *.log
 .env*
+
+# Build cache
+tsconfig.tsbuildinfo
+next-env.d.ts
