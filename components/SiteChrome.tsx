@@ -56,7 +56,10 @@ export function SiteFooter() {
         </p>
         <p className="m-0 ms-auto">
           <Link href="/manifiesto/">Manifiesto</Link> ·{" "}
-          <Link href="/pulso/">Pulso</Link>
+          <Link href="/pulso/">Pulso</Link> ·{" "}
+          <a href="https://github.com/migueldadd4u/loquedigalaia-web">
+            Contribuir en GitHub
+          </a>
         </p>
       </div>
     </footer>
