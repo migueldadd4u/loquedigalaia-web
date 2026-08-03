@@ -19,6 +19,34 @@ npm run build:static && npx wrangler deploy
 
 Tras desplegar, los primeros minutos algunas rutas pueden devolver 404 mientras el manifiesto de assets se propaga por los nodos de Cloudflare — se estabiliza solo. Comprobado el 03/08: dos pasadas completas sin fallos a los ~2 minutos.
 
+## Runbook del dominio (paso a paso, 03/08)
+
+**Lo que hace un fundador** (3 minutos, en el panel de Cloudflare con la cuenta de `migueld@add4u.com`):
+
+1. *Add a site* → escribir `loquedigalaia.com` → plan **Free**.
+2. Cloudflare escanea el DNS actual y muestra **dos nameservers** propios (`algo.ns.cloudflare.com`).
+3. Entrar en IONOS → dominio `loquedigalaia.com` → **cambiar los nameservers**: quitar los cuatro `ui-dns.*` y poner los dos de Cloudflare.
+4. Avisar. La zona pasa a `active` sola cuando la propagación llega (de minutos a unas horas).
+
+⚠️ Al importar la zona, Cloudflare copiará el registro `A` que hoy apunta a `217.160.0.116` (la página de aparcamiento de IONOS). **Ese registro sobra**: el paso siguiente lo sustituye.
+
+**Lo que hago yo en cuanto la zona esté activa** (un solo comando):
+
+```bash
+cd ~/Code/loquedigalaia-web && npx wrangler deploy
+```
+
+…tras añadir a `wrangler.jsonc` este bloque, que ya está redactado y solo espera a que exista la zona:
+
+```jsonc
+"routes": [
+  { "pattern": "loquedigalaia.com", "custom_domain": true },
+  { "pattern": "www.loquedigalaia.com", "custom_domain": true }
+]
+```
+
+Cloudflare crea entonces los registros DNS y el certificado TLS por su cuenta.
+
 ## Pasos pendientes para servir en loquedigalaia.com
 
 Hoy el dominio está en **IONOS** con sus nameservers (`ns10xx.ui-dns.*`) y **no existe como zona en Cloudflare** (verificado por API: 0 zonas). El token de `wrangler login` **no tiene permiso para crear zonas** (`com.cloudflare.api.account.zone.create`), así que estos dos pasos los tiene que dar un fundador:
