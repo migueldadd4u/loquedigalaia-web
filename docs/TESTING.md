@@ -162,3 +162,22 @@ sin abortar, porque a veces coinciden de verdad:
 Segunda lección, de método: lo que se miró era un `out/` anterior a la fusión.
 **Al dar algo por verificado hay que decir contra qué build**, o el «está bien»
 no significa nada.
+
+## 2026-08-03 (cierre) — consolidación en `main` y 12 idiomas verificados
+
+Todo el trabajo repartido en ramas quedó fusionado en `main` (commit de merge
+`01866e4`), que es la base de la sesión limpia de despliegue al dominio.
+
+| Comprobación | Método | Resultado |
+|---|---|---|
+| Diccionarios vs inventario | script de sincronización sobre los 12 | ⚠️ **ninguno cuadraba**: a los 12 les sobraban 17 claves obsoletas y a los 8 nuevos les faltaban las 13 de marca, nombres y dominios → sincronizados a 419 exactas |
+| Calidad de la traducción | muestra de la misma frase en los 8 idiomas nuevos | ✅ traducción real, no copia: eu «Konponduko dugun arazorik handiena bezain handiak gara», oc «Èm tan grans coma eth mès gran problèma que resolveram», zh-TW con vocabulario de Taiwán |
+| Falso positivo del test | `npm test` | ⚠️ exigía que TODA cadena larga difiriera del castellano; «Aviso legal» es idéntico en gallego y «Política de cookies» en catalán → sustituido por un umbral del 85 %, que es lo que delata una copia |
+| Suite completa | `npm test` | ✅ 45/45 |
+| Gate | `npm run gate` | ✅ lint + build estático + tests |
+| Guardián de publicación | `node scripts/antes-de-publicar.mjs` | ✅ publicable: nada sin traducir, ningún enlace roto |
+| Títulos de los 12 idiomas | grep sobre `out/<locale>/index.html` | ✅ los 12 con título propio y la marca intacta |
+| Producción | 15 rutas de idioma × 2 pasadas | ✅ todas 200 |
+
+Pendiente conocido: los 4 indicadores del pulso siguen con `source: "sample"`, y los seis
+idiomas cooficiales están publicados sin revisión de hablante nativo.

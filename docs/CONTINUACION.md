@@ -2,33 +2,32 @@
 
 Este documento existe para que **cualquier agente** (Kimi K3, Codex, otro Claude) o persona pueda retomar el proyecto sin contexto previo. Léelo entero antes de tocar nada; después, tu fuente de trabajo es [PLAN.md](../PLAN.md) y tu contrato es [AGENTS.md](../AGENTS.md).
 
-## Estado a 2026-08-03 (tarde)
+## Estado a 2026-08-03 (cierre de jornada) — TODO CONSOLIDADO EN `main`
 
-| Rama | Contenido |
+`main` es la única base. Ya no hay ramas divergentes que reconciliar: lo que estaba
+repartido entre `f1-scaffold`, `legal-pie`, `f2-contenido` y `f4-fotos-problemas` está
+fusionado, verificado y desplegado.
+
+| Qué | Estado |
 |---|---|
-| `main` | Documentación completa: plan, contratos, manifiesto validado, decisiones D1–D5 **cerradas**, imágenes públicas de los fundadores |
-| `f1-scaffold` | **La web funciona**: Next 16 export estático, 8 rutas + 404 con contenido real en español, hero partido con las dos fotos, FAQ con JSON-LD, contacto con WhatsApp de los fundadores. Verificación con evidencia en [TESTING.md](TESTING.md) |
+| **Web en producción** | https://loquedigalaia.add4u.workers.dev — 13 rutas × 21 locales (280 HTML) |
+| **Idiomas** | **12 diccionarios completos** (es fuente + en, zh, zh-TW, ja, ko, pt, ca, gl, eu, va, oc-aranes, ast), 419 cadenas cada uno; 8 variantes por país heredan es/pt |
+| **Páginas legales** | `/aviso-legal`, `/privacidad`, `/cookies`, `/accesibilidad`, `/respaldo` en los 21 idiomas |
+| **Imágenes** | Un hero IA por página con etiqueta oficial UE + 8 fotos reales acreditadas en `/problemas` |
+| **Pulso** | `scripts/snapshot.mjs` con su gate; ⚠️ los 4 indicadores publicados siguen con `source: "sample"` |
+| **Controles** | `npm test` 45/45 · `npm run gate` OK · `node scripts/antes-de-publicar.mjs` publicable |
+| **Dominio propio** | ⏳ en curso por MAD + Codex en la rama `codex/domain-launch` |
 
-Para verla: `npm install && npm run dev` (puerto 3210). El build de referencia es `npm run build` (debe generar todas las rutas como estáticas, hoy lo hace sin errores).
+Para verla en local: `npm install && npm run dev` (puerto 3210). Para la salida real de
+producción: `npm run build:static` y servir `out/` — el dev server **no** genera las
+carpetas de idioma, que se crean tras el build.
 
 Los encargos tal y como se entregaron a cada agente están en [PROMPTS-AGENTES.md](PROMPTS-AGENTES.md).
 
-## ⚠️ Lo primero al retomar: reconciliar tres ramas
-
-La noche del 03/08 los tres trabajamos en paralelo desde puntos distintos y hay **duplicación real**. Nadie debe seguir construyendo hasta resolver esto:
-
-| Rama | Qué trae | Qué hacer |
-|---|---|---|
-| `f1-scaffold` (cc) | Scaffold + **contenido y diseño**: hero partido con fotos, 8 rutas + 404, FAQ con JSON-LD, contacto, i18n de 17 locales con `en.json` completo (258 cadenas) y la marca blindada | **Base recomendada**: es la que está verificada con evidencia y la que MAD ha visto |
-| `f1-scaffold-kimi` | **Scaffold paralelo** partiendo de antes del mío (su propio header/footer/`lib/site.ts`, su `i18n-build`, `build-stamp`, `export-static`) **+ dos piezas que a la base le faltan: `scripts/gate.mjs` y `test/static-html.test.mjs`, y `eslint.config.mjs`** | Rescatar el **gate, los tests y el eslint**; descartar el scaffold duplicado. Comparar su `i18n-build` con el de la base por si trae algo mejor |
-| `f2-contenido` (Codex) | Prosa en `content/es/{problemas,como-trabajamos,cofundadores}.md` + su propio `en.json` (189 entradas) | Fundir la prosa con `content/es/site.ts` (decidir **una** fuente: o markdown o TS, no las dos) y **fusionar los `en.json`**, no sobrescribir |
-| ~~`f2-contenido` — páginas del pie~~ **FUSIONADO Y EN PRODUCCIÓN** | Las 5 rutas legales y de respaldo (`/respaldo`, `/aviso-legal`, `/privacidad`, `/cookies`, `/accesibilidad`) se portaron a esta rama y se desplegaron el 03/08 desde la rama `legal-pie` (commit 2e63b85), con los 21 idiomas y el pie reestructurado | **Nada pendiente aquí.** Al reconciliar, la versión buena es la de `legal-pie` (`content/es/legal.ts`), NO el markdown de `f2-contenido`: ese quedó superado. D6–D8 cerradas por MAD |
-
-Causa: se les dio el encargo antes de que existiera la rama con el esqueleto, y arrancaron desde `main`. Lección para la próxima tanda: **el encargo dice desde qué commit se parte**.
-
-⚠️ **Y una trampa del árbol compartido:** los tres agentes trabajan sobre el mismo directorio, así que **la rama activa cambia bajo tus pies**. Esa noche un commit mío acabó en la rama de Codex por eso (se movió con `git branch -f` sin perder nada). Antes de cada `git add`, comprueba `git branch --show-current`.
-
-Después de reconciliar, actualiza esta tabla y borra la sección.
+⚠️ **Trampa del árbol compartido:** varios agentes trabajan sobre el mismo directorio, así
+que **la rama activa cambia bajo tus pies**. Ya pasó dos veces: un commit acabó en la rama
+de otro agente, y un fichero de test volvió atrás. **Comprueba `git branch --show-current`
+antes de cada `git add`** y `git pull` antes de empezar.
 
 > [!important] **Para publicar: `npm run deploy`. Nunca `npx wrangler deploy` a secas.**
 > `npm run deploy` compila y pasa por `scripts/antes-de-publicar.mjs`, que **aborta**
@@ -40,12 +39,11 @@ Después de reconciliar, actualiza esta tabla y borra la sección.
 
 ## Cola de trabajo, por orden
 
-1. **Terminar F1** (rama `f1-scaffold`): el **multiidioma ya está operativo** (`npm run build:static` → 17 locales, inglés traducido al completo, sitemap con hreflang). Queda: suite `npm test` sobre el HTML renderizado, axe-core, y **las cifras reales del front office de ClonMAD en portada y en `/pulso`** (encargo de MAD). Gate en PLAN §F1.
-2. **PR y merge a `main`** cuando el gate F1 esté verde. El PR debe llevar comandos + salida.
-3. **F2**: **un hero generado con IA por página** con la etiqueta oficial UE, como en add4u.com (encargo de MAD); fotos reales (no IA) de los 8 problemas con licencia y `CREDITS.md`; los 7 diccionarios que faltan (ca, gl, eu, va, oc-aranes, ast, pt — `en.json` ya está completo; partir de `content/i18n/_inventory.json`); capa agentes+SEO de PLAN §2.1 (espejos `.md` por página, `llms.txt`, JSON-LD Organization/Dataset, Open Graph).
-4. **F3**: `scripts/snapshot.mjs` con el contrato de [DATOS.md](DATOS.md). Ojo: la fuente real (front-office de ClonMADv3) sigue **retenida**; se trabaja contra `data/sample/` y el cambio a real es solo la URL en `data/sources.json`.
-5. **F5**: formulario (worker + D1, **primer campo obligatorio: «¿Qué problema grande del mundo crees que puedes arreglar con nuestra ayuda?»**), deploy a Cloudflare y dominio real. El alta de zona y los nameservers en IONOS los ejecuta un fundador — pedírselo, no intentarlo.
-6. **F6**: checks de producción (patrón deploy-check de add4u-web).
+1. **Dominio propio** (en curso, MAD + Codex): que `loquedigalaia.com` sea el punto final de despliegue. Ver [DESPLIEGUE.md](DESPLIEGUE.md).
+2. **Pulso con datos reales** (Kimi): `snapshot.mjs` funciona y `source-status.json` dice que la fuente responde, pero los 4 indicadores publicados siguen marcados `sample`. Averiguar si el frontal del clon aún no expone el contrato de [DATOS.md](DATOS.md) o si falta cablear el mapeo — y si el bloqueo es del lado del clon, decirlo en vez de darlo por cerrado.
+3. **Revisión nativa de seis idiomas**: catalán, gallego, euskera, valenciano, aranés y asturiano están publicados sin lectura de hablante nativo, y las páginas legales llevan terminología jurídica. Funcionan, pero antes de dar publicidad al lanzamiento conviene una revisión humana.
+4. **Formulario de contacto** (F5): worker + D1, **primer campo obligatorio: «¿Qué problema grande del mundo crees que puedes arreglar con nuestra ayuda?»**.
+5. **Checks de producción** (F6): patrón deploy-check de add4u-web.
 
 ## Decisiones ya tomadas — no reabrir
 
