@@ -25,6 +25,8 @@ La noche del 03/08 los tres trabajamos en paralelo desde puntos distintos y hay 
 
 Causa: se les dio el encargo antes de que existiera la rama con el esqueleto, y arrancaron desde `main`. Lección para la próxima tanda: **el encargo dice desde qué commit se parte**.
 
+⚠️ **Y una trampa del árbol compartido:** los tres agentes trabajan sobre el mismo directorio, así que **la rama activa cambia bajo tus pies**. Esa noche un commit mío acabó en la rama de Codex por eso (se movió con `git branch -f` sin perder nada). Antes de cada `git add`, comprueba `git branch --show-current`.
+
 Después de reconciliar, actualiza esta tabla y borra la sección.
 
 ## Cola de trabajo, por orden
