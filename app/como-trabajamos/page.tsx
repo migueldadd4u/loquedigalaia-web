@@ -1,11 +1,14 @@
-import type { Metadata } from "next";
 import { home } from "@/content/es/site";
+import { PageHero } from "@/components/AiImage";
+import { heroArtByRoute } from "@/content/es/heroes";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const metadata = pageMetadata({
   title: "Cómo trabajamos",
   description:
     "Venture operating company: la IA multiplica, el humano elige, el sistema ejecuta, la realidad valida.",
-};
+  path: "/como-trabajamos/",
+});
 
 const metodo = [
   {
@@ -37,40 +40,55 @@ const metodo = [
 
 export default function ComoTrabajamosPage() {
   return (
-    <div className="mx-auto max-w-4xl px-4 py-14">
-      <h1 className="text-4xl mb-8">Cómo trabajamos</h1>
-
-      <div
-        className="rounded-lg border p-6 mb-10 grid sm:grid-cols-4 gap-4 text-center"
-        style={{ borderColor: "var(--accent)" }}
-      >
-        {home.verbos.map((v) => (
-          <p key={v.accion} className="m-0">
-            <span className="block text-sm" style={{ color: "var(--fg-soft)" }}>
-              {v.verbo}
-            </span>
-            <span className="block text-xl font-semibold">{v.accion}</span>
+    <>
+      <PageHero
+        title="Cómo trabajamos"
+        eyebrow="Método"
+        description={
+          <p>
+            La IA multiplica, el humano elige, el sistema ejecuta y la realidad
+            valida. Cada pieza debe acabar en una prueba observable.
           </p>
-        ))}
-      </div>
+        }
+        {...heroArtByRoute["/como-trabajamos/"]}
+      />
+      <div className="mx-auto max-w-4xl px-4 py-14">
+        <div
+          className="rounded-lg border p-6 mb-10 grid sm:grid-cols-4 gap-4 text-center"
+          style={{ borderColor: "var(--accent)" }}
+        >
+          {home.verbos.map((v) => (
+            <p key={v.accion} className="m-0">
+              <span
+                className="block text-sm"
+                style={{ color: "var(--fg-soft)" }}
+              >
+                {v.verbo}
+              </span>
+              <span className="block text-xl font-semibold">{v.accion}</span>
+            </p>
+          ))}
+        </div>
 
-      <div className="grid gap-8">
-        {metodo.map((m) => (
-          <section key={m.titulo}>
-            <h2 className="text-2xl mb-2">{m.titulo}</h2>
-            <p className="m-0 max-w-3xl">{m.texto}</p>
-          </section>
-        ))}
-      </div>
+        <div className="grid gap-8">
+          {metodo.map((m) => (
+            <section key={m.titulo}>
+              <h2 className="text-2xl mb-2">{m.titulo}</h2>
+              <p className="m-0 max-w-3xl">{m.texto}</p>
+            </section>
+          ))}
+        </div>
 
-      <section className="mt-12">
-        <h2 className="text-2xl mb-2">Y cómo nos comportamos</h2>
-        <p className="max-w-3xl">
-          Los diez principios de nuestra comunidad — la jungla, las lianas, la
-          fricción buena y el veto al humo — están en el{" "}
-          <a href="/manifiesto/">manifiesto</a>. No son decoración: se aplican.
-        </p>
-      </section>
-    </div>
+        <section className="mt-12">
+          <h2 className="text-2xl mb-2">Y cómo nos comportamos</h2>
+          <p className="max-w-3xl">
+            Los diez principios de nuestra comunidad — la jungla, las lianas,
+            la fricción buena y el veto al humo — están en el{" "}
+            <a href="/manifiesto/">manifiesto</a>. No son decoración: se
+            aplican.
+          </p>
+        </section>
+      </div>
+    </>
   );
 }

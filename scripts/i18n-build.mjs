@@ -89,13 +89,24 @@ async function sourceHtml() {
     if (!e.isFile() || !e.name.endsWith(".html")) continue;
     const rel = relative(OUT, join(e.parentPath ?? e.path, e.name));
     if (localeDirs.has(rel.split("/")[0])) continue;
-    if (rel === "404.html") continue; // la página de error no es una ruta: sin copias ni sitemap
+    if (rel === "404.html" || rel === "404/index.html") continue; // la página de error no es una ruta: sin copias ni sitemap
     files.push(rel);
   }
   return files;
 }
 const routeOf = (rel) => "/" + rel.replace(/\.html$/, "").replace(/(^|\/)index$/, "$1").replace(/\/$/, "");
 const localeUrl = (l, route) => { const b = l.prefix ? `/${l.prefix}` : ""; return route === "/" ? BASE + (b || "/") : BASE + b + route + "/"; };
+const OG_LOCALE_DEFAULTS = {
+  es: "es_ES", en: "en_US", ca: "ca_ES", gl: "gl_ES", eu: "eu_ES",
+  oc: "oc_ES", ast: "ast_ES", pt: "pt_PT", ko: "ko_KR", ja: "ja_JP",
+  "zh-Hans": "zh_CN", "zh-Hant": "zh_TW",
+};
+function openGraphLocale(hreflang) {
+  if (OG_LOCALE_DEFAULTS[hreflang]) return OG_LOCALE_DEFAULTS[hreflang];
+  const [language, ...rest] = hreflang.split("-");
+  const territory = rest.find((part) => /^[A-Z]{2}$/.test(part));
+  return territory ? `${language}_${territory}` : hreflang.replaceAll("-", "_");
+}
 
 function alternatesBlock(route) {
   const links = locales.map((l) => `<link rel="alternate" hreflang="${l.hreflang}" href="${localeUrl(l, route)}"/>`);
@@ -145,12 +156,52 @@ function restoreNames(s) {
   return s;
 }
 
+// El reemplazo global también recorre el payload RSC, pero nunca debe traducir
+// URLs, rutas ni el Dataset canónico: son identificadores de máquina. Se blindan
+// con centinelas y se restauran antes de prefijar los enlaces del locale.
+function shieldMachineValues(html) {
+  const values = [];
+  const stash = (value) => {
+    const token = `\u0002P${values.length}\u0003`;
+    values.push(value);
+    return token;
+  };
+
+  const jsonLd = [...html.matchAll(
+    /<script\b[^>]*type="application\/ld\+json"[^>]*>([\s\S]*?)<\/script>/gi,
+  )];
+  for (const match of jsonLd) {
+    let parsed;
+    try { parsed = JSON.parse(match[1]); } catch { continue; }
+    if (parsed?.["@type"] !== "Dataset") continue;
+    // La misma cadena aparece una segunda vez escapada en el payload RSC.
+    const escaped = JSON.stringify(match[1]).slice(1, -1);
+    if (html.includes(escaped)) html = html.split(escaped).join(stash(escaped));
+    html = html.split(match[0]).join(stash(match[0]));
+  }
+
+  html = html.replace(
+    /(?<!<)(?:https?:\/\/|mailto:|tel:|\/(?![/*])|#[\p{L}\p{N}_-])[^\s"'<>\\]+/gu,
+    (value) => stash(value),
+  );
+  return {
+    html,
+    restore(value) {
+      values.forEach((original, index) => {
+        value = value.split(`\u0002P${index}\u0003`).join(original);
+      });
+      return value;
+    },
+  };
+}
+
 function translate(html, r) {
   if (!r) return html;
-  html = protectNames(html);
+  const shield = shieldMachineValues(html);
+  html = protectNames(shield.html);
   for (const [from, to] of r.longs) html = html.split(from).join(to);
   if (r.re) html = html.replace(r.re, (m) => r.map.get(m) ?? m);
-  return restoreNames(html);
+  return shield.restore(restoreNames(html));
 }
 
 function localize(html, l, route, entries) {
@@ -161,6 +212,10 @@ function localize(html, l, route, entries) {
   html = html.replace(
     /(<meta property="og:url" content=")[^"]*(")/,
     `$1${localeUrl(l, route)}$2`,
+  );
+  html = html.replace(
+    /(<meta property="og:locale" content=")[^"]*(")/,
+    `$1${openGraphLocale(l.hreflang)}$2`,
   );
   if (html.includes('rel="canonical"')) {
     html = html.replace(/(<link rel="canonical" href=")[^"]*(")/, `$1${localeUrl(l, route)}$2`);

@@ -72,6 +72,11 @@ export const home = {
   pulsoTitulo: "El pulso, en abierto",
   pulsoIntro:
     "Esta web se reconstruye cada día con los datos que publican nuestros clones. Construcción en público, con métricas, no con adjetivos.",
+  pulsoVerCompleto: "Ver el pulso completo, con evolución y metodología",
+  pulsoDatoDel: "dato del",
+  pulsoEjemplo: "ejemplo",
+  pulsoUltimoValido: "último valor válido",
+  pulsoDatoAtenuado: "dato con más de 48 h, pendiente de refresco",
 
   ctaFinalTitulo: "Hablemos",
   ctaFinal:
@@ -84,6 +89,11 @@ export const problemas = [
     id: "carceles",
     titulo: "Cárceles",
     estado: "Abandonadas",
+    foto: {
+      src: "/images/problems/carceles.avif",
+      fallbackSrc: "/images/problems/carceles.jpg",
+      alt: "Pasillo de una antigua prisión con celdas a ambos lados.",
+    },
     texto:
       "Instituciones de las que la sociedad prefiere no hablar. La reinserción real necesita gestión, datos y oportunidades, no solo muros.",
   },
@@ -91,6 +101,11 @@ export const problemas = [
     id: "salud-mental",
     titulo: "Salud mental",
     estado: "Olvidada",
+    foto: {
+      src: "/images/problems/salud-mental.avif",
+      fallbackSrc: "/images/problems/salud-mental.jpg",
+      alt: "Sala de espera vacía de un centro sanitario.",
+    },
     texto:
       "La epidemia silenciosa. Las listas de espera y el estigma dejan a demasiada gente sola justo cuando más acompañamiento necesita.",
   },
@@ -98,6 +113,11 @@ export const problemas = [
     id: "jovenes-trabajo",
     titulo: "Jóvenes y trabajo",
     estado: "Ignorados",
+    foto: {
+      src: "/images/problems/jovenes-trabajo.avif",
+      fallbackSrc: "/images/problems/jovenes-trabajo.jpg",
+      alt: "Persona rellenando una solicitud de empleo sobre una mesa.",
+    },
     texto:
       "Una generación preparada como ninguna se encuentra las puertas cerradas. El acceso al primer empleo digno es un problema de diseño, no de talento.",
   },
@@ -105,6 +125,11 @@ export const problemas = [
     id: "tecnologia",
     titulo: "La tecnología que va a cambiar el mundo",
     estado: "Temida",
+    foto: {
+      src: "/images/problems/tecnologia.avif",
+      fallbackSrc: "/images/problems/tecnologia.jpg",
+      alt: "Brazo robótico y equipos de automatización en una feria industrial.",
+    },
     texto:
       "Como nos da miedo, miramos a otro lado o hacemos una ley, pero no la probamos. Nosotros la probamos: en público y con evidencia.",
   },
@@ -112,6 +137,11 @@ export const problemas = [
     id: "educacion",
     titulo: "Educación",
     estado: "Por reconstruir",
+    foto: {
+      src: "/images/problems/educacion.avif",
+      fallbackSrc: "/images/problems/educacion.jpg",
+      alt: "Auditorio universitario vacío con filas de butacas rojas.",
+    },
     texto:
       "La universidad tiene que reconstruirse para buscar criterio y no conocimiento. El conocimiento ya es abundante; el criterio, no.",
   },
@@ -119,6 +149,11 @@ export const problemas = [
     id: "soberania",
     titulo: "Soberanía tecnológica",
     estado: "Cedida",
+    foto: {
+      src: "/images/problems/soberania.avif",
+      fallbackSrc: "/images/problems/soberania.jpg",
+      alt: "Pasillos del superordenador MareNostrum en Barcelona.",
+    },
     texto:
       "En Europa consumimos productos de otros y desarrollamos poco. Sin capacidad propia no hay decisiones propias.",
   },
@@ -126,6 +161,11 @@ export const problemas = [
     id: "vivienda",
     titulo: "Vivienda",
     estado: "Atascada",
+    foto: {
+      src: "/images/problems/vivienda.avif",
+      fallbackSrc: "/images/problems/vivienda.jpg",
+      alt: "Promoción de viviendas en construcción con andamios.",
+    },
     texto:
       "La velocidad de gestión hace imposible resolver el problema. Es, sobre todo, un problema de ejecución — nuestra especialidad.",
   },
@@ -133,6 +173,11 @@ export const problemas = [
     id: "administracion",
     titulo: "Administración pública",
     estado: "Desbordada",
+    foto: {
+      src: "/images/problems/administracion.avif",
+      fallbackSrc: "/images/problems/administracion.jpg",
+      alt: "Terminales de autoservicio en un centro de atención ciudadana.",
+    },
     texto:
       "Con los mayores ingresos de la historia, la gente siente que recibe el peor servicio público de siempre. Se puede servir mejor con lo mismo.",
   },
@@ -186,4 +231,20 @@ export const pulso = {
     "Datos publicados por los clones de los fundadores. La web se reconstruye cada día con ellos: si un dato no pasa el control de calidad, se muestra el último válido con su fecha — nunca un número inventado.",
   avisoSample:
     "Datos de ejemplo. Las fuentes reales de los clones están en proceso de publicación; este es el formato exacto con el que se mostrarán.",
+  evolucionTitulo: "Evolución",
+  evolucionIntro:
+    "Cada lectura que pasa el control de calidad queda registrada. Esta es la serie reciente de cada indicador, con la fecha de cada dato.",
+  metodologiaTitulo: "Metodología: cómo se valida cada dato",
+  metodologiaIntro:
+    "Un proceso automático descarga cada noche el pulso que publican los clones y solo reconstruye la web si hay datos válidos nuevos. El contrato completo está en docs/DATOS.md del repositorio público; estas son las reglas:",
+  metodologiaReglas: [
+    "Esquema cerrado: un JSON que no cumple el contrato se descarta entero esa noche.",
+    "Frescura: un dato con más de 48 horas se muestra atenuado y siempre con su fecha.",
+    "Monotonía: los contadores acumulados no pueden decrecer; si lo hacen, se conserva el último valor válido.",
+    "Consenso: un cambio brusco de más del 20 % solo se acepta si dos lecturas separadas al menos 5 minutos coinciden.",
+    "Reserva por indicador: si un dato falla, ese indicador — y solo ese — cae a su último valor válido. La página nunca se rompe ni inventa un número.",
+    "Nada muere en silencio: si una fuente falla 7 días seguidos, se abre una incidencia en el repositorio.",
+  ],
+  metodologiaFuentes:
+    "Fase 1: datos del clon ClonMADv3. Fase 2: suma de ClonMADv3 y Jarvis. Las URLs públicas de las fuentes viven en data/sources.json del repositorio, sin credenciales.",
 };
