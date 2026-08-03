@@ -2,6 +2,7 @@ import { problemas, home } from "@/content/es/site";
 import { PageHero, RealPhoto } from "@/components/AiImage";
 import { heroArtByRoute } from "@/content/es/heroes";
 import { pageMetadata } from "@/lib/seo";
+import Link from "next/link";
 
 export const metadata = pageMetadata({
   title: "Los problemas que nos importan",
@@ -50,6 +51,12 @@ export default function ProblemasPage() {
             </article>
           ))}
         </div>
+        <p
+          className="mt-8 text-right text-sm"
+          style={{ color: "var(--fg-soft)" }}
+        >
+          <Link href="/images/CREDITS.md">Créditos fotográficos</Link>
+        </p>
       </div>
     </>
   );

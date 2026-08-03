@@ -14,7 +14,10 @@
     "start": "npx serve out",
     "lint": "tsc --noEmit --incremental false",
     "test": "npm run build:static && node --test tests/*.test.mjs",
-    "gate": "node scripts/gate.mjs"
+    "gate": "node scripts/gate.mjs",
+    "verificar": "node scripts/verificar-i18n.mjs out",
+    "antes-de-publicar": "node scripts/antes-de-publicar.mjs out",
+    "deploy": "npm run build:static && node scripts/antes-de-publicar.mjs out && npx wrangler deploy"
   },
   "dependencies": {
     "next": "16.2.6",

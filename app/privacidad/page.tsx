@@ -1,6 +1,6 @@
 import { DocumentoLegal } from "@/components/DocumentoLegal";
-import { porRuta } from "@/content/es/legal";
 import { pageMetadata } from "@/lib/seo";
+import { porRuta } from "@/content/es/legal";
 
 const doc = porRuta["/privacidad/"];
 

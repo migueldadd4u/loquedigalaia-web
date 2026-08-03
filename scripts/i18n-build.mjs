@@ -43,9 +43,11 @@ const APP_SEGMENTS = new Set(navSegments);
 const TRANSLATABLE_ATTRS = ["alt", "title", "aria-label"];
 const META_KEYS = new Set(["description"]);
 const OG_TW = /^(og:(title|description|image:alt)|twitter:(title|description|image:alt))$/;
+const SPECIAL = /["<>&\\]/;
 
 function translatable(core) {
   if (!core || core.length < 2) return false;
+  if (SPECIAL.test(core)) return false;
   if (/^[\d\s.,%·|/–—-]+$/.test(core)) return false;
   if (/^(https?:|mailto:|tel:|\/)/.test(core)) return false;
   return /\p{L}/u.test(core);
@@ -127,7 +129,6 @@ function prefixLinks(html, prefix) {
   return html;
 }
 
-const SPECIAL = /["<>&\\]/;
 const escRe = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 function buildReplacer(dict) {
   if (!dict) return null;
@@ -181,7 +182,12 @@ function shieldMachineValues(html) {
   }
 
   html = html.replace(
-    /(?<!<)(?:https?:\/\/|mailto:|tel:|\/(?![/*])|#[\p{L}\p{N}_-])[^\s"'<>\\]+/gu,
+    // La barra suelta solo abre una ruta si NO viene pegada a letra o cifra. Sin
+    // ese matiz se blindaban trozos de prosa —«ISO/IEC 42001», «Ley 34/2002»— y
+    // la cadena dejaba de casar con su clave del diccionario: la frase entera se
+    // quedaba en español, en los 13 idiomas y sin avisar. Lo cazó
+    // scripts/verificar-i18n.mjs, que compara contra el HTML ya generado.
+    /(?<!<)(?:https?:\/\/|mailto:|tel:|(?<![\p{L}\p{N}])\/(?![/*])|#[\p{L}\p{N}_-])[^\s"'<>\\]+/gu,
     (value) => stash(value),
   );
   return {

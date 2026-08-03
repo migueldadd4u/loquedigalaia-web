@@ -167,10 +167,7 @@ export function RealPhoto({
           style={{ objectPosition }}
         />
       </picture>
-      <figcaption>
-        Fotografía real, no generada con IA.{" "}
-        <Link href="/images/CREDITS.md">Autoría y licencia</Link>
-      </figcaption>
+      <figcaption>Fotografía real, no generada con IA.</figcaption>
     </figure>
   );
 }
