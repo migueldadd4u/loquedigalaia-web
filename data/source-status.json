@@ -1,0 +1,14 @@
+{
+  "clonmadv3": {
+    "consecutiveFailures": 0,
+    "lastOk": "2026-08-03T14:44:53.151Z",
+    "lastFailure": null,
+    "lastError": null
+  },
+  "jarvis": {
+    "consecutiveFailures": 0,
+    "lastOk": null,
+    "lastFailure": null,
+    "lastError": null
+  }
+}

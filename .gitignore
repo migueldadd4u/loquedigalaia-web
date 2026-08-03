@@ -16,3 +16,6 @@ out/
 # Build cache
 tsconfig.tsbuildinfo
 next-env.d.ts
+
+# Salida del export estático
+out/

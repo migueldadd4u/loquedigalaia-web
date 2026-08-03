@@ -25,6 +25,17 @@ Heredados de la refactorización de add4u.com y de los principios del panel de l
 | Tests | `node --test` sobre el HTML renderizado (contenido, hreflang, accesibilidad, datos) | mismo patrón que add4u-web |
 | Hosting | **D3 cerrada**: Cloudflare Workers/Static Assets, para compartir metodología de deploy con add4u-web. Resolución completa en docs/DECISIONES.md | |
 | CI | GitHub Actions: lint + test en PR; cron diario de datos (F3) | |
+| Agentes + SEO | Cada página con espejo Markdown, `llms.txt`, sitemap, JSON-LD y metadatos completos (ver §2.1) | requisito de los fundadores (03/08) |
+
+## 2.1 Web legible por agentes + SEO (requisito de gate F2/F4)
+
+La web tiene dos audiencias: personas y agentes de IA. Ambas deben encontrar y entender el contenido:
+
+- **Espejo Markdown por página**: cada ruta publica su contenido también como `.md` (`/manifiesto.md`, `/problemas.md`, …) generado en build desde la misma fuente única — un agente puede leer la web entera sin parsear HTML. Índice en `/index.md`.
+- **`/llms.txt`** en raíz: qué es la empresa, mapa de contenidos con enlaces a los `.md`, contrato de datos de `/pulso` y cómo citarnos. `/robots.txt` sin bloqueos a crawlers de IA (la web es pública a propósito).
+- **SEO Google**: `sitemap.xml`, canónicas + hreflang (ya en el pipeline i18n), metadatos únicos por página, Open Graph con el poster, y **JSON-LD** (`Organization` en raíz, `FAQPage` donde aplique, `Dataset` en `/pulso`).
+- **Datos accesibles a máquina**: `/pulso` publica también el JSON validado (`/pulso.json`) con la fecha de cada dato — el mismo que hornea el HTML, nunca dos fuentes.
+- **Gate**: test que verifica que cada ruta HTML tiene su `.md` espejo con el mismo contenido textual, que `llms.txt` enlaza todos los `.md`, y que el JSON-LD valida contra schema.org.
 
 ## 2. Arquitectura de contenidos (rutas)
 
@@ -58,10 +69,12 @@ Cada fase termina en un **gate determinista** (script `scripts/gate.mjs`, checks
 - **Gate F1**: `npm run lint` y `npm test` verdes; build estático genera las 7 rutas × 2 idiomas.
 
 ### F2 — Contenido real es/en (Codex redacta, Claude revisa)
+- [ ] **Un hero generado con IA por página**, con la etiqueta oficial de la UE superpuesta como HTML (nunca en el bitmap) — mismo patrón que add4u.com (`PageHeroArt`). Requisito de los fundadores (03/08). Se usa el componente `AiImage`/hero del sitio; ninguna página interior se queda sin su ilustración.
 - [ ] Volcar MANIFIESTO.md a `/manifiesto` (una sola fuente: el markdown se importa, no se duplica).
 - [ ] Redactar los 8 problemas con datos citables (cada afirmación con fuente pública enlazada).
 - [ ] Página cofundadores con el mensaje: los primeros en apostar y poner dinero fueron los dos fundadores humanos, pero cualquiera es bienvenido y puede ser considerado cofundador aunque venga cinco años después.
 - [ ] Diccionario `content/i18n/en.json` completo.
+- [ ] Capa agentes + SEO de §2.1: espejos `.md`, `llms.txt`, sitemap, JSON-LD, Open Graph.
 - [ ] Tono según docs/IDENTIDAD.md §tono: claro, elegante, directo, ambicioso, cero humo.
 - **Gate F2**: cero `TODO-CONTENIDO` en build; test de i18n (ninguna clave sin traducir); revisión de copy contra REGLAS de tono.
 
@@ -69,6 +82,7 @@ Cada fase termina en un **gate determinista** (script `scripts/gate.mjs`, checks
 - [ ] Implementar el contrato de [docs/DATOS.md](docs/DATOS.md): `scripts/snapshot.mjs` descarga los JSON publicados por los clones, valida contra `data/schema/pulso.schema.json`, aplica reglas (consenso, monotonía donde aplique, frescura) y escribe `data/pulso.json` + `data/history.json`. **D4 cerrada**: fase 1 solo la fuente de ClonMAD; fase 2 agrega la de Jarvis y publica la suma; indicador obligatorio desde el día 1: **total de tokens consumidos** (acumulado, monotónico).
 - [ ] Fallback por indicador: si un dato no pasa el gate, se muestra el último válido con su fecha — nunca un número inventado, nunca una página rota.
 - [ ] GitHub Action con cron diario: snapshot → si hay cambios válidos → rebuild → deploy.
+- [ ] **Las cifras reales del front office público de ClonMAD tienen que verse: un extracto destacado en la portada y el detalle completo en `/pulso`** (requisito de los fundadores, 03/08). La portada muestra los indicadores de cabecera (empezando por el total de tokens); `/pulso` despliega todos, con su fecha, evolución y metodología.
 - [ ] Mientras el frontal público del Clon de MAD siga retenido (NO-GO actual), la web consume `data/sample/` y `/pulso` muestra el estado «en construcción, datos de ejemplo» de forma explícita.
 - **Gate F3**: `snapshot.mjs --dry-run` verde con los sample; la página `/pulso` nunca renderiza un dato sin fecha de origen.
 
@@ -81,7 +95,7 @@ Cada fase termina en un **gate determinista** (script `scripts/gate.mjs`, checks
 
 ### F5 — Staging y formulario (Kimi K3)
 - [ ] Deploy a staging en Cloudflare y puesta en marcha del dominio real según la resolución de D3 (docs/DECISIONES.md); el alta en el registrador la ejecuta un fundador.
-- [ ] Formulario de contacto/cofundadores replicando el patrón de add4u-web (worker + D1 + honeypot + rate limit) si D3=Cloudflare.
+- [ ] Formulario de contacto/cofundadores replicando el patrón de add4u-web (worker + D1 + honeypot + rate limit). **Requisito de los fundadores (03/08): el primer campo es la pregunta «¿Qué problema grande del mundo crees que puedes arreglar con nuestra ayuda?»** — abierta y obligatoria; el resto de campos, los mínimos (nombre y un canal de respuesta).
 - [ ] Verificación E2E en staging: navegación, idiomas, formulario, /pulso con datos sample.
 - **Gate F5**: E2E verde documentado en `docs/TESTING.md` con evidencia (no vale «probado»).
 

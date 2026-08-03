@@ -1,6 +1,7 @@
 {
   "clone": "clonmadv3",
-  "asOf": "2026-08-03T06:00:00Z",
+  "asOf": "2026-08-03",
+  "generatedAt": "2026-08-03T14:44:53.151Z",
   "indicators": [
     {
       "id": "tokens-consumidos-total",
@@ -26,7 +27,8 @@
       "value": 42,
       "unit": "tareas",
       "asOf": "2026-08-03",
-      "source": "sample"
+      "source": "sample",
+      "monotonic": false
     },
     {
       "id": "canales-vigilados",
@@ -34,7 +36,8 @@
       "value": 6,
       "unit": "canales",
       "asOf": "2026-08-03",
-      "source": "sample"
+      "source": "sample",
+      "monotonic": false
     }
   ]
 }

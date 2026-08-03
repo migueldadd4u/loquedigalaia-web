@@ -1,5 +1,7 @@
 # Checklist de accesibilidad AA
 
+**Compromiso de los fundadores (03/08):** la web es AA y multidispositivo por diseño — móvil, tablet y ordenador se verifican en cada fase con evidencia en `docs/TESTING.md`, no solo al final. El hero sigue la regla heredada de add4u.com: el texto nunca se apoya en la imagen sin protección — o va sobre panel sólido (formato actual, hero partido) o sobre degradado con contraste AA computado; la imagen de los clones se muestra sin velo para que las caras se vean.
+
 Criterio de gate (F4), no de pulido. Cada punto debe estar cubierto por un test automático sobre el HTML renderizado o, si es imposible automatizar, por una verificación manual documentada con evidencia en `docs/TESTING.md`.
 
 ## Estructura y semántica

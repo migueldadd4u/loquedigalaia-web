@@ -1,0 +1,36 @@
+{
+  "name": "loquedigalaia-web",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22.13.0"
+  },
+  "scripts": {
+    "dev": "next dev -p 3210",
+    "build": "next build",
+    "snapshot": "node scripts/snapshot.mjs",
+    "build:static": "next build && node scripts/agents-build.mjs out && node scripts/i18n-build.mjs out",
+    "start": "npx serve out",
+    "lint": "tsc --noEmit --incremental false",
+    "test": "npm run build:static && node --test tests/*.test.mjs",
+    "gate": "node scripts/gate.mjs"
+  },
+  "dependencies": {
+    "next": "16.2.6",
+    "react": "19.2.6",
+    "react-dom": "19.2.6"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "4.2.1",
+    "@types/node": "22.19.19",
+    "@types/react": "19.2.14",
+    "@types/react-dom": "19.2.3",
+    "axe-core": "^4.12.1",
+    "jsdom": "^30.0.1",
+    "node-html-parser": "^9.0.0",
+    "postcss": "8.5.6",
+    "tailwindcss": "4.2.1",
+    "typescript": "5.9.3"
+  }
+}
