@@ -127,7 +127,7 @@ export const problemas = [
     foto: {
       src: "/images/problems/salud-mental.avif",
       fallbackSrc: "/images/problems/salud-mental.jpg",
-      alt: "Sala de espera vacía de un centro sanitario.",
+      alt: "Persona sentada en la oscuridad con las rodillas recogidas y el rostro fuera de plano.",
     },
     texto:
       "La epidemia silenciosa. Las listas de espera y el estigma dejan a demasiada gente sola justo cuando más acompañamiento necesita.",
@@ -151,7 +151,7 @@ export const problemas = [
     foto: {
       src: "/images/problems/tecnologia.avif",
       fallbackSrc: "/images/problems/tecnologia.jpg",
-      alt: "Brazo robótico y equipos de automatización en una feria industrial.",
+      alt: "Manifestantes sostienen carteles que alertan sobre los riesgos de la inteligencia artificial.",
     },
     texto:
       "Como nos da miedo, miramos a otro lado o hacemos una ley, pero no la probamos. Nosotros la probamos: en público y con evidencia.",
@@ -199,7 +199,7 @@ export const problemas = [
     foto: {
       src: "/images/problems/administracion.avif",
       fallbackSrc: "/images/problems/administracion.jpg",
-      alt: "Terminales de autoservicio en un centro de atención ciudadana.",
+      alt: "Sala de una oficina pública llena de personas esperando ante mostradores numerados.",
     },
     texto:
       "Con los mayores ingresos de la historia, la gente siente que recibe el peor servicio público de siempre. Se puede servir mejor con lo mismo.",
