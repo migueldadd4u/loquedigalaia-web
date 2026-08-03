@@ -5,12 +5,18 @@
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "loquedigalaia",
   "compatibility_date": "2026-08-03",
+  // Mantener el endpoint verificado de respaldo además de los dominios propios.
+  "workers_dev": true,
   "assets": {
     "directory": "./out",
     // 404.html propio (la página irreverente); las rutas existen como carpetas
     // con index.html, así que no hace falta reescritura de SPA.
     "not_found_handling": "404-page"
   },
+  "routes": [
+    { "pattern": "loquedigalaia.com", "custom_domain": true },
+    { "pattern": "www.loquedigalaia.com", "custom_domain": true }
+  ],
   "observability": {
     "enabled": true
   }

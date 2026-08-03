@@ -181,3 +181,564 @@ Todo el trabajo repartido en ramas quedó fusionado en `main` (commit de merge
 
 Pendiente conocido: los 4 indicadores del pulso siguen con `source: "sample"`, y los seis
 idiomas cooficiales están publicados sin revisión de hablante nativo.
+
+## 2026-08-03 — publicación en loquedigalaia.com
+
+Alcance: delegación DNS, Custom Domains, retirada del aparcamiento de IONOS,
+canónica única, TLS y verificación del artefacto ya desplegado. No se modificó
+contenido ni ningún diccionario de traducción.
+
+### Base y gate anterior al despliegue
+
+```text
+$ git branch --show-current
+codex/domain-launch
+
+$ git rev-parse --short HEAD
+5d7af39
+
+$ npm run gate
+...
+✓ 45/45 tests
+✓ gate OK
+
+$ node scripts/antes-de-publicar.mjs out
+...
+✓ sitemap.xml completo
+✓ Nada queda sin traducir y ningún enlace se ha roto.
+✓ Publicable.
+```
+
+La etapa i18n del build informó 280 copias HTML localizadas (14 fuentes × 20
+prefijos) y un inventario de 419 cadenas. El artefacto completo contiene 296
+ficheros HTML: 273 páginas de contenido, 21 copias de `/_not-found/` y los dos
+ficheros 404 de Next/export.
+
+```text
+$ find out -type f -name '*.html' | wc -l
+296
+$ find out -type f -name '*.html' | rg -v '/_not-found/index\.html$|/404(?:/index)?\.html$' | wc -l
+273
+$ find out -type f -path '*/_not-found/index.html' | wc -l
+21
+$ find out -type f \( -path '*/404.html' -o -path '*/404/index.html' \) | wc -l
+2
+```
+
+El mensaje `sitemap.xml completo` del guardián significa únicamente que las
+rutas legales exigidas están presentes; ese guardián no cuenta las URLs ni
+excluye `/_not-found/`. La inspección semántica independiente figura al final.
+
+### Gate del commit local entregado a Claude
+
+Después de detectar que `origin/main` había avanzado, el commit de dominio se
+rebasó sobre `9503a39` y se repitieron gate y guardián. Salida final literal:
+
+```text
+$ git branch --show-current
+codex/domain-launch
+$ git rev-parse --short origin/main
+9503a39
+
+$ npm run gate
+...
+i18n-build · 21 locales · 280 HTML generados · 416 strings en inventario · con traducción: en, zh, ko, ja, pt, zh-TW, oc-aranes, ast, ca, eu, gl, va, pt-BR
+1..45
+# tests 45
+# pass 45
+# fail 0
+gate · lint, build estático y tests deterministas: OK
+
+$ node scripts/antes-de-publicar.mjs out
+...
+Idiomas
+  ✓ los 20 idiomas tienen todas sus páginas
+Rastro
+  ✓ sitemap.xml completo
+✓ Nada queda sin traducir y ningún enlace se ha roto.
+✓ Publicable.
+```
+
+No se hizo `push` ni un nuevo despliegue desde esta rama: esos dos pasos forman
+parte del relevo solicitado a Claude.
+
+### Delegación, DNS y correo preservado
+
+Cloudflare activó la zona con los nameservers asignados. Después se eliminaron
+los cuatro registros de aparcamiento importados (A y AAAA de apex y `www`) y
+se desplegaron los Custom Domains. Consulta final contra el nameserver
+autoritativo:
+
+```text
+$ dig +short @damien.ns.cloudflare.com loquedigalaia.com NS
+damien.ns.cloudflare.com.
+hope.ns.cloudflare.com.
+
+$ dig +short @damien.ns.cloudflare.com loquedigalaia.com A
+188.114.96.5
+188.114.97.5
+
+$ dig +short @damien.ns.cloudflare.com loquedigalaia.com AAAA
+2a06:98c1:3120::5
+2a06:98c1:3121::5
+
+$ dig +short @damien.ns.cloudflare.com www.loquedigalaia.com A
+188.114.97.5
+188.114.96.5
+
+$ dig +short @damien.ns.cloudflare.com www.loquedigalaia.com AAAA
+2a06:98c1:3120::5
+2a06:98c1:3121::5
+
+$ dig +short DS loquedigalaia.com
+(sin salida: no quedó un DS antiguo en el registrador)
+```
+
+En apex y `www` ya no se publica ninguna de las dos IP de IONOS
+(`217.160.0.116`, `2001:8d8:100f:f000::200`). Los registros de correo
+permanecen:
+
+```text
+$ dig +short @damien.ns.cloudflare.com loquedigalaia.com MX
+10 mx00.ionos.es.
+10 mx01.ionos.es.
+
+$ dig +short @damien.ns.cloudflare.com loquedigalaia.com TXT
+"v=spf1 include:_spf-eu.ionos.com ~all"
+
+$ for name in autodiscover _dmarc _domainconnect; do
+>   dig +short @damien.ns.cloudflare.com "$name.loquedigalaia.com" CNAME
+> done
+adsredir.ionos.info.
+dmarc.ionos.es.
+_domainconnect.ionos.com.
+```
+
+La inspección del volcado accesible de la tabla **DNS → Records** confirmó
+además el inventario gestionado tras el borrado. Resumen de esa inspección (no
+es salida de shell):
+
+```text
+You have used 8 of 200 available DNS records in this domain.
+oldIpv4After: 0
+oldIpv6After: 0
+mail: mx00=true mx01=true spf=true autodiscover=true dmarc=true domainconnect=true
+managedWorker: apex=true www=true
+```
+
+Los ocho registros visibles son los seis de correo anteriores y los dos
+registros `Worker loquedigalaia · Proxied` gestionados por los Custom Domains.
+
+### Delegación pública y cachés al entregar el relevo
+
+La delegación normal —sin consultar directamente al autoritativo— ya apunta a
+Cloudflare:
+
+```text
+$ dig +short NS loquedigalaia.com
+hope.ns.cloudflare.com.
+damien.ns.cloudflare.com.
+```
+
+Google Public DNS ya resolvía y navegaba íntegramente por Cloudflare sin fijar
+ninguna IP:
+
+```bash
+curl --silent --show-error --head --output /dev/null \
+  --doh-url https://dns.google/dns-query --proto '=https' --tlsv1.2 \
+  --write-out 'DoH apex HTTPS=%{http_code} SSL_VERIFY=%{ssl_verify_result} IP=%{remote_ip}\n' \
+  https://loquedigalaia.com/
+curl --silent --show-error --head --output /dev/null \
+  --doh-url https://dns.google/dns-query \
+  --write-out 'DoH www HTTPS=%{http_code} LOCATION=%{redirect_url} SSL_VERIFY=%{ssl_verify_result} IP=%{remote_ip}\n' \
+  'https://www.loquedigalaia.com/faq/?canonical_probe=doh'
+```
+
+```text
+DoH apex HTTPS=200 SSL_VERIFY=0 IP=188.114.96.5
+DoH www HTTPS=301 LOCATION=https://loquedigalaia.com/faq/?canonical_probe=doh SSL_VERIFY=0 IP=188.114.96.5
+```
+
+La propagación recursiva global no se registró aún como cerrada. En la última
+ronda antes del relevo, Google estaba limpio pero un nodo anycast de 1.1.1.1
+seguía sirviendo parte del TTL antiguo:
+
+```text
+$ date -u +%FT%TZ
+2026-08-03T18:29:54Z
+$ for resolver in 1.1.1.1 8.8.8.8; do
+>   for name in loquedigalaia.com www.loquedigalaia.com; do
+>     a="$(dig +short @"$resolver" "$name" A | paste -sd, -)"
+>     aaaa="$(dig +short @"$resolver" "$name" AAAA | paste -sd, -)"
+>     printf '%s %s A=%s; AAAA=%s\n' "$resolver" "$name" "$a" "$aaaa"
+>   done
+> done
+1.1.1.1 loquedigalaia.com A=217.160.0.116; AAAA=2001:8d8:100f:f000::200
+1.1.1.1 www.loquedigalaia.com A=188.114.96.5,188.114.97.5; AAAA=2001:8d8:100f:f000::200
+8.8.8.8 loquedigalaia.com A=188.114.97.5,188.114.96.5; AAAA=2a06:98c1:3121::5,2a06:98c1:3120::5
+8.8.8.8 www.loquedigalaia.com A=188.114.96.5,188.114.97.5; AAAA=2a06:98c1:3121::5,2a06:98c1:3120::5
+```
+
+Por ello queda pendiente para quien tome el relevo: obtener dos rondas
+consecutivas en 1.1.1.1 y 8.8.8.8 sin ninguna IP de IONOS y después ejecutar
+`curl` normal —sin `--resolve` ni `--doh-url`— para apex y `www`.
+
+### Despliegue de Worker y Custom Domains
+
+El primer intento detectó correctamente la colisión con el A de aparcamiento:
+
+```text
+$ npx wrangler deploy
+...
+Hostname 'loquedigalaia.com' already has externally managed DNS records
+(A, CNAME, etc). Delete them first or try a different hostname. [code: 100117]
+Successful trigger changes were not rolled back.
+```
+
+No se ignoró el fallo: se borraron los cuatro registros web de IONOS y se
+repitió el despliegue. Resultado final:
+
+```text
+$ npx wrangler deploy
+...
+Deployed loquedigalaia triggers
+  https://loquedigalaia.add4u.workers.dev
+  loquedigalaia.com (custom domain)
+  www.loquedigalaia.com (custom domain)
+Current Version ID: c067f344-6513-4aef-9d63-cdf6942da38e
+```
+
+Ese despliegue estableció los dominios, pero dejó de ser la versión actual al
+detectarse un despliegue concurrente posterior desde la misma cuenta:
+
+```text
+$ npx wrangler deployments list
+...
+Created:     2026-08-03T18:19:24.151Z
+Author:      migueld@add4u.com
+Version(s):  (100%) 238940d6-a552-4ce5-a917-8485721dc1b0
+                 Created:  2026-08-03T18:19:21.891Z
+```
+
+Por tanto, todas las comprobaciones finales se repitieron sobre
+`238940d6-a552-4ce5-a917-8485721dc1b0`; no se dio por vigente la evidencia de
+la versión anterior.
+
+`workers_dev: true` quedó explícito en `wrangler.jsonc`: al añadir rutas,
+Wrangler lo deshabilitó por defecto y la comprobación detectó un 404 en la URL
+de respaldo:
+
+```text
+$ curl -sS -o /dev/null -w 'workers.dev HTTP=%{http_code}\n' \
+>   https://loquedigalaia.add4u.workers.dev/
+workers.dev HTTP=404
+```
+
+El despliegue final la restauró:
+
+```text
+$ curl -sS -o /dev/null \
+>   -w 'workers.dev HTTP=%{http_code} SSL_VERIFY=%{ssl_verify_result}\n' \
+>   https://loquedigalaia.add4u.workers.dev/
+workers.dev HTTP=200 SSL_VERIFY=0
+```
+
+### Canónica y redirección
+
+Se desplegó en Cloudflare la Single Redirect
+`www-to-apex-canonical`: filtro
+`http.host eq "www.loquedigalaia.com"`, destino dinámico
+`concat("https://loquedigalaia.com", http.request.uri.path)`, código 301 y
+conservación de query activada. El listado del panel mostró la regla
+`Active`. También se activó `Always Use HTTPS`; el panel confirmó
+`checkbox "Always Use HTTPS" [checked]`.
+
+```bash
+for host in loquedigalaia.com www.loquedigalaia.com; do
+  curl --silent --show-error --head --output /dev/null \
+    --resolve "$host:80:188.114.96.5" \
+    --write-out "$host HTTP=%{http_code} LOCATION=%{redirect_url} IP=%{remote_ip}\n" \
+    "http://$host/faq/?canonical_probe=plain-http"
+done
+for host in loquedigalaia.com www.loquedigalaia.com; do
+  curl --silent --show-error --head --output /dev/null \
+    --resolve "$host:443:188.114.96.5" \
+    --write-out "$host HTTPS=%{http_code} LOCATION=%{redirect_url} SSL_VERIFY=%{ssl_verify_result} IP=%{remote_ip}\n" \
+    "https://$host/faq/?canonical_probe=https"
+done
+```
+
+```text
+loquedigalaia.com HTTP=301 LOCATION=https://loquedigalaia.com/faq/?canonical_probe=plain-http IP=188.114.96.5
+www.loquedigalaia.com HTTP=301 LOCATION=https://loquedigalaia.com/faq/?canonical_probe=plain-http IP=188.114.96.5
+loquedigalaia.com HTTPS=200 LOCATION= SSL_VERIFY=0 IP=188.114.96.5
+www.loquedigalaia.com HTTPS=301 LOCATION=https://loquedigalaia.com/faq/?canonical_probe=https SSL_VERIFY=0 IP=188.114.96.5
+```
+
+Se compararon en producción las etiquetas `html lang`, `og:url`,
+`canonical` y `alternate hreflang` con el HTML del mismo build en `out/`.
+`diff -u` no produjo diferencias y cada página contenía 22 alternates (21
+locales más `x-default`):
+
+```bash
+set -euo pipefail
+probe_file="$(mktemp)"
+trap 'rm -f -- "$probe_file"' EXIT
+pairs=(
+  "/|out/index.html"
+  "/manifiesto/|out/manifiesto/index.html"
+  "/problemas/|out/problemas/index.html"
+  "/como-trabajamos/|out/como-trabajamos/index.html"
+  "/pulso/|out/pulso/index.html"
+  "/cofundadores/|out/cofundadores/index.html"
+  "/faq/|out/faq/index.html"
+  "/contacto/|out/contacto/index.html"
+  "/respaldo/|out/respaldo/index.html"
+  "/aviso-legal/|out/aviso-legal/index.html"
+  "/privacidad/|out/privacidad/index.html"
+  "/cookies/|out/cookies/index.html"
+  "/accesibilidad/|out/accesibilidad/index.html"
+  "/en/|out/en/index.html"
+  "/zh/|out/zh/index.html"
+  "/ja/|out/ja/index.html"
+)
+
+for spec in "${pairs[@]}"; do
+  IFS="|" read -r route_path local_html <<<"$spec"
+  curl --fail --silent --show-error \
+    --resolve loquedigalaia.com:443:188.114.96.5 \
+    "https://loquedigalaia.com$route_path" --output "$probe_file"
+  count="$(rg --only-matching \
+    '<link rel="alternate" hreflang="[^"]+" href="[^"]+"' \
+    "$probe_file" | wc -l | tr -d ' ')"
+  [[ "$count" == "22" ]]
+  diff -u \
+    <(rg --only-matching \
+      '<html lang="[^"]+"|<meta property="og:url" content="[^"]+"|<link rel="(?:canonical|alternate)"[^>]*>' \
+      "$local_html" | LC_ALL=C sort) \
+    <(rg --only-matching \
+      '<html lang="[^"]+"|<meta property="og:url" content="[^"]+"|<link rel="(?:canonical|alternate)"[^>]*>' \
+      "$probe_file" | LC_ALL=C sort)
+  canonical="$(rg --only-matching \
+    '<link rel="canonical" href="[^"]+"' "$probe_file")"
+  printf 'OK %s · alternates=%s · %s\n' \
+    "$route_path" "$count" "$canonical"
+done
+```
+
+```text
+OK / · alternates=22 · <link rel="canonical" href="https://loquedigalaia.com/"
+OK /manifiesto/ · alternates=22 · <link rel="canonical" href="https://loquedigalaia.com/manifiesto/"
+OK /problemas/ · alternates=22 · <link rel="canonical" href="https://loquedigalaia.com/problemas/"
+OK /como-trabajamos/ · alternates=22 · <link rel="canonical" href="https://loquedigalaia.com/como-trabajamos/"
+OK /pulso/ · alternates=22 · <link rel="canonical" href="https://loquedigalaia.com/pulso/"
+OK /cofundadores/ · alternates=22 · <link rel="canonical" href="https://loquedigalaia.com/cofundadores/"
+OK /faq/ · alternates=22 · <link rel="canonical" href="https://loquedigalaia.com/faq/"
+OK /contacto/ · alternates=22 · <link rel="canonical" href="https://loquedigalaia.com/contacto/"
+OK /respaldo/ · alternates=22 · <link rel="canonical" href="https://loquedigalaia.com/respaldo/"
+OK /aviso-legal/ · alternates=22 · <link rel="canonical" href="https://loquedigalaia.com/aviso-legal/"
+OK /privacidad/ · alternates=22 · <link rel="canonical" href="https://loquedigalaia.com/privacidad/"
+OK /cookies/ · alternates=22 · <link rel="canonical" href="https://loquedigalaia.com/cookies/"
+OK /accesibilidad/ · alternates=22 · <link rel="canonical" href="https://loquedigalaia.com/accesibilidad/"
+OK /en/ · alternates=22 · <link rel="canonical" href="https://loquedigalaia.com/en"
+OK /zh/ · alternates=22 · <link rel="canonical" href="https://loquedigalaia.com/zh"
+OK /ja/ · alternates=22 · <link rel="canonical" href="https://loquedigalaia.com/ja"
+```
+
+La comparación confirma el host canónico exigido y que producción coincide con
+el pipeline. También hace visible una deuda SEO preexistente: Cloudflare sirve
+las portadas como `/en/`, `/zh/` y `/ja/`, mientras el pipeline escribe sus
+canónicas sin barra final (`/en`, `/zh`, `/ja`). No se ocultó ni se corrigió en
+este cambio de dominio.
+
+### TLS
+
+```text
+$ for host in loquedigalaia.com www.loquedigalaia.com; do
+>   printf '\n=== %s ===\n' "$host"
+>   openssl s_client -connect 188.114.96.5:443 -servername "$host" \
+>     -verify_hostname "$host" -verify_return_error -brief </dev/null 2>&1 | \
+>     rg '^(Protocol version|Peer certificate|Verification:|Verified peername:)'
+> done
+
+=== loquedigalaia.com ===
+Protocol version: TLSv1.3
+Peer certificate: CN=loquedigalaia.com
+Verification: OK
+Verified peername: loquedigalaia.com
+
+=== www.loquedigalaia.com ===
+Protocol version: TLSv1.3
+Peer certificate: CN=loquedigalaia.com
+Verification: OK
+Verified peername: www.loquedigalaia.com
+```
+
+### Dos pasadas limpias tras la propagación de assets
+
+Para separar la propagación de Static Assets de las cachés DNS antiguas se
+probaron consecutivamente las dos IP A publicadas por el DNS autoritativo, con
+Host y SNI reales. Además del código se exigió una firma de contenido distinta
+por ruta, de modo que un 200 de una página de aparcamiento no pudiera pasar.
+
+<details>
+<summary>Comando exacto ejecutado</summary>
+
+```bash
+set -euo pipefail
+probe_file="$(mktemp)"
+trap 'rm -f -- "$probe_file"' EXIT
+checks=(
+  "/|Una factoría de unicornios improbables."
+  "/manifiesto/|Manifiesto de Lo que diga la IA"
+  "/problemas/|Los problemas que nos importan"
+  "/como-trabajamos/|Cómo trabajamos"
+  "/pulso/|El pulso de la empresa"
+  "/cofundadores/|Cualquiera puede ser cofundador"
+  "/faq/|Preguntas y respuestas"
+  "/contacto/|Hablemos"
+  "/respaldo/|Qué hay detrás"
+  "/aviso-legal/|Aviso legal"
+  "/privacidad/|Política de privacidad"
+  "/cookies/|Política de cookies"
+  "/accesibilidad/|Accesibilidad"
+  "/en/|A factory of improbable unicorns."
+  "/zh/|一座制造不太可能的独角兽的工厂。"
+  "/ja/|ありそうにないユニコーンをつくる工場。"
+  "/sitemap.xml|<urlset"
+  "/llms.txt|# Lo que diga la IA"
+)
+probe_ips=(188.114.96.5 188.114.97.5)
+pass=0
+
+for probe_ip in "${probe_ips[@]}"; do
+  pass=$((pass + 1))
+  clean=1
+  printf '=== PASADA %s · versión 238940d6 · IP %s · %s ===\n' \
+    "$pass" "$probe_ip" "$(date -u +%FT%TZ)"
+
+  for spec in "${checks[@]}"; do
+    IFS="|" read -r probe_route marker <<<"$spec"
+    code="$(curl --silent --show-error --connect-timeout 10 --max-time 30 \
+      --resolve "loquedigalaia.com:443:$probe_ip" \
+      --output "$probe_file" --write-out '%{http_code}' \
+      "https://loquedigalaia.com$probe_route")" || code="curl"
+    if [[ "$code" == "200" ]] &&
+       rg --fixed-strings --quiet -- "$marker" "$probe_file"; then
+      printf 'OK   %s %s\n' "$code" "$probe_route"
+    else
+      printf 'FAIL %s %s\n' "$code" "$probe_route"
+      clean=0
+    fi
+  done
+
+  code="$(curl --silent --show-error --connect-timeout 10 --max-time 30 \
+    --resolve "loquedigalaia.com:443:$probe_ip" \
+    --output "$probe_file" --write-out '%{http_code}' \
+    https://loquedigalaia.com/noexiste/)" || code="curl"
+  if [[ "$code" == "404" ]] &&
+     rg --fixed-strings --quiet -- 'Ni la IA sabe dónde está esto.' "$probe_file" &&
+     rg --fixed-strings --quiet -- 'Volver a la brújula' "$probe_file"; then
+    printf 'OK   404 /noexiste/ · 404 propio\n'
+  else
+    clean=0
+  fi
+
+  [[ "$clean" == "1" ]] || exit 1
+  printf 'PASADA %s LIMPIA\n' "$pass"
+  [[ "$pass" == "2" ]] || sleep 15
+done
+printf 'VERIFICADO: versión 238940d6, dos pasadas limpias consecutivas\n'
+```
+
+</details>
+
+```text
+=== PASADA 1 · versión 238940d6 · IP 188.114.96.5 · 2026-08-03T18:23:48Z ===
+OK   200 /
+OK   200 /manifiesto/
+OK   200 /problemas/
+OK   200 /como-trabajamos/
+OK   200 /pulso/
+OK   200 /cofundadores/
+OK   200 /faq/
+OK   200 /contacto/
+OK   200 /respaldo/
+OK   200 /aviso-legal/
+OK   200 /privacidad/
+OK   200 /cookies/
+OK   200 /accesibilidad/
+OK   200 /en/
+OK   200 /zh/
+OK   200 /ja/
+OK   200 /sitemap.xml
+OK   200 /llms.txt
+OK   404 /noexiste/ · 404 propio
+PASADA 1 LIMPIA
+
+=== PASADA 2 · versión 238940d6 · IP 188.114.97.5 · 2026-08-03T18:24:04Z ===
+OK   200 /
+OK   200 /manifiesto/
+OK   200 /problemas/
+OK   200 /como-trabajamos/
+OK   200 /pulso/
+OK   200 /cofundadores/
+OK   200 /faq/
+OK   200 /contacto/
+OK   200 /respaldo/
+OK   200 /aviso-legal/
+OK   200 /privacidad/
+OK   200 /cookies/
+OK   200 /accesibilidad/
+OK   200 /en/
+OK   200 /zh/
+OK   200 /ja/
+OK   200 /sitemap.xml
+OK   200 /llms.txt
+OK   404 /noexiste/ · 404 propio
+PASADA 2 LIMPIA
+
+VERIFICADO: versión 238940d6, dos pasadas limpias consecutivas
+```
+
+### Sitemap y llms.txt
+
+Ambos recursos responden 200 y contienen las firmas esperadas. La inspección
+también dejó visible un defecto preexistente del generador:
+
+```bash
+set -euo pipefail
+sitemap_file="$(mktemp)"
+llms_file="$(mktemp)"
+trap 'rm -f -- "$sitemap_file" "$llms_file"' EXIT
+curl --fail --silent --show-error \
+  --resolve loquedigalaia.com:443:188.114.96.5 \
+  https://loquedigalaia.com/sitemap.xml --output "$sitemap_file"
+curl --fail --silent --show-error \
+  --resolve loquedigalaia.com:443:188.114.96.5 \
+  https://loquedigalaia.com/llms.txt --output "$llms_file"
+locs="$(rg --only-matching '<loc>' "$sitemap_file" | wc -l | tr -d ' ')"
+alternates="$(rg --only-matching '<xhtml:link ' "$sitemap_file" | wc -l | tr -d ' ')"
+not_found="$(rg --only-matching '/_not-found/' "$sitemap_file" | wc -l | tr -d ' ')"
+printf 'sitemap.xml HTTP=200 loc=%s alternates=%s _not-found=%s\n' \
+  "$locs" "$alternates" "$not_found"
+rg --fixed-strings '# Lo que diga la IA' "$llms_file"
+rg --fixed-strings 'https://loquedigalaia.com/pulso.json' "$llms_file"
+rg --fixed-strings '## Cómo citarnos' "$llms_file"
+printf 'llms.txt HTTP=200 firmas=3/3\n'
+```
+
+```text
+sitemap.xml HTTP=200 loc=294 alternates=6468 _not-found=483
+# Lo que diga la IA
+- Datos JSON: https://loquedigalaia.com/pulso.json
+## Cómo citarnos
+llms.txt HTTP=200 firmas=3/3
+```
+
+Los 294 `<loc>` son 14 × 21: además de las 13 rutas de contenido, el
+generador está incluyendo `/_not-found/` y sus alternates. El recurso está
+accesible, pero no se registra como semánticamente limpio. Los `lastmod` se
+generan en cada build, por lo que no se afirmó una igualdad byte a byte con un
+`out/` recompilado después. La corrección del generador queda como deuda
+técnica fuera de esta publicación del dominio.
