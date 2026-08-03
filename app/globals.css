@@ -193,34 +193,69 @@ a {
   }
 }
 
-/* Hero partido — heredero del hero de add4u.com pero sin velo sobre la imagen:
-   el texto va sobre panel de tinta sólida (contraste AA garantizado) y el
-   póster se ve entero, con la etiqueta UE superpuesta como HTML, nunca
-   incrustada en el bitmap. */
-.hero {
+/* Heroes partidos: el texto vive sobre tinta sólida (#f6f3ea sobre #17232a,
+   contraste 13.9:1), nunca directamente sobre una zona imprevisible de la
+   ilustración. La etiqueta UE es otro nodo HTML superpuesto por PageHeroArt. */
+.hero,
+.page-hero {
   display: grid;
   grid-template-columns: 1.05fr 0.95fr;
-  min-height: 620px;
   background: #17232a;
   color: #f6f3ea;
 }
-.hero-copy {
+.hero {
+  min-height: 620px;
+}
+.page-hero {
+  min-height: 430px;
+  border-bottom: 1px solid rgba(246, 243, 234, 0.15);
+}
+.hero-copy,
+.page-hero-copy {
   display: flex;
   flex-direction: column;
   justify-content: center;
   padding: 56px clamp(20px, 5vw, 72px);
 }
-.hero-art {
+.page-hero-copy {
+  max-width: 46rem;
+}
+.page-hero-eyebrow {
+  margin: 0 0 0.75rem;
+  color: #b9d1c8;
+  font-size: 0.78rem;
+  font-weight: 650;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.page-hero-description {
+  margin-top: 1.25rem;
+  max-width: 42rem;
+  color: rgba(246, 243, 234, 0.88);
+  font-size: 1.125rem;
+}
+.page-hero-description > :first-child {
+  margin-top: 0;
+}
+.page-hero-description > :last-child {
+  margin-bottom: 0;
+}
+.hero-art,
+.page-hero-art {
   position: relative;
   overflow: hidden;
   min-height: 320px;
+  background: #24353c;
 }
-.hero-art > img {
+.hero-art > img:first-of-type,
+.page-hero-image {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+.hero-art > img:first-of-type {
   object-position: center 22%;
 }
 .hero-art .ai-badge {
@@ -243,6 +278,24 @@ a {
   border-radius: 5px;
   padding: 3px 7px;
 }
+.real-photo {
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  background: var(--bg-alt);
+}
+.real-photo img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+}
+.real-photo figcaption {
+  padding: 0.45rem 0.65rem 0.55rem;
+  color: var(--fg-soft);
+  font-size: 0.72rem;
+  line-height: 1.35;
+}
 .hero-selfie {
   margin: 36px 0 0;
   display: flex;
@@ -264,15 +317,18 @@ a {
   max-width: 240px;
 }
 @media (max-width: 820px) {
-  .hero {
+  .hero,
+  .page-hero {
     grid-template-columns: 1fr;
     min-height: 0;
   }
-  .hero-copy {
+  .hero-copy,
+  .page-hero-copy {
     padding: 40px 16px 32px;
   }
-  .hero-art {
-    min-height: 360px;
+  .hero-art,
+  .page-hero-art {
+    min-height: clamp(280px, 72vw, 380px);
   }
 }
 

@@ -2,13 +2,28 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { SiteHeader, SiteFooter } from "@/components/SiteChrome";
 import { site } from "@/content/es/site";
+import {
+  pageMetadata,
+  SITE_DEFAULT_TITLE,
+  SITE_URL,
+} from "@/lib/seo";
+
+const rootMetadata = pageMetadata({
+  description: site.descripcion,
+  path: "/",
+});
 
 export const metadata: Metadata = {
+  ...rootMetadata,
+  metadataBase: new URL(SITE_URL),
   title: {
-    default: `${site.nombre} — ${site.claim}`,
+    default: SITE_DEFAULT_TITLE,
     template: `%s — ${site.nombre}`,
   },
-  description: site.descripcion,
+  robots: {
+    index: true,
+    follow: true,
+  },
 };
 
 export default function RootLayout({

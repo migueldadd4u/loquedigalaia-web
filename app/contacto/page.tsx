@@ -1,10 +1,13 @@
-import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
+import { PageHero } from "@/components/AiImage";
+import { heroArtByRoute } from "@/content/es/heroes";
 
-export const metadata: Metadata = {
+export const metadata = pageMetadata({
   title: "Contacto",
   description:
     "WhatsApp directo con los fundadores de Lo que diga la IA y dónde encontrarnos: Add4u, Alastria e ISBE.",
-};
+  path: "/contacto/",
+});
 
 const canales = [
   {
@@ -47,18 +50,24 @@ const sitios = [
 
 export default function ContactoPage() {
   return (
-    <div className="mx-auto max-w-3xl px-4 py-14">
-      <h1 className="text-4xl mb-4">Hablemos</h1>
-      <p className="text-lg max-w-2xl" style={{ color: "var(--fg-soft)" }}>
-        Una conversación, sin compromiso. Empieza por responderte a esto:{" "}
-        <strong style={{ color: "var(--fg)" }}>
-          ¿qué problema grande del mundo crees que puedes arreglar con nuestra
-          ayuda?
-        </strong>{" "}
-        Si tienes una respuesta —aunque sea a medias—, escríbenos.
-      </p>
-
-      <h2 className="text-2xl mt-10 mb-4">Lo más rápido: WhatsApp directo</h2>
+    <>
+      <PageHero
+        title="Hablemos"
+        eyebrow="Contacto directo"
+        description={
+          <p>
+            Una conversación, sin compromiso. Empieza por responderte a esto:{" "}
+            <strong>
+              ¿qué problema grande del mundo crees que puedes arreglar con
+              nuestra ayuda?
+            </strong>{" "}
+            Si tienes una respuesta —aunque sea a medias—, escríbenos.
+          </p>
+        }
+        {...heroArtByRoute["/contacto/"]}
+      />
+      <div className="mx-auto max-w-3xl px-4 py-14">
+        <h2 className="text-2xl mb-4">Lo más rápido: WhatsApp directo</h2>
       <div className="grid sm:grid-cols-2 gap-4">
         {canales.map((c) => (
           <article
@@ -115,6 +124,7 @@ export default function ContactoPage() {
         add4u.com: sin cookies, sin rastreo) — y su primera pregunta será
         exactamente la de arriba.
       </p>
-    </div>
+      </div>
+    </>
   );
 }

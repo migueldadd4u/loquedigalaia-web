@@ -1,7 +1,13 @@
 import Link from "next/link";
 import { home, problemas, origenes, site } from "@/content/es/site";
 import { Compass } from "@/components/Compass";
+import { PageHeroArt } from "@/components/AiImage";
+import { heroArtByRoute } from "@/content/es/heroes";
 import { readPulso } from "@/lib/pulso";
+import {
+  organizationJsonLd,
+  serializeJsonLd,
+} from "@/lib/seo";
 
 function Section({
   title,
@@ -31,6 +37,12 @@ export default function Home() {
 
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: serializeJsonLd(organizationJsonLd()),
+        }}
+      />
       <section className="hero">
         <div className="hero-copy">
           <Compass size={44} className="mb-6" />
@@ -66,20 +78,7 @@ export default function Home() {
             </figcaption>
           </figure>
         </div>
-        <div className="hero-art">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src="/images/poster-lanzamiento.jpg"
-            alt="Cartel del lanzamiento oficial: los dos fundadores junto a sus clones Jarvis y ClonMADv3, 2 de agosto de 2026. Imagen generada con IA."
-          />
-          <p className="image-credit m-0">Imagen generada con IA · 2026</p>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            className="ai-badge"
-            src="/images/eu-ai-generated-white.svg"
-            alt="Etiqueta de la Unión Europea: contenido generado con inteligencia artificial"
-          />
-        </div>
+        <PageHeroArt {...heroArtByRoute["/"]} className="hero-art" />
       </section>
 
       <Section alt>
