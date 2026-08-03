@@ -25,6 +25,17 @@ Heredados de la refactorización de add4u.com y de los principios del panel de l
 | Tests | `node --test` sobre el HTML renderizado (contenido, hreflang, accesibilidad, datos) | mismo patrón que add4u-web |
 | Hosting | **D3 cerrada**: Cloudflare Workers/Static Assets, para compartir metodología de deploy con add4u-web. Resolución completa en docs/DECISIONES.md | |
 | CI | GitHub Actions: lint + test en PR; cron diario de datos (F3) | |
+| Agentes + SEO | Cada página con espejo Markdown, `llms.txt`, sitemap, JSON-LD y metadatos completos (ver §2.1) | requisito de los fundadores (03/08) |
+
+## 2.1 Web legible por agentes + SEO (requisito de gate F2/F4)
+
+La web tiene dos audiencias: personas y agentes de IA. Ambas deben encontrar y entender el contenido:
+
+- **Espejo Markdown por página**: cada ruta publica su contenido también como `.md` (`/manifiesto.md`, `/problemas.md`, …) generado en build desde la misma fuente única — un agente puede leer la web entera sin parsear HTML. Índice en `/index.md`.
+- **`/llms.txt`** en raíz: qué es la empresa, mapa de contenidos con enlaces a los `.md`, contrato de datos de `/pulso` y cómo citarnos. `/robots.txt` sin bloqueos a crawlers de IA (la web es pública a propósito).
+- **SEO Google**: `sitemap.xml`, canónicas + hreflang (ya en el pipeline i18n), metadatos únicos por página, Open Graph con el poster, y **JSON-LD** (`Organization` en raíz, `FAQPage` donde aplique, `Dataset` en `/pulso`).
+- **Datos accesibles a máquina**: `/pulso` publica también el JSON validado (`/pulso.json`) con la fecha de cada dato — el mismo que hornea el HTML, nunca dos fuentes.
+- **Gate**: test que verifica que cada ruta HTML tiene su `.md` espejo con el mismo contenido textual, que `llms.txt` enlaza todos los `.md`, y que el JSON-LD valida contra schema.org.
 
 ## 2. Arquitectura de contenidos (rutas)
 
@@ -62,6 +73,7 @@ Cada fase termina en un **gate determinista** (script `scripts/gate.mjs`, checks
 - [ ] Redactar los 8 problemas con datos citables (cada afirmación con fuente pública enlazada).
 - [ ] Página cofundadores con el mensaje: los primeros en apostar y poner dinero fueron los dos fundadores humanos, pero cualquiera es bienvenido y puede ser considerado cofundador aunque venga cinco años después.
 - [ ] Diccionario `content/i18n/en.json` completo.
+- [ ] Capa agentes + SEO de §2.1: espejos `.md`, `llms.txt`, sitemap, JSON-LD, Open Graph.
 - [ ] Tono según docs/IDENTIDAD.md §tono: claro, elegante, directo, ambicioso, cero humo.
 - **Gate F2**: cero `TODO-CONTENIDO` en build; test de i18n (ninguna clave sin traducir); revisión de copy contra REGLAS de tono.
 

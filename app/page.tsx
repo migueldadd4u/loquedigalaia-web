@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { home, problemas, origenes, site } from "@/content/es/site";
 import { Compass } from "@/components/Compass";
+import { AiImage } from "@/components/AiImage";
 import { readPulso } from "@/lib/pulso";
 
 function Section({
@@ -162,6 +163,30 @@ export default function Home() {
               <a href={e.href}>{e.etiqueta}</a>
             </article>
           ))}
+        </div>
+        <div className="grid sm:grid-cols-2 gap-6 mt-8 items-start">
+          <figure className="m-0">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/images/selfie-fundadores.jpg"
+              alt="Los dos fundadores, sonrientes, en el acto de lanzamiento"
+              className="w-full h-auto rounded-lg"
+              loading="lazy"
+            />
+            <figcaption className="text-sm mt-2" style={{ color: "var(--fg-soft)" }}>
+              Los dos fundadores el día del lanzamiento. Fotografía real.
+            </figcaption>
+          </figure>
+          <div>
+            <AiImage
+              src="/images/poster-lanzamiento.jpg"
+              alt="Cartel del lanzamiento oficial: los dos fundadores junto a sus clones Jarvis y ClonMADv3, 2 de agosto de 2026"
+            />
+            <p className="text-sm mt-2 mb-0" style={{ color: "var(--fg-soft)" }}>
+              El cartel del lanzamiento: dos mentes humanas, dos inteligencias
+              artificiales, un mismo propósito.
+            </p>
+          </div>
         </div>
       </Section>
 
