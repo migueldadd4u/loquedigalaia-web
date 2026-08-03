@@ -19,6 +19,29 @@ export const nav = [
   { href: "/contacto/", label: "Contacto" },
 ];
 
+// Pie de página. Dos grupos porque responden a preguntas distintas: «con qué
+// capacidad contáis» y «quién responde jurídicamente de esto». Los href con el
+// formato "/segmento/" los lee scripts/i18n-build.mjs para prefijar los idiomas.
+export const pie = {
+  identificacion:
+    "Iniciativa promovida a título personal por Miguel Ángel Domínguez Castellano y Luis Garvía Vega, que responden de este sitio web mientras la sociedad está en constitución. Sus datos identificativos completos figuran en el aviso legal.",
+  grupos: [
+    {
+      titulo: "Respaldo",
+      enlaces: [{ href: "/respaldo/", label: "Qué hay detrás" }],
+    },
+    {
+      titulo: "Legal",
+      enlaces: [
+        { href: "/aviso-legal/", label: "Aviso legal" },
+        { href: "/privacidad/", label: "Privacidad" },
+        { href: "/cookies/", label: "Cookies" },
+        { href: "/accesibilidad/", label: "Accesibilidad" },
+      ],
+    },
+  ],
+};
+
 export const home = {
   heroTitulo: "Una factoría de unicornios improbables.",
   heroSub:
