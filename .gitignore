@@ -19,3 +19,6 @@ next-env.d.ts
 
 # Salida del export estático
 out/
+
+# Registro del cron diario (no se versiona)
+agent/snapshot-cron.log

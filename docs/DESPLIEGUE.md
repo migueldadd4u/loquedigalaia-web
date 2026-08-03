@@ -80,3 +80,24 @@ done
 ```
 
 Todo debe dar 200, y `/noexiste/` debe dar 404 con la página propia.
+
+## Publicación automática del pulso (desde el 03/08/2026)
+
+El pulso se publica solo, todos los días, en portada y en `/pulso`, en los 21 locales.
+
+| Pieza | Dónde | Cuándo |
+|---|---|---|
+| **Cron diario (primario)** | `agent/snapshot-cron.sh` en el crontab de esta máquina | 07:47 |
+| **Workflow de GitHub (red de seguridad)** | `.github/workflows/deploy.yml` | al tocar `data/**`, a las 07:53 UTC y a mano |
+
+El cron trae `main`, ejecuta `scripts/snapshot.mjs` contra el front office del clon y **solo
+si el pulso ha cambiado** commitea, empuja y publica con `npm run deploy` — que pasa por el
+guardián `scripts/antes-de-publicar.mjs`. Si el clon no mueve sus cifras, producción no se
+toca. El registro queda en `agent/snapshot-cron.log` (no se versiona).
+
+Se despliega desde el cron y no desde la Action porque **wrangler ya está autenticado en
+esta máquina**. ⚠️ El workflow de GitHub **todavía no puede desplegar**: el repositorio no
+tiene configurados los secretos `CLOUDFLARE_API_TOKEN` ni `CLOUDFLARE_ACCOUNT_ID`
+(verificado: 0 secretos). Hasta que un fundador cree el token en el panel de Cloudflare con
+permiso «Workers Scripts: Edit» y lo añada en *Settings → Secrets and variables → Actions*,
+la red de seguridad no existe: si esta máquina está apagada, el pulso no se actualiza.
