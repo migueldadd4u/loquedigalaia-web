@@ -3,6 +3,15 @@
   "asOf": "2026-08-03T06:00:00Z",
   "indicators": [
     {
+      "id": "tokens-consumidos-total",
+      "label": "Tokens consumidos (total acumulado)",
+      "value": 1063908,
+      "unit": "tokens",
+      "asOf": "2026-08-03",
+      "source": "sample",
+      "monotonic": true
+    },
+    {
       "id": "dias-construyendo",
       "label": "Días construyendo en público",
       "value": 1,

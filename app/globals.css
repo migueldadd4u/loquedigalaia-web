@@ -1,0 +1,133 @@
+@import "tailwindcss";
+
+/* Tokens de marca — docs/IDENTIDAD.md. Contrastes AA verificados sobre marfil:
+   tinta 13.9:1 · petróleo 9.2:1 · salvia oscura 5.4:1 · cobre solo decorativo. */
+:root {
+  --marfil: #f8f6f0;
+  --marfil-2: #efece2;
+  --tinta: #1c2a30;
+  --petroleo: #2c444e;
+  --salvia: #3e6257;
+  --cobre: #a5794a;
+  --linea: #d8d3c4;
+
+  --bg: var(--marfil);
+  --bg-alt: var(--marfil-2);
+  --fg: var(--tinta);
+  --fg-soft: var(--petroleo);
+  --accent: var(--salvia);
+  --border: var(--linea);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #141d20;
+    --bg-alt: #1c282c;
+    --fg: #f0ede3;
+    --fg-soft: #c4cdc9;
+    --accent: #8fb8a8;
+    --border: #33454b;
+  }
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue",
+    Arial, sans-serif;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3 {
+  font-family: "Iowan Old Style", "Palatino", "Palatino Linotype", Georgia,
+    serif;
+  font-weight: 600;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+}
+
+a {
+  color: var(--accent);
+  text-underline-offset: 3px;
+}
+
+:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  z-index: 100;
+  background: var(--fg);
+  color: var(--bg);
+  padding: 0.6rem 1rem;
+  border-radius: 0 0 6px 0;
+}
+
+.skip-link:focus {
+  left: 0;
+}
+
+.prose-md p {
+  margin: 0.9em 0;
+}
+.prose-md h1 {
+  font-size: 2rem;
+  margin: 1.2em 0 0.5em;
+}
+.prose-md h2 {
+  font-size: 1.5rem;
+  margin: 1.6em 0 0.5em;
+}
+.prose-md h3 {
+  font-size: 1.2rem;
+  margin: 1.3em 0 0.4em;
+}
+.prose-md ul,
+.prose-md ol {
+  padding-left: 1.4rem;
+  margin: 0.9em 0;
+}
+.prose-md ul {
+  list-style: disc;
+}
+.prose-md ol {
+  list-style: decimal;
+}
+.prose-md li {
+  margin: 0.35em 0;
+}
+.prose-md blockquote {
+  border-left: 3px solid var(--accent);
+  padding-left: 1rem;
+  color: var(--fg-soft);
+  margin: 1.2em 0;
+}
+.prose-md strong {
+  font-weight: 650;
+}
