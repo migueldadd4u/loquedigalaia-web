@@ -22,6 +22,33 @@ Los encargos vigentes, tal y como se entregaron. Si retomas el proyecto, comprue
 >
 > Rama `f2-contenido`, PR con el checklist del gate. **No toques `MANIFIESTO.md` ni `content/es/faq.ts`: los fundadores los han dado por definitivos.**
 
+## Kimi K3 — traducir la web a los 11 idiomas que faltan (03/08, noche)
+
+> Trabaja en `~/Code/loquedigalaia-web`, rama `f1-scaffold` (`git pull` primero, y comprueba `git branch --show-current` antes de cada `git add`: en este árbol trabajan varios agentes y la rama activa cambia).
+>
+> **Encargo:** la web ya sirve 21 idiomas, pero solo el inglés está traducido; el resto se ve en español. Tienes que escribir los **11 diccionarios que faltan**.
+>
+> **Cómo funciona el mecanismo** (léelo antes de traducir nada): `npm run build:static` construye el HTML español y luego `scripts/i18n-build.mjs` genera una copia por idioma sustituyendo cadenas. Cada idioma es un fichero `content/i18n/<source>.json` con pares `"cadena en español": "traducción"`. Las fuentes que faltan son exactamente estas 11: `zh` (chino simplificado), `zh-TW` (chino tradicional), `ja`, `ko`, `ca`, `gl`, `eu`, `va` (valenciano), `oc-aranes`, `ast` (asturiano), `pt` (portugués de Portugal). Las variantes por país (mx, ar, br…) **no llevan diccionario propio**: reutilizan `es` o `pt`.
+>
+> **De dónde salen las cadenas:** ejecuta `npm run build:static` y usa `content/i18n/_inventory.json` — es la lista completa y ordenada de todas las cadenas traducibles de la web (hoy 258; puede crecer, porque otro agente está añadiendo páginas). Usa `content/i18n/en.json` como modelo de formato y de criterio.
+>
+> **Reglas que el pipeline impone** (si las incumples, la cadena simplemente no se traduce y nadie te avisa):
+> 1. La clave debe ser **idéntica byte a byte** a la cadena del inventario, con sus tildes, comillas angulares y guiones largos.
+> 2. **Nunca traduzcas los nombres propios**: `Lo que diga la IA` (la marca), `ClonMADv3`, `Jarvis`, `Add4u`, `Alastria`, `ISBE`, `GestDocAI`. Van blindados en el script, pero tampoco deben aparecer traducidos dentro de tus valores.
+> 3. **Prohibido** usar `"`, `<`, `>`, `&` o `\` en claves o valores: esas entradas se descartan. Para comillas usa « » o '.
+> 4. Cuidado con las cadenas **cortas** (menos de 15 caracteres): se sustituyen con límite de palabra en todo el HTML. Ya nos pasó que `la IA` → `AI` convirtió la marca en «Lo que diga AI». Si una cadena corta es ambigua en tu idioma, es mejor no incluirla que romper otra frase.
+> 5. No traduzcas números, URLs, correos ni fechas.
+>
+> **Criterio de traducción:** es una web de empresa con tono serio, directo y sin humo (`docs/IDENTIDAD.md`). Traduce el sentido, no palabra por palabra. En chino, japonés y coreano usa registro formal de negocio. Términos como *venture operating company*, *scale-up* o *venture studio* pueden quedarse en inglés si es lo natural en ese idioma.
+>
+> **Verificación obligatoria** (sin esto no vale): tras escribir los ficheros, `npm run build:static` debe imprimir los 12 idiomas en «con traducción». Comprueba en la salida real que cada idioma traduce y que la marca sigue intacta, por ejemplo:
+> ```bash
+> for l in zh tw ja ko ca gl eu va oc ast pt; do printf "%-4s " $l; grep -o "<title>[^<]*" out/$l/index.html; done
+> ```
+> Ninguno debe decir «La fábrica de milagros…» en español, y todos deben conservar `Lo que diga la IA` en el título. Registra la evidencia en `docs/TESTING.md` y abre PR con los comandos y su salida.
+>
+> **Prioridad:** primero `zh`, `ja`, `ko` y `zh-TW` (los pidió MAD expresamente), después las lenguas de España y el portugués.
+
 ## Reservado a los fundadores
 
 - Alta de la zona en Cloudflare y cambio de nameservers en IONOS (cuando exista staging, F5).
