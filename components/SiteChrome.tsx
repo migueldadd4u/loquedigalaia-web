@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Compass } from "./Compass";
 import { LangSwitcher } from "./LangSwitcher";
-import { nav, site } from "@/content/es/site";
+import { nav, pie, site } from "@/content/es/site";
 
 export function SiteHeader() {
   return (
@@ -46,17 +46,44 @@ export function SiteFooter() {
       style={{ borderColor: "var(--border)", background: "var(--bg-alt)" }}
     >
       <div
-        className="mx-auto max-w-5xl px-4 py-8 text-sm flex flex-wrap gap-4 items-center"
+        className="mx-auto max-w-5xl px-4 py-10 text-sm"
         style={{ color: "var(--fg-soft)" }}
       >
-        <Compass size={20} />
-        <p className="m-0">
-          {site.nombre} — {site.claim}. Construida en público por dos personas y
-          dos clones de IA.
-        </p>
-        <p className="m-0 ms-auto">
-          <Link href="/manifiesto/">Manifiesto</Link> ·{" "}
-          <Link href="/pulso/">Pulso</Link>
+        <div className="flex flex-wrap gap-8">
+          <div className="grow">
+            <Compass size={20} />
+            <p className="mt-3 mb-0 max-w-md">
+              {site.nombre} — {site.claim}. Construida en público por dos
+              personas y dos clones de IA.
+            </p>
+          </div>
+          <nav aria-label="Pie de página" className="flex flex-wrap gap-8">
+            {pie.grupos.map((grupo) => (
+              <div key={grupo.titulo}>
+                <h2 className="text-xs font-semibold uppercase tracking-wider m-0">
+                  {grupo.titulo}
+                </h2>
+                <ul className="list-none p-0 mt-2 mb-0 grid gap-1">
+                  {grupo.enlaces.map((enlace) => (
+                    <li key={enlace.href}>
+                      <Link href={enlace.href}>{enlace.label}</Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </nav>
+        </div>
+
+        {/*
+          Identificación del prestador en todas las páginas: el artículo 10 de la
+          Ley 34/2002 (LSSI-CE) la exige permanente, fácil, directa y gratuita.
+        */}
+        <p
+          className="mt-8 pt-6 mb-0 max-w-3xl border-t"
+          style={{ borderColor: "var(--border)" }}
+        >
+          {pie.identificacion}
         </p>
       </div>
     </footer>

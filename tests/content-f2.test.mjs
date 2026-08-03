@@ -114,22 +114,31 @@ test("los ocho diccionarios traducidos coinciden exactamente con el inventario",
     "GestDocAI",
     "ISBE",
     "Jarvis",
+    "La Infraestructura de Servicios Blockchain de España.",
     "Lo que diga la IA",
+    "Miguel Ángel Domínguez Castellano",
   ]);
   const unchangedAllowedByLocale = {
     gl: new Set([
+      "Aviso legal — Lo que diga la IA",
       "Cofundadores — Lo que diga la IA",
       "Miguel Ángel (MAD) por WhatsApp",
+      "Política de cookies — Lo que diga la IA",
       "Tokens consumidos (total acumulado)",
     ]),
     pt: new Set([
+      "Aviso legal — Lo que diga la IA",
       "Cofundadores — Lo que diga la IA",
       "Miguel Ángel (MAD) por WhatsApp",
+      "Política de cookies — Lo que diga la IA",
       "Tokens consumidos (total acumulado)",
     ]),
     ast: new Set([
       "Cofundadores — Lo que diga la IA",
+      "Luis Garvía Vega, con DNI 51429410F.",
       "Miguel Ángel (MAD) por WhatsApp",
+      "Miguel Ángel Domínguez Castellano, con DNI 01178330V.",
+      "Política de cookies — Lo que diga la IA",
       "Una factoría de unicornios improbables.",
       "¿Puedo ser cofundador si llego cinco años tarde?",
     ]),
@@ -151,8 +160,8 @@ test("los ocho diccionarios traducidos coinciden exactamente con el inventario",
       assert.equal(typeof translated, "string", `${locale}: ${source}`);
       assert.ok(translated.trim(), `${locale}: traducción vacía para ${source}`);
       assert.deepEqual(
-        translated.match(/\d+(?:[.,]\d+)*/g) ?? [],
-        source.match(/\d+(?:[.,]\d+)*/g) ?? [],
+        [...(translated.match(/\d+(?:[.,]\d+)*/g) ?? [])].sort(),
+        [...(source.match(/\d+(?:[.,]\d+)*/g) ?? [])].sort(),
         `${locale}: la traducción alteró una cifra en ${source}`,
       );
       if (

@@ -22,7 +22,11 @@ Los encargos vigentes, tal y como se entregaron. Si retomas el proyecto, comprue
 >
 > Rama `f2-contenido`, PR con el checklist del gate. **No toques `MANIFIESTO.md` ni `content/es/faq.ts`: los fundadores los han dado por definitivos.**
 
-## Kimi K3 — traducir la web a los 11 idiomas que faltan (03/08, noche)
+## Kimi K3 — traducir la web a los 11 idiomas que faltan (03/08, noche) — ⚠️ REASIGNADO
+
+> **AVISO PARA KIMI (03/08, decisión de MAD): esta tarea la asume cc/Claude.** Estabas ocupado con otras cosas, así que **no empieces los diccionarios**: si los escribes ahora chocaríamos en los mismos ficheros (`content/i18n/*.json`). Lo que sí sigue siendo tuyo es la **tarea 2**: cerrar el pulso con datos reales — `snapshot.mjs` funciona y `source-status.json` dice que `clonmadv3` responde, pero los cuatro indicadores publicados siguen con `source: "sample"`, así que la web enseña números de ejemplo. Averigua si el frontal público del clon aún no expone el contrato de `docs/DATOS.md` o si falta cablear el mapeo, y si el bloqueo es del lado del clon dilo explícitamente en el PR en vez de dar el pulso por terminado.
+>
+> El encargo original se conserva abajo como referencia del método.
 
 > Trabaja en `~/Code/loquedigalaia-web`, rama `f1-scaffold` (`git pull` primero, y comprueba `git branch --show-current` antes de cada `git add`: en este árbol trabajan varios agentes y la rama activa cambia).
 >

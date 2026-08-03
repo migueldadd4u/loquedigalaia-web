@@ -19,6 +19,29 @@ export const nav = [
   { href: "/contacto/", label: "Contacto" },
 ];
 
+// Pie de página. Dos grupos porque responden a preguntas distintas: «con qué
+// capacidad contáis» y «quién responde jurídicamente de esto». Los href con el
+// formato "/segmento/" los lee scripts/i18n-build.mjs para prefijar los idiomas.
+export const pie = {
+  identificacion:
+    "Iniciativa promovida a título personal por Miguel Ángel Domínguez Castellano y Luis Garvía Vega, que responden de este sitio web mientras la sociedad está en constitución. Sus datos identificativos completos figuran en el aviso legal.",
+  grupos: [
+    {
+      titulo: "Respaldo",
+      enlaces: [{ href: "/respaldo/", label: "Qué hay detrás" }],
+    },
+    {
+      titulo: "Legal",
+      enlaces: [
+        { href: "/aviso-legal/", label: "Aviso legal" },
+        { href: "/privacidad/", label: "Privacidad" },
+        { href: "/cookies/", label: "Cookies" },
+        { href: "/accesibilidad/", label: "Accesibilidad" },
+      ],
+    },
+  ],
+};
+
 export const home = {
   heroTitulo: "Una factoría de unicornios improbables.",
   heroSub:
@@ -72,6 +95,11 @@ export const home = {
   pulsoTitulo: "El pulso, en abierto",
   pulsoIntro:
     "Esta web se reconstruye cada día con los datos que publican nuestros clones. Construcción en público, con métricas, no con adjetivos.",
+  pulsoVerCompleto: "Ver el pulso completo, con evolución y metodología",
+  pulsoDatoDel: "dato del",
+  pulsoEjemplo: "ejemplo",
+  pulsoUltimoValido: "último valor válido",
+  pulsoDatoAtenuado: "dato con más de 48 h, pendiente de refresco",
 
   ctaFinalTitulo: "Hablemos",
   ctaFinal:
@@ -226,4 +254,20 @@ export const pulso = {
     "Datos publicados por los clones de los fundadores. La web se reconstruye cada día con ellos: si un dato no pasa el control de calidad, se muestra el último válido con su fecha — nunca un número inventado.",
   avisoSample:
     "Datos de ejemplo. Las fuentes reales de los clones están en proceso de publicación; este es el formato exacto con el que se mostrarán.",
+  evolucionTitulo: "Evolución",
+  evolucionIntro:
+    "Cada lectura que pasa el control de calidad queda registrada. Esta es la serie reciente de cada indicador, con la fecha de cada dato.",
+  metodologiaTitulo: "Metodología: cómo se valida cada dato",
+  metodologiaIntro:
+    "Un proceso automático descarga cada noche el pulso que publican los clones y solo reconstruye la web si hay datos válidos nuevos. El contrato completo está en docs/DATOS.md del repositorio público; estas son las reglas:",
+  metodologiaReglas: [
+    "Esquema cerrado: un JSON que no cumple el contrato se descarta entero esa noche.",
+    "Frescura: un dato con más de 48 horas se muestra atenuado y siempre con su fecha.",
+    "Monotonía: los contadores acumulados no pueden decrecer; si lo hacen, se conserva el último valor válido.",
+    "Consenso: un cambio brusco de más del 20 % solo se acepta si dos lecturas separadas al menos 5 minutos coinciden.",
+    "Reserva por indicador: si un dato falla, ese indicador — y solo ese — cae a su último valor válido. La página nunca se rompe ni inventa un número.",
+    "Nada muere en silencio: si una fuente falla 7 días seguidos, se abre una incidencia en el repositorio.",
+  ],
+  metodologiaFuentes:
+    "Fase 1: datos del clon ClonMADv3. Fase 2: suma de ClonMADv3 y Jarvis. Las URLs públicas de las fuentes viven en data/sources.json del repositorio, sin credenciales.",
 };

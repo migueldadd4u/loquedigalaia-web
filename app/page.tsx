@@ -34,6 +34,9 @@ function Section({
 export default function Home() {
   const pulso = readPulso();
   const tokens = pulso.indicators.find((i) => i.id === "tokens-consumidos-total");
+  const restoPulso = pulso.indicators.filter(
+    (i) => i.id !== "tokens-consumidos-total",
+  );
 
   return (
     <>
@@ -154,19 +157,58 @@ export default function Home() {
       </Section>
 
       <Section title={home.pulsoTitulo} alt>
-        <p className="max-w-3xl mb-4">{home.pulsoIntro}</p>
-        {tokens ? (
-          <p className="text-lg">
-            <strong>{tokens.label}:</strong>{" "}
-            {tokens.value.toLocaleString("es-ES")} {tokens.unit}{" "}
-            <span className="text-sm" style={{ color: "var(--fg-soft)" }}>
-              (dato del {tokens.asOf}
-              {tokens.source === "sample" ? ", ejemplo" : ""})
-            </span>
-          </p>
-        ) : null}
-        <p>
-          <Link href="/pulso/">Ver el pulso completo</Link>
+        <p className="max-w-3xl mb-6">{home.pulsoIntro}</p>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {tokens ? (
+            <article
+              className="rounded-lg border p-6 sm:col-span-2"
+              style={{ borderColor: "var(--accent)" }}
+            >
+              <p className="m-0 text-sm" style={{ color: "var(--fg-soft)" }}>
+                {tokens.label}
+              </p>
+              <p className="m-0 mt-2 text-5xl font-semibold">
+                {tokens.value.toLocaleString("es-ES")}
+                <span className="text-xl font-normal ms-2">{tokens.unit}</span>
+              </p>
+              <p
+                className="m-0 mt-3 text-xs"
+                style={{ color: "var(--fg-soft)" }}
+              >
+                {home.pulsoDatoDel} {tokens.asOf}
+                {tokens.source === "sample" ? ` · ${home.pulsoEjemplo}` : ""}
+                {tokens.fallback ? ` · ${home.pulsoUltimoValido}` : ""}
+              </p>
+            </article>
+          ) : null}
+          {restoPulso.map((i) => (
+            <article
+              key={i.id}
+              className="rounded-lg border p-5"
+              style={{
+                borderColor: "var(--border)",
+                opacity: i.stale ? 0.6 : undefined,
+              }}
+            >
+              <p className="m-0 text-sm" style={{ color: "var(--fg-soft)" }}>
+                {i.label}
+              </p>
+              <p className="m-0 mt-1 text-2xl font-semibold">
+                {i.value.toLocaleString("es-ES")}
+                <span className="text-sm font-normal ms-1">{i.unit}</span>
+              </p>
+              <p
+                className="m-0 mt-2 text-xs"
+                style={{ color: "var(--fg-soft)" }}
+              >
+                {home.pulsoDatoDel} {i.asOf}
+                {i.source === "sample" ? ` · ${home.pulsoEjemplo}` : ""}
+              </p>
+            </article>
+          ))}
+        </div>
+        <p className="mt-6">
+          <Link href="/pulso/">{home.pulsoVerCompleto}</Link>
         </p>
       </Section>
 
