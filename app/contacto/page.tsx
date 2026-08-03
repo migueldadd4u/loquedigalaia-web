@@ -79,9 +79,12 @@ export default function ContactoPage() {
         >
           <h3 className="text-lg mb-1">Correo</h3>
           <p className="m-0 mb-3" style={{ color: "var(--fg-soft)" }}>
-            Si lo tuyo no es la mensajería.
+            Si lo tuyo no es la mensajería. Hasta que la sociedad tenga su
+            propio buzón, escribimos desde los nuestros.
           </p>
-          <a href="mailto:hola@loquedigalaia.com">hola@loquedigalaia.com</a>
+          <a href="mailto:migueld@add4u.com">migueld@add4u.com</a>
+          <br />
+          <a href="mailto:lgarvia@comillas.edu">lgarvia@comillas.edu</a>
         </article>
       </div>
 
