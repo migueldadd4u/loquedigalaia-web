@@ -47,3 +47,24 @@ Registro de comprobaciones ejecutadas (regla: ningún «verificado» sin comando
 | Dominio propio | `dig` + API de zonas | ⏳ sigue en IONOS; no hay zona en Cloudflare y el token no puede crearla (ver DESPLIEGUE.md) |
 
 Pendiente para el gate F1 completo (Kimi): suite `npm test` automatizada (hoy la verificación fue manual instrumentada), axe-core, y los 15 diccionarios que faltan (ca, gl, eu, va, oc, ast, pt — las variantes regionales de es/pt heredan su fuente).
+
+## 2026-08-03 (noche) — pulso con gate de ingesta + suite npm test + axe-core (Kimi)
+
+Encargo de MAD: cifras del front office en portada y `/pulso`, `scripts/snapshot.mjs` según DATOS.md, suite sobre el HTML renderizado y axe-core AA.
+
+| Comprobación | Método | Resultado |
+|---|---|---|
+| Snapshot contra sample | `node scripts/snapshot.mjs` | ✅ `data/pulso.json` con 4 indicadores; `history.json` y `source-status.json` escritos; jarvis omitido (fase 2, sin URL ni sample) |
+| Frescura 48 h | `snapshot.mjs --now=2026-08-07T10:00:00Z` | ✅ los 4 indicadores marcados `stale` («se muestra atenuado») |
+| Monotonía | sample con tokens 900000 < 1063908 | ✅ valor descartado; se conserva el del 2026-08-03 con `fallback: monotonía` |
+| Consenso (>20 %) | salto 1063908 → 2100000 (97 %) | ✅ 1ª lectura: fallback `consenso pendiente`; 2ª lectura idéntica 6 min después: aceptado |
+| Esquema cerrado | indicador con clave extra `email` | ✅ fuente descartada esa noche; los 4 indicadores caen a `data/history.json` (`fallback: fuente inválida`) |
+| Suplantación de clon | payload `clonmadv3` en fuente de otro clon | ✅ descartado (bug encontrado y corregido en la misma sesión: `--input` solo aplica a fuentes con sample) |
+| Extracto en portada | `out/index.html` | ✅ tarjeta destacada encabezada por el total de tokens (1.063.908) + 3 indicadores secundarios, cada uno con fecha y «ejemplo» |
+| /pulso completo | `out/pulso/index.html` | ✅ fecha por indicador, flags stale/fallback visibles, sección Evolución (serie + sparkline SVG sin JS) y sección Metodología (6 reglas del gate + fuentes) |
+| **Suite HTML** | `node --test tests/html.test.mjs` | ✅ 6/6: 13 rutas × 21 locales existen, un h1 por página, canonical + 22 hreflang por página, marca y nombres intactos (0 centinelas), inglés completo (419/419 cadenas con clave en `en.json`), 0 enlaces internos rotos |
+| **axe-core AA** | `node --test tests/a11y.test.mjs` | ✅ 26 páginas (13 es + 13 en) × wcag2a+wcag2aa, **0 violaciones**. `color-contrast` desactivada en jsdom (sin layout); contraste medido a mano arriba (≈12:1 en el hero) |
+| Canonical páginas legales | tests html + agents-seo | ⚠️ las 5 páginas del pie heredaban el canonical de `/` → corregido con `pageMetadata({path})` en cada una |
+| **Gate completo** | `npm run gate` (lint + build estático + tests) | ✅ **45/45 tests** · tsc sin errores · 280 HTML · 419 cadenas en inventario · con traducción: en, zh, ja |
+
+Notas: `--input` solo sustituye al sample de fuentes que lo tienen (nunca a jarvis). `pending.json` y `source-status.json` son estado entre ejecuciones del cron. Los 9 diccionarios restantes (ko, zh-TW, ca, gl, eu, va, oc-aranes, ast, pt) los asume cc (commit 46c8e98); el test de diccionarios los declara pendientes con tope decreciente.
