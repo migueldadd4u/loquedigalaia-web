@@ -23,13 +23,17 @@ async function filesBelow(dir) {
 
 /* Español (raíz, la fuente) e inglés (traducción completa): las dos caras del
    contrato de contenido. Las variantes regionales heredan el mismo HTML. */
-const targets = (await filesBelow(OUT))
-  .map((p) => relative(OUT, p).split(sep).join("/"))
+const outputFiles = (await filesBelow(OUT)).map((p) =>
+  relative(OUT, p).split(sep).join("/"),
+);
+const outputFileSet = new Set(outputFiles);
+const targets = outputFiles
   .filter((rel) => {
     if (!rel.endsWith(".html")) return false;
     if (rel === "404.html" || rel === "404/index.html") return false;
     if (rel.split("/").some((part) => part.startsWith("_"))) return false;
-    return !rel.includes("/") || rel.startsWith("en/"); // es en la raíz + /en/
+    if (rel === "index.html" || rel.startsWith("en/")) return true;
+    return outputFileSet.has(`en/${rel}`); // es en la raíz + /en/
   })
   .sort();
 assert.ok(targets.length >= 16, `páginas para axe: ${targets.length}`);
