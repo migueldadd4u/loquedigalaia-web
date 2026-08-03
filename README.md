@@ -25,7 +25,18 @@ Este repositorio es **público**. Política de datos (aclarada por los fundadore
 
 ## Desarrollo
 
-El esqueleto de la aplicación se crea en la fase F1 del plan. Requerirá Node.js ≥ 22.13.
+Esqueleto creado en F1: Next.js 16 + React 19 + TypeScript + Tailwind CSS 4, export estático e i18n post-build (español canónico en raíz + `/en/` generado desde `content/i18n/en.json`). Requiere Node.js ≥ 22.13.
+
+| Comando | Qué hace |
+|---|---|
+| `npm install` | Instala dependencias |
+| `npm run dev` | Servidor de desarrollo |
+| `npm run build:static` | Sello de build (`build-stamp.mjs`) → `next build` estático (`export-static.mjs`) → generación de `/en/` (`i18n-build.mjs`) en `out/` |
+| `npm run lint` | ESLint (flat config, reglas de Next) |
+| `npm test` | Build estático + suite `node --test` sobre el HTML exportado (rutas, lang/hreflang, un `<h1>`, landmarks, skip-link, selector de idioma, diccionario, accesibilidad en CSS, cero datos personales) |
+| `npm run gate` | Gate F1 completo: lint + test + checks binarios (`scripts/gate.mjs`) |
+
+Las 7 rutas de PLAN.md §2 viven en `app/` con contenido placeholder marcado `TODO-CONTENIDO` (el gate F2 exigirá que desaparezca). La utilidad compartida del mecanismo i18n es `scripts/i18n-client.mjs` (rutas, locales, diccionarios).
 
 ## Publicación
 
