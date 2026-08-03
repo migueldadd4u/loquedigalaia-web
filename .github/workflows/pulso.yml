@@ -34,13 +34,24 @@ jobs:
       - name: Snapshot del pulso (gate de ingesta)
         run: node scripts/snapshot.mjs
 
-      - name: Commit de datos si cambiaron
+      - name: Commit de datos si cambiaron (valores, no el timestamp)
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add data/pulso.json data/history.json data/source-status.json data/pending.json
-          if git diff --cached --quiet; then
+          # generatedAt/lastOk cambian en cada ejecución; la decisión de
+          # rebuild es por VALOR de indicador (PLAN.md: si hay cambios válidos).
+          changed=$(node -pe "
+            const {execSync}=require('child_process');
+            const strip=(o)=>{const c={...o};delete c.generatedAt;return c;};
+            const cur=JSON.parse(require('fs').readFileSync('data/pulso.json','utf8'));
+            let prev=null;
+            try{prev=JSON.parse(execSync('git show HEAD:data/pulso.json',{encoding:'utf8'}))}catch(e){}
+            JSON.stringify(strip(cur))!==JSON.stringify(prev?strip(prev):null)
+          ")
+          if [ "$changed" = "false" ]; then
             echo "Sin cambios válidos en los datos: no se reconstruye."
+            git reset -q
             echo "CHANGED=false" >> "$GITHUB_ENV"
           else
             git commit -m "pulso: snapshot diario $(date -u +%F)"

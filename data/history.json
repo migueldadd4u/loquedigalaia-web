@@ -3,7 +3,7 @@
   "clonmadv3": {
     "tokens-consumidos-total": {
       "lastValid": {
-        "value": 537373823,
+        "value": 550039338,
         "unit": "tokens",
         "label": "Tokens consumidos (total acumulado)",
         "asOf": "2026-08-03",
@@ -12,7 +12,7 @@
       "series": [
         {
           "asOf": "2026-08-03",
-          "value": 537373823
+          "value": 550039338
         }
       ]
     },
@@ -33,7 +33,7 @@
     },
     "tareas-despachadas-7d": {
       "lastValid": {
-        "value": 40,
+        "value": 47,
         "unit": "tareas",
         "label": "Tareas despachadas (últimos 7 días)",
         "asOf": "2026-08-03",
@@ -42,7 +42,7 @@
       "series": [
         {
           "asOf": "2026-08-03",
-          "value": 40
+          "value": 47
         }
       ]
     },

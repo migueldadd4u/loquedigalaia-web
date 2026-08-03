@@ -1,12 +1,12 @@
 {
   "clone": "clonmadv3",
   "asOf": "2026-08-03",
-  "generatedAt": "2026-08-03T17:11:07.079Z",
+  "generatedAt": "2026-08-03T18:17:32.702Z",
   "indicators": [
     {
       "id": "tokens-consumidos-total",
       "label": "Tokens consumidos (total acumulado)",
-      "value": 537373823,
+      "value": 550039338,
       "unit": "tokens",
       "asOf": "2026-08-03",
       "source": "https://migueldadd4u.github.io/madclon-front-office/data",
@@ -24,7 +24,7 @@
     {
       "id": "tareas-despachadas-7d",
       "label": "Tareas despachadas (últimos 7 días)",
-      "value": 40,
+      "value": 47,
       "unit": "tareas",
       "asOf": "2026-08-03",
       "source": "https://migueldadd4u.github.io/madclon-front-office/data",
