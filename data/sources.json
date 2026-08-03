@@ -1,11 +1,12 @@
 {
-  "$comment": "Fuentes del pulso (docs/DATOS.md). Solo URLs públicas, jamás credenciales. url: null = fuente retenida (NO-GO); mientras tanto snapshot.mjs lee el fichero sample. El cambio a real es sustituir null por la URL pública — nada más.",
+  "$comment": "Fuentes del pulso (docs/DATOS.md). Solo URLs públicas, jamás credenciales. url: null = fuente retenida (NO-GO); mientras tanto snapshot.mjs lee el fichero sample. Con adapter, la URL es la BASE del frontal y scripts/front-office-adapter.mjs traduce sus documentos al contrato antes del gate.",
   "sources": [
     {
       "clone": "clonmadv3",
-      "url": null,
+      "url": "https://migueldadd4u.github.io/madclon-front-office/data/",
+      "adapter": "madclon-front-office/v1",
       "sample": "data/sample/pulso.sample.json",
-      "nota": "Frontal público de ClonMADv3 en saneado. Fase 1 (D4, 03/08)."
+      "nota": "Frontal público de ClonMADv3 EN VIVO desde el 03/08 (fail-soft en producción, decisión de los fundadores). El adaptador lee tokens.json, serie.json, clones.json y manifest.json. Si la fuente falla, el gate sirve el último valor válido de data/history.json — nunca el sample. Fase 1 (D4, 03/08)."
     },
     {
       "clone": "jarvis",

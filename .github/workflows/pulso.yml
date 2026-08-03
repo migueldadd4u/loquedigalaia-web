@@ -1,0 +1,73 @@
+# Pulso diario (PLAN.md §F3, docs/DATOS.md):
+#   snapshot → si hay cambios válidos → rebuild (gate) → deploy.
+# El cron solo corre en la rama por defecto (main). 05:23 UTC: el frontal
+# público de ClonMADv3 se regenera sobre la 01:43 UTC; margen de sobra.
+# El deploy a Cloudflare queda desactivado hasta que los fundadores activen la
+# variable CF_DEPLOY_ENABLED=true y el secreto CLOUDFLARE_API_TOKEN
+# (docs/DESPLIEGUE.md); mientras tanto, el deploy es manual con el runbook.
+
+name: pulso-diario
+
+on:
+  schedule:
+    - cron: "23 5 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  issues: write
+
+jobs:
+  snapshot-build-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Instalar dependencias
+        run: npm ci --no-audit --no-fund
+
+      - name: Snapshot del pulso (gate de ingesta)
+        run: node scripts/snapshot.mjs
+
+      - name: Commit de datos si cambiaron
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/pulso.json data/history.json data/source-status.json data/pending.json
+          if git diff --cached --quiet; then
+            echo "Sin cambios válidos en los datos: no se reconstruye."
+            echo "CHANGED=false" >> "$GITHUB_ENV"
+          else
+            git commit -m "pulso: snapshot diario $(date -u +%F)"
+            git push
+            echo "CHANGED=true" >> "$GITHUB_ENV"
+          fi
+
+      - name: Gate completo (lint + build estático + tests)
+        run: npm run gate
+
+      - name: Deploy a Cloudflare Workers (cuando los fundadores lo activen)
+        if: vars.CF_DEPLOY_ENABLED == 'true'
+        run: npx wrangler deploy
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+
+      - name: Nada muere en silencio — issue si la fuente falla 7 días (§6)
+        if: always()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          fails=$(node -pe "JSON.parse(require('fs').readFileSync('data/source-status.json','utf8')).clonmadv3?.consecutiveFailures ?? 0")
+          echo "Fallos consecutivos de la fuente: $fails"
+          if [ "$fails" -ge 7 ]; then
+            title="pulso: la fuente clonmadv3 lleva $fails ejecuciones fallando"
+            if gh issue list --state open --search "$title" --json number --jq length | grep -qx 0; then
+              gh issue create --title "$title" \
+                --body "DATOS.md §6: la fuente del pulso lleva $fails ejecuciones diarias fallando. La web muestra el último valor válido con su fecha (fallback), pero conviene revisar el frontal público o data/sources.json. Abierta automáticamente por la Action pulso-diario."
+            fi
+          fi

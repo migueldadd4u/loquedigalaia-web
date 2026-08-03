@@ -47,3 +47,17 @@ Registro de comprobaciones ejecutadas (regla: ningún «verificado» sin comando
 | Dominio propio | `dig` + API de zonas | ⏳ sigue en IONOS; no hay zona en Cloudflare y el token no puede crearla (ver DESPLIEGUE.md) |
 
 Pendiente para el gate F1 completo (Kimi): suite `npm test` automatizada (hoy la verificación fue manual instrumentada), axe-core, y los 15 diccionarios que faltan (ca, gl, eu, va, oc, ast, pt — las variantes regionales de es/pt heredan su fuente).
+
+## 2026-08-03 (noche, segunda tanda) — pulso con datos reales del frontal público
+
+| Comprobación | Método | Resultado |
+|---|---|---|
+| Frontal público ClonMADv3 en vivo | `curl -o /dev/null -w '%{http_code}'` a `/`, `/data/tokens.json`, `/data/manifest.json` de `migueldadd4u.github.io/madclon-front-office` | ✅ 200 · 200 · 200 |
+| Adaptador `madclon-front-office/v1` | `node --test tests/snapshot-adapter.test.mjs` | ✅ 4/4: mapeo, forma del contrato cerrado, errores → fallback, cero datos personales atravesando |
+| Primera lectura real | `node scripts/snapshot.mjs` | ✅ `data/pulso.json`: 537.373.823 tokens, 9 días, 40 tareas/7 d, 6 canales — todo `asOf 2026-08-03` con la URL de la fuente como `source` |
+| Migración sample→real | `data/history.json` | ✅ historia sample purgada (eran marcadores, no lecturas; evita falso consenso y monotonía falseada); documentado en DATOS.md |
+| Diccionarios resincronizados | diff `_inventory.json` vs `en/ja/zh.json` | ✅ 3 cadenas del aviso «datos de ejemplo» eliminadas de los 3 diccionarios (ya no se renderizan con datos reales) |
+| Gate completo | `npm run gate` | ✅ 49/49 tests + lint + build |
+| `/pulso` renderiza real | grep en `out/pulso/index.html` | ✅ «537.373.823» + «dato del 2026-08-03» en los 4 indicadores; cero «· ejemplo» |
+| `/en/pulso` | grep en `out/en/pulso/index.html` | ✅ «Tokens consumed (running total)» + misma cifra y fecha |
+| Action diaria | `.github/workflows/pulso.yml` | ✅ cron 05:23 UTC + dispatch: snapshot → commit de datos si cambian → gate → deploy (tras `CF_DEPLOY_ENABLED`) → issue a los 7 fallos (§6). Activa al llegar a `main` |

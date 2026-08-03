@@ -17,6 +17,15 @@ npm run build:static && npx wrangler deploy
 
 `build:static` genera `out/` (HTML por idioma, espejos Markdown, sitemap, llms.txt) y `wrangler deploy` sube ese directorio como Static Assets. No hay servidor: todo es estático.
 
+## Ciclo diario del pulso (F3)
+
+`.github/workflows/pulso.yml` corre cada día a las 05:23 UTC (tras el refresco del frontal público de ClonMADv3): `snapshot.mjs` → si hay datos válidos nuevos, commit de `data/` → gate completo → deploy. Dos condiciones para que el deploy automático se active (decisión de los fundadores):
+
+1. Variable del repo `CF_DEPLOY_ENABLED=true` (*Settings → Variables*).
+2. Secreto `CLOUDFLARE_API_TOKEN` con permiso de Workers en la cuenta (*Settings → Secrets*).
+
+Mientras no existan, el workflow hace snapshot + gate y el deploy se hace manual con el comando de arriba. Si la fuente falla 7 ejecuciones seguidas, la Action abre un issue (DATOS.md §6).
+
 Tras desplegar, los primeros minutos algunas rutas pueden devolver 404 mientras el manifiesto de assets se propaga por los nodos de Cloudflare — se estabiliza solo. Comprobado el 03/08: dos pasadas completas sin fallos a los ~2 minutos.
 
 ## Runbook del dominio (paso a paso, 03/08)

@@ -1,47 +1,48 @@
 {
+  "$comment": "Migración 03/08: historia del sample purgada al activar la fuente real (sources.json). Los valores sample eran marcadores, no lecturas; conservarlos habría bloqueado el primer dato real en el gate de consenso y falseado la monotonía. La historia real arranca con la primera lectura del frontal público.",
   "clonmadv3": {
     "tokens-consumidos-total": {
       "lastValid": {
-        "value": 1063908,
+        "value": 537373823,
         "unit": "tokens",
         "label": "Tokens consumidos (total acumulado)",
         "asOf": "2026-08-03",
-        "source": "sample"
+        "source": "https://migueldadd4u.github.io/madclon-front-office/data"
       },
       "series": [
         {
           "asOf": "2026-08-03",
-          "value": 1063908
+          "value": 537373823
         }
       ]
     },
     "dias-construyendo": {
       "lastValid": {
-        "value": 1,
+        "value": 9,
         "unit": "días",
         "label": "Días construyendo en público",
         "asOf": "2026-08-03",
-        "source": "sample"
+        "source": "https://migueldadd4u.github.io/madclon-front-office/data"
       },
       "series": [
         {
           "asOf": "2026-08-03",
-          "value": 1
+          "value": 9
         }
       ]
     },
     "tareas-despachadas-7d": {
       "lastValid": {
-        "value": 42,
+        "value": 40,
         "unit": "tareas",
         "label": "Tareas despachadas (últimos 7 días)",
         "asOf": "2026-08-03",
-        "source": "sample"
+        "source": "https://migueldadd4u.github.io/madclon-front-office/data"
       },
       "series": [
         {
           "asOf": "2026-08-03",
-          "value": 42
+          "value": 40
         }
       ]
     },
@@ -51,7 +52,7 @@
         "unit": "canales",
         "label": "Canales de entrada vigilados",
         "asOf": "2026-08-03",
-        "source": "sample"
+        "source": "https://migueldadd4u.github.io/madclon-front-office/data"
       },
       "series": [
         {

@@ -8,8 +8,10 @@ La web es estática en el despliegue y viva en los datos: un cron diario descarg
 
 | Fuente | Qué publica | Estado |
 |---|---|---|
-| Frontal público de ClonMADv3 | JSON de actividad/eficiencia del clon (incluye tokens consumidos) | **NO-GO actual** — su contrato público está en saneado; hasta entonces se usa `data/sample/` |
+| Frontal público de ClonMADv3 (`madclon-front-office`, GitHub Pages) | `tokens.json`, `serie.json`, `clones.json`, `manifest.json` con actividad/eficiencia del clon (incluye tokens consumidos) | **EN VIVO desde el 03/08** — fail-soft en producción por decisión de los fundadores. `scripts/front-office-adapter.mjs` (`madclon-front-office/v1`) traduce sus documentos al contrato; si falla, fallback al último válido |
 | Frontal público de Jarvis | equivalente del segundo clon | fase 2 — URL pendiente |
+
+Nota de mapeo (fase 1): `tokens-consumidos-total` toma `contador.total_tokens` tal como lo publica la fuente (suma de medido + estimado); `dias-construyendo` cuenta desde la primera fecha de `serie.json` (primer día con pulso público); `tareas-despachadas-7d` es el último registro de la serie; `canales-vigilados` suma canales + calendarios del perfil principal. Migración 03/08: la historia sembrada con datos sample se purgó al activar la fuente real (eran marcadores, no lecturas).
 
 Las URLs concretas viven en `data/sources.json` (versionado; solo URLs públicas, jamás credenciales).
 

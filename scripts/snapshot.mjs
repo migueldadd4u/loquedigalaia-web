@@ -30,6 +30,7 @@
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { adaptFrontOffice } from "./front-office-adapter.mjs";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const arg = (name) => {
@@ -92,8 +93,30 @@ function validate(payload) {
 }
 
 /* ---------- Carga de la fuente (URL real o sample) ---------- */
+// Con `adapter: "madclon-front-office/v1"` la URL es la BASE del frontal
+// público de ClonMADv3 (GitHub Pages): se descargan sus cuatro documentos y
+// el adaptador los traduce al contrato antes de validar (docs/DATOS.md).
+async function fetchFrontOffice(base) {
+  const b = base.replace(/\/$/, "");
+  const get = async (name) => {
+    const res = await fetch(`${b}/${name}`, { signal: AbortSignal.timeout(30_000) });
+    if (!res.ok) throw new Error(`HTTP ${res.status} en ${b}/${name}`);
+    return res.json();
+  };
+  const [tokens, serie, clones, manifest] = await Promise.all([
+    get("tokens.json"),
+    get("serie.json"),
+    get("clones.json"),
+    get("manifest.json"),
+  ]);
+  return adaptFrontOffice({ tokens, serie, clones, manifest }, b);
+}
+
 async function fetchSource(src) {
   if (src.url) {
+    if (src.adapter === "madclon-front-office/v1") {
+      return { payload: await fetchFrontOffice(src.url), via: src.url };
+    }
     const res = await fetch(src.url, { signal: AbortSignal.timeout(30_000) });
     if (!res.ok) throw new Error(`HTTP ${res.status} en ${src.url}`);
     return { payload: await res.json(), via: src.url };
