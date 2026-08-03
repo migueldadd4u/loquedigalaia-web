@@ -47,3 +47,49 @@ Registro de comprobaciones ejecutadas (regla: ningún «verificado» sin comando
 | Dominio propio | `dig` + API de zonas | ⏳ sigue en IONOS; no hay zona en Cloudflare y el token no puede crearla (ver DESPLIEGUE.md) |
 
 Pendiente para el gate F1 completo (Kimi): suite `npm test` automatizada (hoy la verificación fue manual instrumentada), axe-core, y los 15 diccionarios que faltan (ca, gl, eu, va, oc, ast, pt — las variantes regionales de es/pt heredan su fuente).
+
+## Los 21 idiomas, traducidos y verificados (2026-08-03)
+
+Antes solo estaba el inglés; el resto de la web se veía en español. Ahora los
+12 diccionarios están completos y la comprobación es automática, no visual.
+
+`node scripts/verificar-i18n.mjs out` mira el **HTML ya generado** y busca texto
+que siga en español. Distingue dos fallos, porque se arreglan distinto:
+
+- **ROTO** — había traducción y aun así salió en español. Fallo del pipeline.
+- **SIN** — no hay traducción para esa cadena. Falta trabajo de traducción.
+
+Además valida lo que el pipeline impone en silencio (caracteres prohibidos,
+nombres propios que no deben traducirse, cifras que no pueden perderse) y que
+ningún enlace interno se haya traducido.
+
+Salida del 03/08, tras completar los diccionarios:
+
+```
+Inventario: 393 cadenas · a traducir: 380
+
+DICCIONARIOS
+  ✓ en 380 · zh 380 · ko 380 · ja 380 · pt 380 · zh-TW 380
+  ✓ oc-aranes 380 · ast 380 · ca 380 · eu 380 · gl 380 · va 380
+
+HTML GENERADO (texto que sigue en español)
+  idioma       páginas   ROTO   SIN
+  ✓ (los 13 con diccionario)   15      0     0
+
+ENLACES INTERNOS
+  ✓ los 20 locales: todos apuntan a una ruta real
+
+✓ Nada queda sin traducir y ningún enlace se ha roto.
+```
+
+Verificado también contra producción: `/aviso-legal/` responde 200 en los 21
+idiomas con su título traducido y los datos identificativos presentes.
+
+### Un fallo que llevaba tiempo publicado
+
+La clave corta `manifiesto` traducía el segmento dentro del propio enlace:
+`href="/manifiesto/"` salía como `href="/manifesto/"`, y de rebote `prefixLinks`
+ya no lo reconocía y el enlace perdía el prefijo de idioma. Ocurría en los 12
+idiomas y sin ningún aviso. Arreglado en `scripts/i18n-build.mjs`: `translate()`
+blinda con centinelas los segmentos de URL además de la marca. La comprobación
+de enlaces del verificador existe para que no vuelva a pasar en silencio.

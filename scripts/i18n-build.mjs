@@ -145,12 +145,29 @@ function restoreNames(s) {
   return s;
 }
 
+// Las rutas son datos, no copy. Sin esto, una clave corta que coincida con un
+// segmento de URL lo traduce dentro del propio enlace: `manifiesto`→`manifesto`
+// convertía href="/manifiesto/" en href="/manifesto/" y, de rebote, prefixLinks
+// ya no lo reconocía y el enlace se quedaba sin prefijo de idioma. Pasaba en los
+// 12 idiomas y en silencio. Se protegen antes de traducir, en el HTML visible y
+// en el payload de React, y se restauran después.
+const RUTAS = [...APP_SEGMENTS];
+const ROUTE_RE = new RegExp(
+  `/(?:${RUTAS.map((s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|")})/`,
+  "g",
+);
+const routeSentinel = (i) => `\u0002R${i}\u0002`;
+const protectRoutes = (s) =>
+  s.replace(ROUTE_RE, (m) => routeSentinel(RUTAS.indexOf(m.slice(1, -1))));
+const restoreRoutes = (s) =>
+  s.replace(/\u0002R(\d+)\u0002/g, (_, i) => `/${RUTAS[Number(i)]}/`);
+
 function translate(html, r) {
   if (!r) return html;
-  html = protectNames(html);
+  html = protectRoutes(protectNames(html));
   for (const [from, to] of r.longs) html = html.split(from).join(to);
   if (r.re) html = html.replace(r.re, (m) => r.map.get(m) ?? m);
-  return restoreNames(html);
+  return restoreNames(restoreRoutes(html));
 }
 
 function localize(html, l, route, entries) {
