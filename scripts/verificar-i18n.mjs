@@ -106,6 +106,11 @@ for (const fuente of fuentes) {
 
   const problemas = [];
   for (const [k, v] of Object.entries(dict)) {
+    // Las claves exentas (marca, dominios, correos, `<!DOCTYPE html>`) están en
+    // los diccionarios porque alguien los normalizó contra el inventario. El
+    // pipeline no las aplica nunca, así que quejarse de ellas es ruido — y un
+    // aviso que salta siempre acaba ignorándose, que es peor que no tenerlo.
+    if (exenta(k)) continue;
     if (PROHIBIDOS.test(k) || PROHIBIDOS.test(v)) problemas.push(`carácter prohibido: ${k.slice(0, 40)}`);
     // Las cifras no pueden perderse ni cambiar de valor. Dos matices, aprendidos
     // a base de falsos positivos:
@@ -122,9 +127,24 @@ for (const fuente of fuentes) {
       if (k.includes(nombre) && !v.includes(nombre)) problemas.push(`pierde «${nombre}»: ${k.slice(0, 40)}`);
     }
   }
+  // Una entrada con valor igual a la clave significa «en este idioma se escribe
+  // igual», y para una palabra suelta es normal. Para una FRASE LARGA es casi
+  // siempre un olvido disfrazado de decisión: así se quedó el título de la
+  // portada en castellano dentro del asturiano, y lo vio MAD a ojo antes que
+  // este script. No es motivo de aborto —a veces coinciden de verdad—, pero
+  // tiene que decirse en voz alta y quedar revisado.
+  const identicas = Object.entries(dict)
+    .filter(([k, v]) => k === v && k.length > 40)
+    .map(([k]) => k);
+
   const marca = problemas.length === 0 ? "✓" : "✗";
-  console.log(`  ${marca} ${fuente.padEnd(10)} ${String(Object.keys(dict).length).padStart(4)} entradas${problemas.length ? ` · ${problemas.length} problemas` : ""}`);
+  console.log(
+    `  ${marca} ${fuente.padEnd(10)} ${String(Object.keys(dict).length).padStart(4)} entradas` +
+      `${problemas.length ? ` · ${problemas.length} problemas` : ""}` +
+      `${identicas.length ? ` · ⚠ ${identicas.length} frases largas idénticas al español` : ""}`,
+  );
   for (const p of problemas.slice(0, 5)) console.log(`      · ${p}`);
+  for (const k of identicas.slice(0, 5)) console.log(`      ⚠ sin traducir (o idéntica): ${k.slice(0, 70)}`);
   if (problemas.length) fallos += problemas.length;
 }
 
