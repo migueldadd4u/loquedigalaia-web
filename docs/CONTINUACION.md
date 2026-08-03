@@ -11,6 +11,8 @@ Este documento existe para que **cualquier agente** (Kimi K3, Codex, otro Claude
 
 Para verla: `npm install && npm run dev` (puerto 3210). El build de referencia es `npm run build` (debe generar todas las rutas como estáticas, hoy lo hace sin errores).
 
+Los encargos tal y como se entregaron a cada agente están en [PROMPTS-AGENTES.md](PROMPTS-AGENTES.md).
+
 ## Cola de trabajo, por orden
 
 1. **Terminar F1** (rama `f1-scaffold`): el **multiidioma ya está operativo** (`npm run build:static` → 17 locales, inglés traducido al completo, sitemap con hreflang). Queda: suite `npm test` sobre el HTML renderizado, axe-core, y **las cifras reales del front office de ClonMAD en portada y en `/pulso`** (encargo de MAD). Gate en PLAN §F1.
