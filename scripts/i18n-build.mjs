@@ -181,7 +181,12 @@ function shieldMachineValues(html) {
   }
 
   html = html.replace(
-    /(?<!<)(?:https?:\/\/|mailto:|tel:|\/(?![/*])|#[\p{L}\p{N}_-])[^\s"'<>\\]+/gu,
+    // La barra suelta solo abre una ruta si NO viene pegada a letra o cifra. Sin
+    // ese matiz se blindaban trozos de prosa —«ISO/IEC 42001», «Ley 34/2002»— y
+    // la cadena dejaba de casar con su clave del diccionario: la frase entera se
+    // quedaba en español, en los 13 idiomas y sin avisar. Lo cazó
+    // scripts/verificar-i18n.mjs, que compara contra el HTML ya generado.
+    /(?<!<)(?:https?:\/\/|mailto:|tel:|(?<![\p{L}\p{N}])\/(?![/*])|#[\p{L}\p{N}_-])[^\s"'<>\\]+/gu,
     (value) => stash(value),
   );
   return {
