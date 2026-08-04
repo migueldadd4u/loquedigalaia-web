@@ -252,6 +252,7 @@ export const pulso = {
   titulo: "El pulso de la empresa",
   intro:
     "Datos publicados por los clones de los fundadores. La web se reconstruye cada día con ellos: si un dato no pasa el control de calidad, se muestra el último válido con su fecha — nunca un número inventado.",
+  avisoEtiqueta: "Aviso:",
   avisoSample:
     "Datos de ejemplo. Las fuentes reales de los clones están en proceso de publicación; este es el formato exacto con el que se mostrarán.",
   evolucionTitulo: "Evolución",

@@ -414,5 +414,10 @@
   "— la universidad tiene que reconstruirse para buscar criterio, no conocimiento.": "——大学は、知識ではなく見識を育てるために作り直されなければならない。",
   "— la velocidad de gestión hace imposible resolver este problema.": "——手続きの遅さが、この問題の解決を不可能にしている。",
   "— olvidada.": "——忘れられている。",
-  "— y que, como nos da miedo, miramos a otro lado o hacemos una ley, pero no la probamos.": "——そして、怖いから目をそらすか法律を作るかで済ませ、実際に試そうとしない。"
+  "— y que, como nos da miedo, miramos a otro lado o hacemos una ley, pero no la probamos.": "——そして、怖いから目をそらすか法律を作るかで済ませ、実際に試そうとしない。",
+  "Aviso:": "お知らせ：",
+  "Datos de ejemplo. Las fuentes reales de los clones están en proceso de publicación; este es el formato exacto con el que se mostrarán.": "サンプルデータです。クローンの実データソースは公開準備中で、これは実際に表示される形式と同じです。",
+  "dato con más de 48 h, pendiente de refresco": "48時間以上前のデータ（更新待ち）",
+  "ejemplo": "例",
+  "último valor válido": "最後の有効な値"
 }

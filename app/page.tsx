@@ -176,8 +176,14 @@ export default function Home() {
                 style={{ color: "var(--fg-soft)" }}
               >
                 {home.pulsoDatoDel} {tokens.asOf}
-                {tokens.source === "sample" ? ` · ${home.pulsoEjemplo}` : ""}
-                {tokens.fallback ? ` · ${home.pulsoUltimoValido}` : ""}
+                <span hidden={tokens.source !== "sample"}>
+                  <span aria-hidden="true"> · </span>
+                  <span>{home.pulsoEjemplo}</span>
+                </span>
+                <span hidden={!tokens.fallback}>
+                  <span aria-hidden="true"> · </span>
+                  <span>{home.pulsoUltimoValido}</span>
+                </span>
               </p>
             </article>
           ) : null}
@@ -202,7 +208,10 @@ export default function Home() {
                 style={{ color: "var(--fg-soft)" }}
               >
                 {home.pulsoDatoDel} {i.asOf}
-                {i.source === "sample" ? ` · ${home.pulsoEjemplo}` : ""}
+                <span hidden={i.source !== "sample"}>
+                  <span aria-hidden="true"> · </span>
+                  <span>{home.pulsoEjemplo}</span>
+                </span>
               </p>
             </article>
           ))}
