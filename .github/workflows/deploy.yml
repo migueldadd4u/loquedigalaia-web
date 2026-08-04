@@ -1,30 +1,30 @@
-# Despliegue a producción (Cloudflare Workers Static Assets).
+# Ingesta efímera y despliegue a producción (Cloudflare Workers Static Assets).
 #
 # Tres caminos:
-#   1. push a main que toca data/** — el snapshot diario del pulso (07:47
-#      Europe/Madrid) commitea solo cuando hay datos nuevos, y ese push
-#      dispara el despliegue: la web se actualiza sola cada noche.
-#   2. schedule — red de seguridad diaria, por si un push se perdió.
+#   1. push de código a main — reconstruye y publica la web.
+#   2. schedule — restaura el último checkpoint público, descarga el pulso,
+#      valida, reconstruye y publica sin crear commits en data/**.
 #   3. workflow_dispatch — botón manual «Run workflow».
 #
-# Secretos necesarios (Settings → Secrets and variables → Actions):
-#   CLOUDFLARE_API_TOKEN  — token con permiso «Workers Scripts: Edit»
-#   CLOUDFLARE_ACCOUNT_ID — id de la cuenta de Cloudflare
-#
-# wrangler lee ambas de las variables de entorno; no hace falta
-# wrangler-action ni login interactivo.
+# El despliegue es el último paso. Si restauración, snapshot o cualquier gate
+# falla, Wrangler no se ejecuta y producción conserva íntegra la versión previa.
 
 name: Deploy producción
 
 on:
   push:
     branches: [main]
-    paths:
-      - 'data/**'
+    # Estos cuatro ficheros son únicamente el fallback de arranque del repo. El
+    # workflow nunca los commitea; ignorarlos evita revivir el modelo antiguo.
+    paths-ignore:
+      - 'data/pulso.json'
+      - 'data/history.json'
+      - 'data/source-status.json'
+      - 'data/pending.json'
   schedule:
-    # 07:53 UTC = 08:53 CET / 09:53 CEST: siempre después del snapshot
-    # diario (07:47 Europe/Madrid) en cualquier época del año.
-    - cron: '53 7 * * *'
+    # GitHub usa UTC: 05:15 CET / 06:15 CEST, siempre después del productor
+    # de ClonMAD programado a las 03:43 Europe/Madrid.
+    - cron: '15 4 * * *'
   workflow_dispatch:
 
 concurrency:
@@ -37,6 +37,10 @@ permissions:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      NEXT_TELEMETRY_DISABLED: '1'
+      PULSO_STATE_URL: https://loquedigalaia.com/pulso-state.json
     steps:
       - uses: actions/checkout@v4
 
@@ -47,10 +51,19 @@ jobs:
 
       - run: npm ci
 
-      # build:static + tests HTML/a11y + verificación i18n + chequeo
-      # antes-de-publicar + wrangler deploy. Si algo falla, no se despliega.
-      - name: Build, gates y deploy
-        run: npm run deploy
+      - name: Restaurar último checkpoint válido
+        run: npm run pulso:restore
+
+      - name: Descargar y validar el pulso nuevo
+        run: npm run snapshot
+
+      # gate = lint + build estático + tests HTML/a11y/SEO + checkpoint dentro
+      # de out/. No hay git add, commit ni push: data/** vive solo en el runner.
+      - name: Lint, tests, build y checkpoint
+        run: npm run gate
+
+      - name: Guardián y deploy atómico
+        run: npm run deploy:out
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
