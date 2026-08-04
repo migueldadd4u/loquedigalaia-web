@@ -166,6 +166,13 @@ solo lectura y no contiene comandos `git add`, `commit` ni `push`. Los secretos
 `CLOUDFLARE_API_TOKEN` y `CLOUDFLARE_ACCOUNT_ID` ya están configurados en
 Actions; solo se exponen al último paso.
 
+Cloudflare Workers Builds sigue conectado al repositorio para conservar los
+checks y las URLs de preview, pero no publica producción: en **Settings → Build**
+los comandos de producción y de ramas no productivas son ambos
+`npx wrangler versions upload`. Por tanto, Workers Builds solo crea versiones
+inertes; la única promoción a producción es `npm run deploy:out` desde esta
+Action, después del checkpoint y todos los gates.
+
 El horario equivale a 05:15 CET / 06:15 CEST y queda siempre después del
 productor de ClonMAD, programado a las 03:43 `Europe/Madrid`.
 

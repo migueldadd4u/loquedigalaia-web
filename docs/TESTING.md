@@ -762,6 +762,7 @@ runner y Wrangler sigue siendo el último paso.
 | Coherencia del artefacto | `npm run antes-de-publicar` | ✅ `pulso-state.json.pulso` coincide exactamente con `out/pulso.json`; publicable |
 | Primer arranque real | `npm run pulso:restore` contra producción | ✅ `/pulso-state.json` devolvió 404; fallback del repositorio validado y seleccionado |
 | Empaquetado Cloudflare | `wrangler 4.118.0 deploy --dry-run` | ✅ 782 assets leídos; terminó sin publicar |
+| Workers Builds sin promoción | Cloudflare **Settings → Build** | ✅ `Deploy command` y `Version command`: `npx wrangler versions upload`; conserva previews sin competir con Actions |
 | Extremos públicos | `curl` a raw, Pages y producción | ⚠️ raw ya sirve 2026-08-04 / 550.059.799 tokens; Pages y producción conservan 2026-08-03 / 550.039.338 hasta integrar y ejecutar el canary |
 | Despliegue real | no ejecutado en esta rama | ⏳ requiere canary manual de Actions después de integrar |
 
