@@ -94,14 +94,15 @@ git branch --show-current
 git status --short
 npm ci
 npm run pulso:restore
-npm run snapshot
+npm run snapshot:daily
 npm run gate
 npm run deploy:out
 ```
 
 `pulso:restore` recupera y valida el checkpoint público de producción; si aún no
-existe, valida el fallback versionado en el repositorio. `snapshot` actualiza el
-estado únicamente en el árbol de trabajo. `npm run gate` genera `out/`, ejecuta
+existe, valida el fallback versionado en el repositorio. `snapshot:daily`
+actualiza el estado únicamente en el árbol de trabajo y, solo ante un consenso
+pendiente, realiza una segunda lectura después de cinco minutos. `npm run gate` genera `out/`, ejecuta
 la suite que cubre todas las rutas y locales y añade `out/pulso-state.json`.
 `deploy:out` pasa el guardián —incluida la igualdad entre el checkpoint y
 `/pulso.json`— y usa la versión fijada de Wrangler.
@@ -176,21 +177,15 @@ Action, después del checkpoint y todos los gates.
 El horario equivale a 05:15 CET / 06:15 CEST y queda siempre después del
 productor de ClonMAD, programado a las 03:43 `Europe/Madrid`.
 
-### Retirada obligatoria de escritores antiguos
+### Retirada de escritores antiguos
 
-La retirada operativa queda intencionadamente pendiente hasta completar un
-canary manual: integrar, lanzar `workflow_dispatch`, comprobar el checkpoint y
-verificar portada, `/pulso` y `/pulso.json` en producción. Solo después hay que:
-
-1. eliminar del crontab la entrada de `agent/snapshot-cron.sh`;
-2. deshabilitar el escritor diario legado de Kimi;
-3. deshabilitar el vigía/escritor legado de Kimi.
-
-El script local ya es un stub deprecado y no mutante, como defensa en
-profundidad mientras llega esa retirada. Los dos escritores Kimi viven fuera de
-este repositorio y deben mantenerse identificados pero sin desactivarlos antes
-del canary. Hasta completar los tres pasos aún puede existir competencia entre
-publicadores externos y el workflow nuevo.
+La retirada operativa se completó el 4 de agosto de 2026 después del canary de
+producción: se eliminó del crontab la entrada de `agent/snapshot-cron.sh` y se
+deshabilitaron tanto el escritor diario como el vigía legado de Kimi. La copia
+reversible del estado anterior y posterior está en
+`/Users/madclon/MADClon-Storage/backups/loquedigalaia-retirada/20260804T114719+0200/`.
+El script local permanece como stub deprecado y no mutante por defensa en
+profundidad.
 
 ### Recuperación
 

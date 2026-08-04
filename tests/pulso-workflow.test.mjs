@@ -24,7 +24,7 @@ test("el workflow cubre push, horario y ejecución manual con concurrencia únic
 test("restaura, ingiere, pasa el gate y solo entonces despliega", () => {
   const commands = [
     "npm run pulso:restore",
-    "npm run snapshot",
+    "npm run snapshot:daily",
     "npm run gate",
     "npm run deploy:out",
   ];

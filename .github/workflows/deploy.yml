@@ -54,8 +54,8 @@ jobs:
       - name: Restaurar último checkpoint válido
         run: npm run pulso:restore
 
-      - name: Descargar y validar el pulso nuevo
-        run: npm run snapshot
+      - name: Descargar, validar y confirmar el pulso nuevo
+        run: npm run snapshot:daily
 
       # gate = lint + build estático + tests HTML/a11y/SEO + checkpoint dentro
       # de out/. No hay git add, commit ni push: data/** vive solo en el runner.
