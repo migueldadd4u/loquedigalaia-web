@@ -10,6 +10,8 @@
     "dev": "next dev -p 3210",
     "build": "next build",
     "snapshot": "node scripts/snapshot.mjs",
+    "pulso:restore": "node scripts/restore-pulso-state.mjs",
+    "pulso:publish-state": "node scripts/publish-pulso-state.mjs out data",
     "build:static": "next build && node scripts/agents-build.mjs out && node scripts/i18n-build.mjs out",
     "start": "npx serve out",
     "lint": "tsc --noEmit --incremental false",
@@ -17,7 +19,8 @@
     "gate": "node scripts/gate.mjs",
     "verificar": "node scripts/verificar-i18n.mjs out",
     "antes-de-publicar": "node scripts/antes-de-publicar.mjs out",
-    "deploy": "npm run build:static && node scripts/antes-de-publicar.mjs out && npx wrangler deploy"
+    "deploy:out": "node scripts/antes-de-publicar.mjs out && wrangler deploy",
+    "deploy": "npm run pulso:restore && npm run snapshot && npm run gate && npm run deploy:out"
   },
   "dependencies": {
     "next": "16.2.6",
@@ -34,6 +37,7 @@
     "node-html-parser": "^9.0.0",
     "postcss": "8.5.6",
     "tailwindcss": "4.2.1",
-    "typescript": "5.9.3"
+    "typescript": "5.9.3",
+    "wrangler": "4.118.0"
   }
 }

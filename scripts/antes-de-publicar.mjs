@@ -4,12 +4,14 @@
 // rama y el trabajo seguía en otra. Un despliegue no puede depender de que alguien
 // se acuerde.
 //
-// Comprueba tres cosas, en este orden de gravedad:
+// Comprueba cuatro cosas, en este orden de gravedad:
 //   1. LEGAL   — las páginas preceptivas existen y llevan sus datos. Sin esto la
 //                web incumple el art. 10 de la LSSI-CE. Es motivo de aborto.
 //   2. IDIOMAS — cada locale declarado tiene sus páginas. Un idioma a medias es
 //                una web rota para quien la abre en ese idioma.
 //   3. RASTRO  — sitemap y canónicas presentes.
+//   4. PULSO   — el checkpoint público existe, es válido y contiene exactamente
+//                el mismo pulso que /pulso.json.
 //
 // La verificación de que el TEXTO está traducido vive en scripts/verificar-i18n.mjs,
 // que este guardián invoca al final: son preguntas distintas y conviene poder
@@ -21,6 +23,8 @@ import { readFile } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import { join } from "node:path";
 import { spawnSync } from "node:child_process";
+import { isDeepStrictEqual } from "node:util";
+import { validatePulsoState } from "./lib/pulso-state.mjs";
 
 const OUT = process.argv[2] ?? "out";
 
@@ -93,7 +97,30 @@ else {
   else console.log("  ✓ sitemap.xml completo");
 }
 
-// 4) Y que el texto esté además traducido.
+// 4) Checkpoint público para que la siguiente ejecución pueda recuperar el
+// último estado válido sin depender de commits en data/**.
+console.log("\nCheckpoint del pulso");
+const stateFile = join(OUT, "pulso-state.json");
+const publicPulsoFile = join(OUT, "pulso.json");
+if (!existsSync(stateFile)) {
+  mal("falta pulso-state.json — la siguiente ejecución perdería el estado efímero");
+} else if (!existsSync(publicPulsoFile)) {
+  mal("falta pulso.json");
+} else {
+  try {
+    const state = validatePulsoState(JSON.parse(await readFile(stateFile, "utf8")));
+    const publicPulso = JSON.parse(await readFile(publicPulsoFile, "utf8"));
+    if (!isDeepStrictEqual(state.pulso, publicPulso)) {
+      mal("pulso-state.json y pulso.json no contienen el mismo snapshot");
+    } else {
+      console.log(`  ✓ checkpoint v${state.version} válido y coherente con /pulso.json`);
+    }
+  } catch (error) {
+    mal(`pulso-state.json inválido: ${error.message}`);
+  }
+}
+
+// 5) Y que el texto esté además traducido.
 console.log("\nTraducción\n");
 const i18n = spawnSync(process.execPath, ["scripts/verificar-i18n.mjs", OUT], {
   encoding: "utf8",

@@ -93,15 +93,23 @@ el PR— y con el árbol limpio:
 git branch --show-current
 git status --short
 npm ci
+npm run pulso:restore
+npm run snapshot
 npm run gate
-node scripts/antes-de-publicar.mjs out
-npx wrangler deploy
+npm run deploy:out
 ```
 
-`npm run gate` genera `out/` y ejecuta la suite que cubre todas las rutas y
-locales. El guardián vuelve a comprobar las páginas legales, siete rutas
-críticas en los 20 prefijos localizados, la presencia de las rutas exigidas en
-el sitemap y las traducciones antes del despliegue.
+`pulso:restore` recupera y valida el checkpoint público de producción; si aún no
+existe, valida el fallback versionado en el repositorio. `snapshot` actualiza el
+estado únicamente en el árbol de trabajo. `npm run gate` genera `out/`, ejecuta
+la suite que cubre todas las rutas y locales y añade `out/pulso-state.json`.
+`deploy:out` pasa el guardián —incluida la igualdad entre el checkpoint y
+`/pulso.json`— y usa la versión fijada de Wrangler.
+
+No se debe hacer `git add`, commit ni push de `data/pulso.json`,
+`data/history.json`, `data/source-status.json` o `data/pending.json`: en este
+modelo son estado efímero del runner. Si cualquier comando anterior falla,
+Wrangler no llega a ejecutarse y producción conserva su versión previa.
 
 Después de cada despliegue hay que esperar la propagación del manifiesto de
 assets: durante unos dos minutos alguna ruta puede devolver un 404 transitorio.
@@ -141,41 +149,54 @@ pipeline actual genera sus canonical/hreflang sin ella (`/en`, `/zh`, `/ja`).
 El host canónico sí es correcto y producción coincide con `out/`; normalizar la
 barra final queda como una segunda deuda SEO del pipeline.
 
-## Publicación automática del pulso (desde el 03/08/2026)
+## Publicación automática del pulso (modelo sin commits, 04/08/2026)
 
-El pulso se publica solo, todos los días, en portada y en `/pulso`, en los 21 locales.
+El pulso se publica todos los días en portada y `/pulso`, en los 21 locales, sin
+depender de una máquina encendida y sin ensuciar el historial Git.
 
 | Pieza | Dónde | Cuándo |
 |---|---|---|
-| **Cron diario (primario)** | `agent/snapshot-cron.sh` en el crontab de esta máquina | 07:47 |
-| **Workflow de GitHub (red de seguridad)** | `.github/workflows/deploy.yml` | al tocar `data/**`, a las 07:53 UTC y a mano |
+| **Workflow único** | `.github/workflows/deploy.yml` | push de código a `main`, 04:15 UTC y manual |
+| **Checkpoint anterior** | `https://loquedigalaia.com/pulso-state.json` | inicio de cada ejecución |
+| **Checkpoint siguiente** | `out/pulso-state.json` | después del build y antes del deploy |
 
-El cron trae `main`, ejecuta `scripts/snapshot.mjs` contra el front office del clon y **solo
-si el pulso ha cambiado** commitea, empuja y publica con `npm run deploy` — que pasa por el
-guardián `scripts/antes-de-publicar.mjs`. Si el clon no mueve sus cifras, producción no se
-toca. El registro queda en `agent/snapshot-cron.log` (no se versiona).
+La concurrencia `deploy-produccion` no cancela una publicación en curso y
+garantiza una única tubería de producción. El workflow tiene permisos Git de
+solo lectura y no contiene comandos `git add`, `commit` ni `push`. Los secretos
+`CLOUDFLARE_API_TOKEN` y `CLOUDFLARE_ACCOUNT_ID` ya están configurados en
+Actions; solo se exponen al último paso.
 
-Se despliega desde el cron y no desde la Action porque **wrangler ya está autenticado en
-esta máquina**. ⚠️ El workflow de GitHub **todavía no puede desplegar**: el repositorio no
-tiene configurados los secretos `CLOUDFLARE_API_TOKEN` ni `CLOUDFLARE_ACCOUNT_ID`
-(verificado: 0 secretos). Hasta que un fundador cree el token en el panel de Cloudflare con
-permiso «Workers Scripts: Edit» y lo añada en *Settings → Secrets and variables → Actions*,
-la red de seguridad no existe: si esta máquina está apagada, el pulso no se actualiza.
+Cloudflare Workers Builds sigue conectado al repositorio para conservar los
+checks y las URLs de preview, pero no publica producción: en **Settings → Build**
+los comandos de producción y de ramas no productivas son ambos
+`npx wrangler versions upload`. Por tanto, Workers Builds solo crea versiones
+inertes; la única promoción a producción es `npm run deploy:out` desde esta
+Action, después del checkpoint y todos los gates.
 
-## Relevo a Claude
+El horario equivale a 05:15 CET / 06:15 CEST y queda siempre después del
+productor de ClonMAD, programado a las 03:43 `Europe/Madrid`.
 
-La rama local preparada es `codex/domain-launch`. Solo contiene cambios en
-`wrangler.jsonc`, `docs/DESPLIEGUE.md` y `docs/TESTING.md`.
+### Retirada obligatoria de escritores antiguos
 
-1. Confirmar la rama antes de cualquier `git add`.
-2. Rebasar sobre el `origin/main` más reciente y ejecutar `npm run gate` más
-   `node scripts/antes-de-publicar.mjs out`.
-3. Subir la rama y abrir el PR contra `main`; no hacer cambios directos en
-   `main`.
-4. Tras integrar el PR, desplegar una única vez desde el `main` fusionado con
-   `npx wrangler deploy`.
-5. Consultar `npx wrangler deployments list` para fijar el ID realmente vigente
-   y repetir dos pasadas limpias de la matriz; otro despliegue invalida las
-   pasadas anteriores.
-6. Esperar dos rondas DNS públicas limpias y completar en `TESTING.md` los
-   `curl` normales finales de apex y `www`.
+La retirada operativa queda intencionadamente pendiente hasta completar un
+canary manual: integrar, lanzar `workflow_dispatch`, comprobar el checkpoint y
+verificar portada, `/pulso` y `/pulso.json` en producción. Solo después hay que:
+
+1. eliminar del crontab la entrada de `agent/snapshot-cron.sh`;
+2. deshabilitar el escritor diario legado de Kimi;
+3. deshabilitar el vigía/escritor legado de Kimi.
+
+El script local ya es un stub deprecado y no mutante, como defensa en
+profundidad mientras llega esa retirada. Los dos escritores Kimi viven fuera de
+este repositorio y deben mantenerse identificados pero sin desactivarlos antes
+del canary. Hasta completar los tres pasos aún puede existir competencia entre
+publicadores externos y el workflow nuevo.
+
+### Recuperación
+
+En el primer despliegue, `/pulso-state.json` todavía devolverá 404 y la Action
+usará el estado validado del repositorio. A partir de ese despliegue, cada
+ejecución hereda el último estado publicado. Si el asset remoto es ilegible o
+no cumple el contrato, se usa el fallback del repo; si tampoco es válido, el
+workflow falla antes del build. Como Cloudflare sustituye el conjunto de Static
+Assets solo al final, un fallo conserva íntegra la producción anterior.

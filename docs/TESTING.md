@@ -742,3 +742,64 @@ accesible, pero no se registra como semánticamente limpio. Los `lastmod` se
 generan en cada build, por lo que no se afirmó una igualdad byte a byte con un
 `out/` recompilado después. La corrección del generador queda como deuda
 técnica fuera de esta publicación del dominio.
+
+## 2026-08-04 — ingesta efímera sin commits
+
+Se sustituyó el cron escritor por una única tubería de Actions. El estado entre
+ejecuciones viaja en `out/pulso-state.json`; `data/**` solo se modifica en el
+runner y Wrangler sigue siendo el último paso.
+
+| Comprobación | Método | Resultado |
+|---|---|---|
+| Lockfile reproducible | `npm ci` | ✅ 127 paquetes instalados desde lock; Wrangler fijado en `4.118.0` |
+| Restauración remota válida | `node --test tests/pulso-state.test.mjs` | ✅ valida el sobre completo antes de escribir y restaura los cuatro ficheros |
+| Remoto inválido | mismo test focal | ✅ deja intacto y valida el fallback del repositorio |
+| Remoto y fallback inválidos | mismo test focal | ✅ aborta antes del build |
+| Checkpoint publicado | mismo test focal | ✅ versión, fecha, pulso, historia, estado de fuentes y consenso presentes |
+| Workflow sin escritores Git | `node --test tests/pulso-workflow.test.mjs` | ✅ permisos `contents: read`; ningún `git add`, `commit` ni `push`; orden restore → snapshot → gate → deploy |
+| Cron local legado | mismo test + `bash agent/snapshot-cron.sh` | ✅ stub deprecado, no mutante, mensaje claro y código 0 |
+| Gate completo final | `npm run gate` | ✅ 54/54 tests; TypeScript, export estático, SEO, axe, 21 locales y checkpoint |
+| Coherencia del artefacto | `npm run antes-de-publicar` | ✅ `pulso-state.json.pulso` coincide exactamente con `out/pulso.json`; publicable |
+| Primer arranque real | `npm run pulso:restore` contra producción | ✅ `/pulso-state.json` devolvió 404; fallback del repositorio validado y seleccionado |
+| Empaquetado Cloudflare | `wrangler 4.118.0 deploy --dry-run` | ✅ 782 assets leídos; terminó sin publicar |
+| Workers Builds sin promoción | Cloudflare **Settings → Build** | ✅ `Deploy command` y `Version command`: `npx wrangler versions upload`; conserva previews sin competir con Actions |
+| Extremos públicos | `curl` a raw, Pages y producción | ⚠️ raw ya sirve 2026-08-04 / 550.059.799 tokens; Pages y producción conservan 2026-08-03 / 550.039.338 hasta integrar y ejecutar el canary |
+| Despliegue real | no ejecutado en esta rama | ⏳ requiere canary manual de Actions después de integrar |
+
+Salida focal final:
+
+```text
+1..9
+# tests 9
+# pass 9
+# fail 0
+```
+
+Salida del gate y guardián final:
+
+```text
+1..54
+# tests 54
+# pass 54
+# fail 0
+i18n-build · 21 locales · 280 HTML generados
+pulso-state · checkpoint v1 publicado · 4 indicadores
+gate · lint, build estático, tests y checkpoint efímero: OK
+Checkpoint del pulso
+  ✓ checkpoint v1 válido y coherente con /pulso.json
+✓ Publicable.
+```
+
+El primer intento de build dentro del sandbox administrado falló porque
+Turbopack no podía abrir su puerto local (`Operation not permitted`). Se repitió
+el mismo `npm run gate` fuera de ese aislamiento, como exige el entorno, y dio
+la salida verde anterior. No fue un fallo de código.
+
+La actualización de `package-lock.json` es grande por el árbol nuevo de
+Wrangler/workerd y sus binarios opcionales. Se compararon las versiones de todos
+los paquetes comunes antes y después: no cambió ninguna dependencia ya
+existente.
+
+Pendiente operativo tras el canary: retirar la entrada del crontab y desactivar
+los dos escritores Kimi externos (diario y vigía). No se desactivaron todavía
+para no eliminar el camino de recuperación antes de verificar la primera Action.
