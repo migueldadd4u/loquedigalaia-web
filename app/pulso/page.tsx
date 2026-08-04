@@ -17,7 +17,7 @@ export const metadata = pageMetadata({
 });
 
 /* Sparkline SVG puro (sin JS): la web es estática e imprimible. */
-function Sparkline({ series, label }: { series: HistoryEntry[]; label: string }) {
+function Sparkline({ series }: { series: HistoryEntry[] }) {
   if (series.length < 2) return null;
   const w = 260;
   const h = 48;
@@ -37,8 +37,7 @@ function Sparkline({ series, label }: { series: HistoryEntry[]; label: string })
     <svg
       viewBox={`0 0 ${w} ${h}`}
       className="w-full h-12"
-      role="img"
-      aria-label={`${label}: ${series[0].value} (${series[0].asOf}) → ${series.at(-1)?.value} (${series.at(-1)?.asOf})`}
+      aria-hidden="true"
     >
       <path d={d} fill="none" stroke="var(--accent)" strokeWidth="2" />
     </svg>
@@ -65,15 +64,14 @@ export default function PulsoPage() {
         {...heroArtByRoute["/pulso/"]}
       />
       <div className="mx-auto max-w-4xl px-4 py-14">
-        {sample ? (
-          <p
-            role="status"
-            className="rounded-md border px-4 py-3 mb-8 max-w-3xl"
-            style={{ borderColor: "var(--cobre, #a5794a)", color: "var(--fg)" }}
-          >
-            <strong>Aviso:</strong> {copy.avisoSample}
-          </p>
-        ) : null}
+        <p
+          role="status"
+          hidden={!sample}
+          className="rounded-md border px-4 py-3 mb-8 max-w-3xl"
+          style={{ borderColor: "var(--cobre, #a5794a)", color: "var(--fg)" }}
+        >
+          <strong>{copy.avisoEtiqueta}</strong> {copy.avisoSample}
+        </p>
 
         <dl className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 m-0">
           {data.indicators.map((i) => (
@@ -97,9 +95,18 @@ export default function PulsoPage() {
                 style={{ color: "var(--fg-soft)" }}
               >
                 {home.pulsoDatoDel} {i.asOf}
-                {i.source === "sample" ? ` · ${home.pulsoEjemplo}` : ""}
-                {i.fallback ? ` · ${home.pulsoUltimoValido}` : ""}
-                {i.stale ? ` · ${home.pulsoDatoAtenuado}` : ""}
+                <span hidden={i.source !== "sample"}>
+                  <span aria-hidden="true"> · </span>
+                  <span>{home.pulsoEjemplo}</span>
+                </span>
+                <span hidden={!i.fallback}>
+                  <span aria-hidden="true"> · </span>
+                  <span>{home.pulsoUltimoValido}</span>
+                </span>
+                <span hidden={!i.stale}>
+                  <span aria-hidden="true"> · </span>
+                  <span>{home.pulsoDatoAtenuado}</span>
+                </span>
               </dd>
             </div>
           ))}
@@ -121,7 +128,7 @@ export default function PulsoPage() {
                 style={{ borderColor: "var(--border)" }}
               >
                 <h3 className="text-base m-0 mb-2">{i.label}</h3>
-                <Sparkline series={series} label={i.label} />
+                <Sparkline series={series} />
                 <table className="w-full text-sm mt-2">
                   <tbody>
                     {series.slice(-7).map((s) => (

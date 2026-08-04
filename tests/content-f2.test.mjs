@@ -163,6 +163,30 @@ test("los ocho diccionarios traducidos coinciden exactamente con el inventario",
   );
 });
 
+test("el inventario i18n no depende del estado diario del pulso", async () => {
+  const inventory = JSON.parse(
+    await readFile(join(ROOT, "content", "i18n", "_inventory.json"), "utf8"),
+  );
+  for (const text of [
+    "Aviso:",
+    "Datos de ejemplo. Las fuentes reales de los clones están en proceso de publicación; este es el formato exacto con el que se mostrarán.",
+    "dato con más de 48 h, pendiente de refresco",
+    "ejemplo",
+    "último valor válido",
+  ]) {
+    assert.ok(inventory.includes(text), `falta la copia condicional «${text}»`);
+  }
+  assert.equal(
+    inventory.some((text) => /\b\d{4}-\d{2}-\d{2}\b.*→/.test(text)),
+    false,
+    "una serie diaria se convirtió en clave de traducción",
+  );
+
+  const source = await readFile(join(ROOT, "app", "pulso", "page.tsx"), "utf8");
+  assert.match(source, /<svg[\s\S]*?aria-hidden="true"/);
+  assert.doesNotMatch(source, /aria-label=.*series/);
+});
+
 function luminance(hex) {
   const channels = hex
     .slice(1)
