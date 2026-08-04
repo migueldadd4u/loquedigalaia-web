@@ -30,6 +30,7 @@
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { gateIndicator } from "./lib/pulso-indicator-gate.mjs";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const arg = (name) => {
@@ -43,9 +44,6 @@ if (Number.isNaN(NOW.getTime())) {
 }
 const INPUT_OVERRIDE = arg("input");
 
-const FRESHNESS_MS = 48 * 3600 * 1000; // §2: 48 h
-const CONSENSUS_MIN_MS = 5 * 60 * 1000; // §4: lecturas separadas ≥ 5 min
-const ABRUPT_RATIO = 0.2; //               §4: cambio brusco > 20 %
 const HISTORY_CAP = 90; //                 lecturas conservadas por indicador
 const FAIL_ISSUE_DAYS = 7; //              §6: racha que abre issue
 
@@ -103,49 +101,6 @@ async function fetchSource(src) {
   return { payload: readJson(file), via: file };
 }
 
-/* ---------- Gate por indicador ---------- */
-function gateIndicator(ind, hist, pending, log) {
-  const out = { ...ind, monotonic: ind.monotonic ?? false };
-  const prev = hist?.lastValid ?? null;
-
-  // 2. Frescura: se acepta pero se marca.
-  const ageMs = NOW.getTime() - new Date(`${ind.asOf}T00:00:00Z`).getTime();
-  if (ageMs > FRESHNESS_MS) {
-    out.stale = true;
-    log.push(`  · ${ind.id}: dato de ${ind.asOf} (>48 h) → se muestra atenuado`);
-  }
-
-  if (!prev) return { accepted: out, hadValue: true }; // primera lectura: no hay con qué comparar
-
-  // 3. Monotonía.
-  if (out.monotonic && ind.value < prev.value) {
-    log.push(
-      `  ✗ ${ind.id}: ${ind.value} < último válido ${prev.value} en un contador monotónico → descartado, se conserva el del ${prev.asOf}`,
-    );
-    return { accepted: { ...prev, id: ind.id, monotonic: true, fallback: "monotonía" }, hadValue: true };
-  }
-
-  // 4. Consenso ante cambio brusco (>20 %).
-  const base = prev.value;
-  const jump = base !== 0 ? Math.abs(ind.value - base) / Math.abs(base) : 0;
-  if (jump > ABRUPT_RATIO) {
-    const key = ind.id;
-    const pend = pending[key];
-    const matches = pend && (out.monotonic ? pend.value === ind.value : Math.abs(pend.value - ind.value) / Math.abs(ind.value || 1) <= 0.01);
-    if (pend && matches && NOW.getTime() - new Date(pend.firstSeen).getTime() >= CONSENSUS_MIN_MS) {
-      delete pending[key];
-      log.push(`  ✓ ${ind.id}: cambio brusco (${(jump * 100).toFixed(0)} %) confirmado por segunda lectura ≥5 min → aceptado`);
-    } else {
-      pending[key] = { value: ind.value, firstSeen: matches ? pend.firstSeen : NOW.toISOString() };
-      log.push(
-        `  ✗ ${ind.id}: cambio brusco ${prev.value} → ${ind.value} (${(jump * 100).toFixed(0)} %) pendiente de consenso → se conserva ${prev.value} del ${prev.asOf}`,
-      );
-      return { accepted: { ...prev, id: ind.id, monotonic: out.monotonic, fallback: "consenso pendiente" }, hadValue: true };
-    }
-  }
-  return { accepted: out, hadValue: true };
-}
-
 /* ---------- Ejecución ---------- */
 const sources = readJson("data/sources.json").sources;
 const history = existsSync(p("data/history.json")) ? readJson("data/history.json") : {};
@@ -198,7 +153,7 @@ for (const src of sources) {
     st.lastOk = NOW.toISOString();
     st.lastError = null;
     for (const ind of raw.payload.indicators) {
-      const { accepted } = gateIndicator(ind, cloneHist[ind.id], clonePending, log);
+      const { accepted } = gateIndicator(ind, cloneHist[ind.id], clonePending, log, { now: NOW });
       indicators.push(accepted);
       // Solo la historia registra valores que pasaron el gate (sin fallback).
       if (!accepted.fallback) {

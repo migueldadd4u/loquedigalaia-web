@@ -10,6 +10,7 @@
     "dev": "next dev -p 3210",
     "build": "next build",
     "snapshot": "node scripts/snapshot.mjs",
+    "snapshot:daily": "node scripts/snapshot-daily.mjs",
     "pulso:restore": "node scripts/restore-pulso-state.mjs",
     "pulso:publish-state": "node scripts/publish-pulso-state.mjs out data",
     "build:static": "next build && node scripts/agents-build.mjs out && node scripts/i18n-build.mjs out",

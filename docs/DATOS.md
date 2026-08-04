@@ -54,8 +54,12 @@ Cada ejecución sigue este orden:
 2. Valida completamente el sobre y sus cuatro secciones **antes** de restaurar
    nada. Si no existe o está corrupto, valida y usa el estado incluido en el
    repositorio como fallback de arranque.
-3. Ejecuta el snapshot contra las fuentes públicas. Los ficheros de `data/`
-   modificados solo existen en el runner; no hay `git add`, commit ni push.
+3. Ejecuta `snapshot:daily` contra las fuentes públicas. Si algún indicador
+   queda en `consenso pendiente`, espera algo más de cinco minutos y repite la
+   lectura en el mismo runner; una lectura normal no añade espera. Los
+   candidatos obsoletos se eliminan al aceptar un valor normal. Los ficheros de
+   `data/` modificados solo existen en el runner; no hay `git add`, commit ni
+   push.
 4. Ejecuta TypeScript, tests, export estático, SEO, accesibilidad e i18n.
 5. Publica dentro de `out/` un checkpoint nuevo y comprueba que su `pulso`
    coincide exactamente con `out/pulso.json`.

@@ -800,6 +800,12 @@ Wrangler/workerd y sus binarios opcionales. Se compararon las versiones de todos
 los paquetes comunes antes y después: no cambió ninguna dependencia ya
 existente.
 
-Pendiente operativo tras el canary: retirar la entrada del crontab y desactivar
-los dos escritores Kimi externos (diario y vigía). No se desactivaron todavía
-para no eliminar el camino de recuperación antes de verificar la primera Action.
+## 2026-08-04 — canary real y cierre de escritores
+
+| Comprobación | Método | Resultado |
+|---|---|---|
+| Canary de producción | Actions `30897617776` | ✅ 55/55 tests y despliegue atómico en 56 s |
+| Segundo consenso | Actions `30898516936` | ✅ `dias-construyendo` 1 → 2 confirmado tras dos lecturas separadas >5 min |
+| Reintento diario | `tests/snapshot-daily.test.mjs` | ✅ solo espera y repite cuando el pulso publicado declara `consenso pendiente` |
+| Limpieza de candidatos | `tests/pulso-indicator-gate.test.mjs` | ✅ una lectura normal elimina consensos obsoletos; una brusca exige dos lecturas |
+| Escritor único | Kimi, `crontab`, Codex y LaunchAgents | ✅ dos automations Kimi deshabilitadas; cron de Loque retirado; cron de Add4u intacto; sin otros escritores |
