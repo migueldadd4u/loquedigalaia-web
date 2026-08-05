@@ -3,7 +3,8 @@ import { home, problemas, origenes, site } from "@/content/es/site";
 import { Compass } from "@/components/Compass";
 import { PageHeroArt } from "@/components/AiImage";
 import { heroArtByRoute } from "@/content/es/heroes";
-import { readPulso } from "@/lib/pulso";
+import { readPulso, readPulsoHistory } from "@/lib/pulso";
+import { StatTile } from "@/components/Pulso";
 import {
   organizationJsonLd,
   serializeJsonLd,
@@ -33,6 +34,9 @@ function Section({
 
 export default function Home() {
   const pulso = readPulso();
+  const historia = readPulsoHistory();
+  const serieDe = (id: string, asOf: string, value: number) =>
+    historia[pulso.clone]?.[id]?.series ?? [{ asOf, value }];
   const tokens = pulso.indicators.find((i) => i.id === "tokens-consumidos-total");
   const restoPulso = pulso.indicators.filter(
     (i) => i.id !== "tokens-consumidos-total",
@@ -158,62 +162,28 @@ export default function Home() {
 
       <Section title={home.pulsoTitulo} alt>
         <p className="max-w-3xl mb-6">{home.pulsoIntro}</p>
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {tokens ? (
-            <article
-              className="rounded-lg border p-6 sm:col-span-2"
-              style={{ borderColor: "var(--accent)" }}
-            >
-              <p className="m-0 text-sm" style={{ color: "var(--fg-soft)" }}>
-                {tokens.label}
-              </p>
-              <p className="m-0 mt-2 text-5xl font-semibold">
-                {tokens.value.toLocaleString("es-ES")}
-                <span className="text-xl font-normal ms-2">{tokens.unit}</span>
-              </p>
-              <p
-                className="m-0 mt-3 text-xs"
-                style={{ color: "var(--fg-soft)" }}
-              >
-                {home.pulsoDatoDel} {tokens.asOf}
-                <span hidden={tokens.source !== "sample"}>
-                  <span aria-hidden="true"> · </span>
-                  <span>{home.pulsoEjemplo}</span>
-                </span>
-                <span hidden={!tokens.fallback}>
-                  <span aria-hidden="true"> · </span>
-                  <span>{home.pulsoUltimoValido}</span>
-                </span>
-              </p>
-            </article>
+            <StatTile
+              indicator={tokens}
+              series={serieDe(tokens.id, tokens.asOf, tokens.value)}
+              hero
+              onAlt
+              className="sm:col-span-2 lg:col-span-3"
+            />
           ) : null}
-          {restoPulso.map((i) => (
-            <article
+          {restoPulso.map((i, idx) => (
+            <StatTile
               key={i.id}
-              className="rounded-lg border p-5"
-              style={{
-                borderColor: "var(--border)",
-                opacity: i.stale ? 0.6 : undefined,
-              }}
-            >
-              <p className="m-0 text-sm" style={{ color: "var(--fg-soft)" }}>
-                {i.label}
-              </p>
-              <p className="m-0 mt-1 text-2xl font-semibold">
-                {i.value.toLocaleString("es-ES")}
-                <span className="text-sm font-normal ms-1">{i.unit}</span>
-              </p>
-              <p
-                className="m-0 mt-2 text-xs"
-                style={{ color: "var(--fg-soft)" }}
-              >
-                {home.pulsoDatoDel} {i.asOf}
-                <span hidden={i.source !== "sample"}>
-                  <span aria-hidden="true"> · </span>
-                  <span>{home.pulsoEjemplo}</span>
-                </span>
-              </p>
-            </article>
+              indicator={i}
+              series={serieDe(i.id, i.asOf, i.value)}
+              onAlt
+              className={
+                idx === restoPulso.length - 1
+                  ? "sm:col-span-2 lg:col-span-1"
+                  : undefined
+              }
+            />
           ))}
         </div>
         <p className="mt-6">

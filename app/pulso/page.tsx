@@ -1,7 +1,7 @@
-import { home, pulso as copy } from "@/content/es/site";
+import { pulso as copy } from "@/content/es/site";
 import { readPulso, readPulsoHistory, isSample } from "@/lib/pulso";
-import type { HistoryEntry } from "@/lib/pulso";
 import { PageHero } from "@/components/AiImage";
+import { Sparkline, StatTile } from "@/components/Pulso";
 import { heroArtByRoute } from "@/content/es/heroes";
 import {
   datasetJsonLd,
@@ -15,34 +15,6 @@ export const metadata = pageMetadata({
     "Los datos diarios publicados por los clones de los fundadores: construcción en público, con métricas.",
   path: "/pulso/",
 });
-
-/* Sparkline SVG puro (sin JS): la web es estática e imprimible. */
-function Sparkline({ series }: { series: HistoryEntry[] }) {
-  if (series.length < 2) return null;
-  const w = 260;
-  const h = 48;
-  const pad = 4;
-  const values = series.map((s) => s.value);
-  const min = Math.min(...values);
-  const max = Math.max(...values);
-  const span = max - min || 1;
-  const d = series
-    .map((s, i) => {
-      const x = pad + (i * (w - 2 * pad)) / (series.length - 1);
-      const y = h - pad - ((s.value - min) * (h - 2 * pad)) / span;
-      return `${i === 0 ? "M" : "L"}${x.toFixed(1)},${y.toFixed(1)}`;
-    })
-    .join(" ");
-  return (
-    <svg
-      viewBox={`0 0 ${w} ${h}`}
-      className="w-full h-12"
-      aria-hidden="true"
-    >
-      <path d={d} fill="none" stroke="var(--accent)" strokeWidth="2" />
-    </svg>
-  );
-}
 
 export default function PulsoPage() {
   const data = readPulso();
@@ -73,44 +45,27 @@ export default function PulsoPage() {
           <strong>{copy.avisoEtiqueta}</strong> {copy.avisoSample}
         </p>
 
-        <dl className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 m-0">
-          {data.indicators.map((i) => (
-            <div
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {data.indicators.map((i, idx) => (
+            <StatTile
               key={i.id}
-              className="rounded-lg border p-5"
-              style={{
-                borderColor: "var(--border)",
-                opacity: i.stale ? 0.6 : undefined,
-              }}
-            >
-              <dt className="text-sm" style={{ color: "var(--fg-soft)" }}>
-                {i.label}
-              </dt>
-              <dd className="m-0 mt-1 text-3xl font-semibold">
-                {i.value.toLocaleString("es-ES")}
-                <span className="text-base font-normal ms-2">{i.unit}</span>
-              </dd>
-              <dd
-                className="m-0 mt-2 text-xs"
-                style={{ color: "var(--fg-soft)" }}
-              >
-                {home.pulsoDatoDel} {i.asOf}
-                <span hidden={i.source !== "sample"}>
-                  <span aria-hidden="true"> · </span>
-                  <span>{home.pulsoEjemplo}</span>
-                </span>
-                <span hidden={!i.fallback}>
-                  <span aria-hidden="true"> · </span>
-                  <span>{home.pulsoUltimoValido}</span>
-                </span>
-                <span hidden={!i.stale}>
-                  <span aria-hidden="true"> · </span>
-                  <span>{home.pulsoDatoAtenuado}</span>
-                </span>
-              </dd>
-            </div>
+              indicator={i}
+              series={
+                history[data.clone]?.[i.id]?.series ?? [
+                  { asOf: i.asOf, value: i.value },
+                ]
+              }
+              hero={idx === 0}
+              className={
+                idx === 0
+                  ? "sm:col-span-2 lg:col-span-3"
+                  : idx === data.indicators.length - 1
+                    ? "sm:col-span-2 lg:col-span-1"
+                    : undefined
+              }
+            />
           ))}
-        </dl>
+        </div>
 
         <h2 className="text-3xl mt-14 mb-3">{copy.evolucionTitulo}</h2>
         <p className="max-w-3xl mb-6" style={{ color: "var(--fg-soft)" }}>
@@ -121,20 +76,43 @@ export default function PulsoPage() {
             const series = history[data.clone]?.[i.id]?.series ?? [
               { asOf: i.asOf, value: i.value },
             ];
+            const first = series[0];
+            const last = series[series.length - 1];
             return (
               <article
                 key={i.id}
-                className="rounded-lg border p-5"
-                style={{ borderColor: "var(--border)" }}
+                className="rounded-xl border p-5"
+                style={{
+                  borderColor: "var(--border)",
+                  background: "var(--bg-alt)",
+                }}
               >
-                <h3 className="text-base m-0 mb-2">{i.label}</h3>
-                <Sparkline series={series} />
-                <table className="w-full text-sm mt-2">
+                <h3 className="text-base m-0 mb-3">{i.label}</h3>
+                <Sparkline series={series} height={80} emphasis area />
+                <p
+                  className="m-0 mt-1 flex justify-between text-xs"
+                  style={{ color: "var(--fg-soft)" }}
+                >
+                  <span>{first.asOf}</span>
+                  <span>{last.asOf}</span>
+                </p>
+                <table
+                  className="w-full text-sm mt-3"
+                  style={{ fontVariantNumeric: "tabular-nums" }}
+                >
                   <tbody>
                     {series.slice(-7).map((s) => (
-                      <tr key={s.asOf}>
-                        <td style={{ color: "var(--fg-soft)" }}>{s.asOf}</td>
-                        <td className="text-end font-medium">
+                      <tr
+                        key={s.asOf}
+                        className={s.asOf === last.asOf ? "font-semibold" : ""}
+                        style={{
+                          borderTop: "1px solid var(--border)",
+                        }}
+                      >
+                        <td className="py-1" style={{ color: "var(--fg-soft)" }}>
+                          {s.asOf}
+                        </td>
+                        <td className="py-1 text-end font-medium">
                           {s.value.toLocaleString("es-ES")} {i.unit}
                         </td>
                       </tr>

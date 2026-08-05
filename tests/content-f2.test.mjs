@@ -182,7 +182,8 @@ test("el inventario i18n no depende del estado diario del pulso", async () => {
     "una serie diaria se convirtió en clave de traducción",
   );
 
-  const source = await readFile(join(ROOT, "app", "pulso", "page.tsx"), "utf8");
+  // Las sparklines viven en components/Pulso.tsx (compartidas con la portada).
+  const source = await readFile(join(ROOT, "components", "Pulso.tsx"), "utf8");
   assert.match(source, /<svg[\s\S]*?aria-hidden="true"/);
   assert.doesNotMatch(source, /aria-label=.*series/);
 });
