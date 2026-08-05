@@ -743,6 +743,72 @@ generan en cada build, por lo que no se afirmó una igualdad byte a byte con un
 `out/` recompilado después. La corrección del generador queda como deuda
 técnica fuera de esta publicación del dominio.
 
+## 2026-08-03 (19:15Z) — despliegue desde el `main` fusionado (PR #7)
+
+Tras integrar [#7](https://github.com/migueldadd4u/loquedigalaia-web/pull/7)
+(`main` en `27d1cf9`) se ejecutó la secuencia completa desde el `main` fusionado,
+no desde la rama.
+
+| Paso | Resultado |
+|---|---|
+| `npm ci` | ✅ |
+| `npm run gate` | ✅ 45 tests, 45 pass, 0 fail |
+| `node scripts/antes-de-publicar.mjs out` | ✅ «Publicable» |
+| `npx wrangler deploy` | ✅ 354 ficheros; declara los dos Custom Domains desde el repositorio |
+| `npx wrangler deployments list` | ✅ versión vigente entonces `d60afe9e-2a8f-4344-b947-19db2b2bfd5e` (19:14:36Z, 100% del tráfico) |
+
+Cuatro pasadas limpias de la matriz (2 rondas × las 2 IP autoritativas), 18
+rutas con firma de contenido por ruta más el 404 propio:
+
+```text
+RONDA 1 · IP 188.114.96.5 · 19:15:41 · LIMPIA      RONDA 2 · IP 188.114.96.5 · 19:15:43 · LIMPIA
+RONDA 1 · IP 188.114.97.5 · 19:15:42 · LIMPIA      RONDA 2 · IP 188.114.97.5 · 19:15:44 · LIMPIA
+```
+
+### Cachés públicas: cómo se cerró (19:20Z → 20:22Z)
+
+El cierre global exigía dos rondas DNS consecutivas limpias en 1.1.1.1 y 8.8.8.8
+y un `curl` normal sin `--resolve` ni DNS-over-HTTPS. **Ambas cosas se cumplen
+desde las 20:21:48Z.** Se deja registrada la hora larga intermedia porque el
+fenómeno es reproducible y conviene reconocerlo la próxima vez.
+
+**El rezagado no era el registro A, sino el AAAA.** Cuando los A ya estaban
+limpios al 100% en todos los resolutores, 1.1.1.1 seguía devolviendo
+`2001:8d8:100f:f000::200` en aproximadamente 1 de cada 4 consultas. Como macOS
+prefiere IPv6, bastaba con eso para que el navegador y `curl` acabaran en la
+página de aparcamiento de IONOS mientras `dig` sobre el registro A parecía
+correcto. **Diagnosticar esto mirando solo los A lleva a dar por bueno lo que no
+lo está.**
+
+Un detalle que engaña al medir: una ronda que cruza 2 resolutores × 2 hostnames
+× 2 tipos son 8 consultas, así que con un 25% de fallo por consulta es
+improbable que una ronda salga entera limpia aunque la mayoría de respuestas ya
+lo sean. Rondas sucias seguidas no significan estancamiento.
+
+```text
+19:35:35Z  dos rondas DNS consecutivas limpias (A y AAAA, apex y www, 1.1.1.1 y 8.8.8.8)
+19:36Z     tres rondas más de confirmación: limpias
+20:18:47Z  la caché del sistema deja de servir IONOS en HTTP
+20:21:48Z  dos comprobaciones consecutivas correctas de los cuatro curl normales
+```
+
+Salida final del paso 9, `curl` normal sin `--resolve` ni DNS-over-HTTPS:
+
+```text
+HTTPS apex                200   (188.114.96.5)
+HTTPS www /pulso/?x=1     301 -> https://loquedigalaia.com/pulso/?x=1
+HTTP  apex /faq/?a=2      301 -> https://loquedigalaia.com/faq/?a=2
+HTTP  www  /faq/?a=2      301 -> https://loquedigalaia.com/faq/?a=2
+```
+
+Era caché de resolutor, no configuración: los autoritativos
+(`hope`/`damien.ns.cloudflare.com`) devolvieron A y AAAA correctos para apex y
+`www` desde el principio, y los Custom Domains figuraban `enabled` en la cuenta.
+La purga pública de 1.1.1.1 (`one.one.one.one/api/v1/purge`) resultó de poca
+ayuda: solo afecta al nodo anycast que atiende la petición, y a partir de cierto
+número de llamadas responde `403`. Lo que resolvió el problema fue esperar a que
+expirara el TTL antiguo, unas dos horas desde el borrado de los registros.
+
 ## 2026-08-04 — ingesta efímera sin commits
 
 Se sustituyó el cron escritor por una única tubería de Actions. El estado entre
