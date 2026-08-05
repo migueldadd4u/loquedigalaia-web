@@ -157,7 +157,7 @@ depender de una máquina encendida y sin ensuciar el historial Git.
 
 | Pieza | Dónde | Cuándo |
 |---|---|---|
-| **Workflow único** | `.github/workflows/deploy.yml` | push de código a `main`, 04:15 UTC y manual |
+| **Workflow único** | `.github/workflows/deploy.yml` | push de código a `main`, 04:15 / 10:15 / 16:15 UTC y manual |
 | **Checkpoint anterior** | `https://loquedigalaia.com/pulso-state.json` | inicio de cada ejecución |
 | **Checkpoint siguiente** | `out/pulso-state.json` | después del build y antes del deploy |
 
@@ -174,8 +174,12 @@ los comandos de producción y de ramas no productivas son ambos
 inertes; la única promoción a producción es `npm run deploy:out` desde esta
 Action, después del checkpoint y todos los gates.
 
-El horario equivale a 05:15 CET / 06:15 CEST y queda siempre después del
-productor de ClonMAD, programado a las 03:43 `Europe/Madrid`.
+El horario son tres pasadas diarias (04:15, 10:15 y 16:15 UTC). La primera
+equivale a 05:15 CET / 06:15 CEST y queda siempre después del productor de
+ClonMAD, programado a las 03:43 `Europe/Madrid`; las otras dos recogen
+publicaciones extraordinarias del frontal y cubren el caso de un schedule que
+GitHub retrase o se salte. Una pasada sin datos nuevos es idempotente: parte
+del checkpoint de producción y republica exactamente las mismas cifras.
 
 ### Retirada de escritores antiguos
 

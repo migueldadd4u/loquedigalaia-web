@@ -14,7 +14,7 @@ fusionado, verificado y desplegado.
 | **Idiomas** | **12 diccionarios completos** (es fuente + en, zh, zh-TW, ja, ko, pt, ca, gl, eu, va, oc-aranes, ast), 419 cadenas cada uno; 8 variantes por país heredan es/pt |
 | **Páginas legales** | `/aviso-legal`, `/privacidad`, `/cookies`, `/accesibilidad`, `/respaldo` en los 21 idiomas |
 | **Imágenes** | Un hero IA por página con etiqueta oficial UE + 8 fotos reales acreditadas en `/problemas` |
-| **Pulso** | `scripts/snapshot.mjs` con su gate; ⚠️ los 4 indicadores publicados siguen con `source: "sample"` |
+| **Pulso** | ✅ datos reales del front office del clon, publicación sin commits vía GitHub Actions (3 refrescos/día); modelo completo en [DESPLIEGUE.md](DESPLIEGUE.md) §«Publicación automática del pulso» |
 | **Controles** | `npm test` 45/45 · `npm run gate` OK · `node scripts/antes-de-publicar.mjs` publicable |
 | **Dominio propio** | ⏳ en curso por MAD + Codex en la rama `codex/domain-launch` |
 
@@ -40,7 +40,7 @@ antes de cada `git add`** y `git pull` antes de empezar.
 ## Cola de trabajo, por orden
 
 1. **Dominio propio** (en curso, MAD + Codex): que `loquedigalaia.com` sea el punto final de despliegue. Ver [DESPLIEGUE.md](DESPLIEGUE.md).
-2. **Pulso con datos reales** (Kimi): `snapshot.mjs` funciona y `source-status.json` dice que la fuente responde, pero los 4 indicadores publicados siguen marcados `sample`. Averiguar si el frontal del clon aún no expone el contrato de [DATOS.md](DATOS.md) o si falta cablear el mapeo — y si el bloqueo es del lado del clon, decirlo en vez de darlo por cerrado.
+2. ~~**Pulso con datos reales**~~ ✅ resuelto (04-05/08): pulso conectado al front office y publicado sin commits desde GitHub Actions. ⚠️ Deuda del lado del clon (05/08): el checkout local de `front-office/` quedó desviado a la rama `codex/pulso-pages-auto` tras el merge de su PR #1, y el productor nocturno (03:43) commitea allí sin que llegue a `main` → el frontal público se queda congelado. Necesita que MAD (o el clon) devuelva ese repo a `main`, incorpore el commit de datos pendiente y lo empuje; mientras tanto la web sirve el último dato publicado, y a las 48 h lo marcará `stale`.
 3. **Revisión nativa de seis idiomas**: catalán, gallego, euskera, valenciano, aranés y asturiano están publicados sin lectura de hablante nativo, y las páginas legales llevan terminología jurídica. Funcionan, pero antes de dar publicidad al lanzamiento conviene una revisión humana.
 4. **Formulario de contacto** (F5): worker + D1, **primer campo obligatorio: «¿Qué problema grande del mundo crees que puedes arreglar con nuestra ayuda?»**.
 5. **Checks de producción** (F6): patrón deploy-check de add4u-web.
