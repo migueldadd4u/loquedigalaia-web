@@ -4,13 +4,14 @@
 
 | Entrada | Resultado |
 |---|---|
-| Worker con Static Assets | ✅ `loquedigalaia` · versión actual `238940d6-a552-4ce5-a917-8485721dc1b0` |
+| Worker con Static Assets | ✅ `loquedigalaia` · versión del relevo `238940d6-a552-4ce5-a917-8485721dc1b0`, y `d60afe9e-2a8f-4344-b947-19db2b2bfd5e` tras integrar el PR #7. **No fijes aquí la versión vigente**: el pulso publica solo varias veces al día, así que cualquier ID escrito a mano caduca en horas — consúltala con `npx wrangler deployments list` |
 | URL de respaldo | ✅ https://loquedigalaia.add4u.workers.dev |
 | Dominio canónico | ✅ https://loquedigalaia.com |
 | `www` | ✅ `301` permanente a `https://loquedigalaia.com`, conservando ruta y query string |
 | Zona de Cloudflare | ✅ activa y autoritativa |
 | TLS | ✅ certificado válido para apex y `www` |
-| Cachés DNS públicas | ⏳ Google limpio; algunos nodos de 1.1.1.1 aún sirven el TTL antiguo de IONOS |
+| Cachés DNS públicas | ✅ limpias desde el 03/08 a las 19:35:35Z — A y AAAA correctos para apex y `www` en 1.1.1.1, 8.8.8.8 y 9.9.9.9 |
+| `curl` normal (sin `--resolve` ni DoH) | ✅ los cuatro correctos desde el 03/08 a las 20:21:48Z |
 
 La cuenta de Cloudflare es la de `migueld@add4u.com`. La zona delega en:
 
@@ -27,9 +28,11 @@ cambio de artefacto y se repitió sobre ella toda la verificación final.
 La evidencia completa —DNS, despliegue, canonical/hreflang, TLS y dos pasadas
 de toda la matriz requerida— está en [TESTING.md](./TESTING.md).
 
-No debe marcarse el cierre global hasta obtener dos rondas consecutivas limpias
-en 1.1.1.1 y 8.8.8.8 y un `curl` normal sin `--resolve` ni DNS-over-HTTPS. El
-estado exacto que queda pendiente está registrado en `TESTING.md`.
+El cierre global exigía dos rondas consecutivas limpias en 1.1.1.1 y 8.8.8.8 y
+un `curl` normal sin `--resolve` ni DNS-over-HTTPS. **Ambas condiciones se
+cumplieron el 03/08/2026**: las rondas DNS a las 19:35:35Z y los cuatro `curl`
+normales a las 20:21:48Z. La cronología, y por qué el rezagado fue el registro
+AAAA y no el A, está en [TESTING.md](./TESTING.md).
 
 ## Configuración aplicada
 
