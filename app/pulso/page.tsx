@@ -1,7 +1,11 @@
 import { pulso as copy } from "@/content/es/site";
 import { readPulso, readPulsoHistory, isSample } from "@/lib/pulso";
 import { PageHero } from "@/components/AiImage";
-import { Sparkline, StatTile } from "@/components/Pulso";
+import {
+  INDICADORES_CALENDARIO,
+  Sparkline,
+  StatTile,
+} from "@/components/Pulso";
 import { heroArtByRoute } from "@/content/es/heroes";
 import {
   datasetJsonLd,
@@ -72,7 +76,11 @@ export default function PulsoPage() {
           {copy.evolucionIntro}
         </p>
         <div className="grid sm:grid-cols-2 gap-4">
-          {data.indicators.map((i) => {
+          {/* Los indicadores de calendario (p. ej. días construyendo) crecen
+              a ritmo fijo: su serie no cuenta nada y no merece gráfico. */}
+          {data.indicators
+            .filter((i) => !INDICADORES_CALENDARIO.has(i.id))
+            .map((i, idx) => {
             const series = history[data.clone]?.[i.id]?.series ?? [
               { asOf: i.asOf, value: i.value },
             ];
@@ -81,7 +89,7 @@ export default function PulsoPage() {
             return (
               <article
                 key={i.id}
-                className="rounded-xl border p-5"
+                className={`rounded-xl border p-5 ${idx === 0 ? "sm:col-span-2" : ""}`}
                 style={{
                   borderColor: "var(--border)",
                   background: "var(--bg-alt)",

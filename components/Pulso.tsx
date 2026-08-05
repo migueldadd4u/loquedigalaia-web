@@ -11,6 +11,10 @@ import { home } from "@/content/es/site";
 
 const fmt = (n: number) => n.toLocaleString("es-ES");
 
+/* Indicadores de calendario: crecen solos y a ritmo fijo (+1 al día), así que
+   ni la traza ni el delta aportan información — solo se muestra el valor. */
+export const INDICADORES_CALENDARIO = new Set(["dias-construyendo"]);
+
 /* Delta contra el punto anterior de la serie; null si no hay con qué comparar
    o la serie no está alineada con el dato mostrado. */
 export function dailyDelta(
@@ -137,7 +141,8 @@ export function StatTile({
   onAlt = false,
   className,
 }: TileProps) {
-  const delta = dailyDelta(i, series.slice(-30));
+  const calendario = INDICADORES_CALENDARIO.has(i.id);
+  const delta = calendario ? null : dailyDelta(i, series.slice(-30));
   return (
     <article
       className={`rounded-xl border ${hero ? "p-6" : "p-5"} flex flex-col ${
@@ -171,12 +176,16 @@ export function StatTile({
               {i.unit}
             </span>
           </p>
-          <p className="m-0 mt-2 min-h-5">
-            <DeltaChip delta={delta} />
-          </p>
+          {calendario ? null : (
+            <p className="m-0 mt-2 min-h-5">
+              <DeltaChip delta={delta} />
+            </p>
+          )}
         </div>
         <div className={hero ? "grow min-w-0 mt-4 sm:mt-0" : "mt-auto pt-3"}>
-          <Sparkline series={series.slice(-14)} height={hero ? 64 : 40} />
+          {calendario ? null : (
+            <Sparkline series={series.slice(-14)} height={hero ? 64 : 40} />
+          )}
         </div>
       </div>
       <p className="m-0 mt-3 text-xs" style={{ color: "var(--fg-soft)" }}>
