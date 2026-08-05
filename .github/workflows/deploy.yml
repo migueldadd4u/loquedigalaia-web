@@ -22,9 +22,13 @@ on:
       - 'data/source-status.json'
       - 'data/pending.json'
   schedule:
-    # GitHub usa UTC: 05:15 CET / 06:15 CEST, siempre después del productor
-    # de ClonMAD programado a las 03:43 Europe/Madrid.
-    - cron: '15 4 * * *'
+    # GitHub usa UTC. Tres refrescos al día: la primera pasada (04:15 UTC =
+    # 05:15 CET / 06:15 CEST) queda siempre después del productor de ClonMAD,
+    # programado a las 03:43 Europe/Madrid; las de mediodía y tarde recogen
+    # publicaciones extraordinarias del frontal y cubren un schedule que
+    # GitHub retrase o se salte. Sin datos nuevos son idempotentes: el
+    # checkpoint restaurado hace que se republique exactamente lo mismo.
+    - cron: '15 4,10,16 * * *'
   workflow_dispatch:
 
 concurrency:

@@ -809,3 +809,80 @@ existente.
 | Reintento diario | `tests/snapshot-daily.test.mjs` | ✅ solo espera y repite cuando el pulso publicado declara `consenso pendiente` |
 | Limpieza de candidatos | `tests/pulso-indicator-gate.test.mjs` | ✅ una lectura normal elimina consensos obsoletos; una brusca exige dos lecturas |
 | Escritor único | Kimi, `crontab`, Codex y LaunchAgents | ✅ dos automations Kimi deshabilitadas; cron de Loque retirado; cron de Add4u intacto; sin otros escritores |
+
+## 2026-08-05 — verificación del pulso extremo a extremo + diagnóstico del 04/08
+
+### Por qué el cron del 04/08 solo commiteó el sello de tiempo (resuelto)
+
+No fue el gate. `agent/snapshot-cron.log` de esa pasada no tiene ninguna línea
+`✗` (ni monotonía, ni consenso, ni frescura): la fuente respondió y el snapshot
+salió `OK`. Lo que ocurrió fue que **la URL pública del frontal servía datos
+viejos**: el clon commiteó los datos del 04/08 a la 01:43Z, pero GitHub Pages
+no volvió a publicar hasta las 09:19Z, cuando se fusionó el workflow «Publica
+Pages al actualizar datos» (front-office PR #1). Evidencia:
+
+```bash
+gh api "repos/migueldadd4u/madclon-front-office/actions/runs?per_page=10" \
+  --jq '.workflow_runs[] | .created_at + "  " + .name + "  " + .conclusion'
+# 2026-08-04T09:19:28Z  Deploy Front Office a GitHub Pages  success   ← primera publicación del día
+# 2026-08-03T17:58:14Z  Deploy Front Office a GitHub Pages  success   ← la anterior
+```
+
+Entre ambas no hay ninguna: a las 05:47Z (07:47 local, hora del cron) la URL
+aún servía el 03/08. El «despliegue con datos frescos sin commitear» de esa
+mañana salió del propio workflow de este repo (runs de las 09:44Z y 09:56Z,
+inmediatamente después de fusionarse el modelo sin commits —PR #9, 09:29Z— y ya
+con los secretos configurados), no de un worktree.
+
+### La cadena de hoy, verificada
+
+El run programado `30977925620` (schedule, 05:22Z) restauró el checkpoint de
+producción, pasó snapshot + 60 tests y desplegó atómicamente:
+
+```text
+pulso-state · restaurado checkpoint validado de https://loquedigalaia.com/pulso-state.json
+pulso-state · estado inicial: producción
+snapshot OK · data/pulso.json con 4 indicadores · historia y estado actualizados
+```
+
+### Coincidencia exacta frontal ↔ repo ↔ producción (es + en + ja + eu)
+
+```bash
+curl -s https://migueldadd4u.github.io/madclon-front-office/data/pulso.json \
+  | python3 -c "import json,sys; print([i['value'] for i in json.load(sys.stdin)['indicators'] if i['id']=='tokens-consumidos-total'][0])"
+# 550059799   (frontal del clon, asOf 2026-08-04)
+
+python3 -c "import json; print([i['value'] for i in json.load(open('data/pulso.json'))['indicators'] if i['id']=='tokens-consumidos-total'][0])"
+# 550059799   (semilla del repo, reconciliada con el checkpoint en esta rama)
+
+curl -s https://loquedigalaia.com/pulso.json \
+  | python3 -c "import json,sys; print([i['value'] for i in json.load(sys.stdin)['indicators'] if i['id']=='tokens-consumidos-total'][0])"
+# 550059799   (producción)
+
+for p in "" "en/" "ja/" "eu/"; do for page in "" "pulso/"; do
+  url="https://loquedigalaia.com/${p}${page}"
+  echo "$url → $(curl -s "$url" | grep -oE '550[.,]059[.,]799' | head -1)"
+done; done
+# https://loquedigalaia.com/         → 550.059.799
+# https://loquedigalaia.com/pulso/   → 550.059.799
+# https://loquedigalaia.com/en/      → 550.059.799
+# https://loquedigalaia.com/en/pulso/→ 550.059.799
+# https://loquedigalaia.com/ja/      → 550.059.799
+# https://loquedigalaia.com/ja/pulso/→ 550.059.799
+# https://loquedigalaia.com/eu/      → 550.059.799
+# https://loquedigalaia.com/eu/pulso/→ 550.059.799
+```
+
+Nota: el `550.039.338` que también aparece en `/pulso/` es la fila del
+2026-08-03 de la tabla de evolución (historia), no una divergencia.
+
+### ⚠️ Bloqueo vigente, del lado del frontal del clon
+
+El pulso NO está cerrado del todo: el productor nocturno del clon (03:43) sí
+corrió el 05/08 y commiteó `1544e68` («kimi: datos front office 2026-08-05»),
+pero lo hizo en el checkout local de `front-office/`, que quedó desviado a la
+rama `codex/pulso-pages-auto` tras el merge de su PR #1. Ese commit no está en
+`main` ni en ningún remoto, así que el frontal público sigue congelado en el
+04/08 y, pasadas 48 h, esta web marcará los indicadores `stale`. El arreglo
+(devolver ese checkout a `main`, incorporar el commit y empujar) está fuera del
+carril de este repo; queda pedido a MAD en el traspaso.

@@ -16,7 +16,7 @@ test("el workflow cubre push, horario y ejecución manual con concurrencia únic
   assert.match(workflow, /^\s*push:/m);
   assert.match(workflow, /^\s*schedule:/m);
   assert.match(workflow, /^\s*workflow_dispatch:/m);
-  assert.match(workflow, /cron:\s*'15 4 \* \* \*'/);
+  assert.match(workflow, /cron:\s*'15 4,10,16 \* \* \*'/);
   assert.match(workflow, /group:\s*deploy-produccion/);
   assert.match(workflow, /cancel-in-progress:\s*false/);
 });

@@ -1,16 +1,1 @@
-{
-  "clonmadv3": {
-    "tokens-consumidos-total": {
-      "value": 550039338,
-      "firstSeen": "2026-08-03T18:02:58.668Z"
-    },
-    "tareas-despachadas-7d": {
-      "value": 231,
-      "firstSeen": "2026-08-03T18:02:58.668Z"
-    },
-    "canales-vigilados": {
-      "value": 3,
-      "firstSeen": "2026-08-03T18:02:58.668Z"
-    }
-  }
-}
+{}
