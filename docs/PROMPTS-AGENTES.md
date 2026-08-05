@@ -58,3 +58,35 @@ Los encargos vigentes, tal y como se entregaron. Si retomas el proyecto, comprue
 - Alta de la zona en Cloudflare y cambio de nameservers en IONOS (cuando exista staging, F5).
 - Abrir la caja `sandbox-exec` de los agentes si les impide leer el vault.
 - Cualquier cambio de fondo en el manifiesto o en las preguntas y respuestas.
+
+## Relevo 06/08 — verificar la primera noche autónoma del pulso (cc o quien retome)
+
+> Proyecto: web pública de «Lo que diga la IA», repo `~/Code/loquedigalaia-web`, rama `main`,
+> producción https://loquedigalaia.com. Lee docs/CONTINUACION.md y AGENTS.md antes de tocar nada.
+> Publicar = fusionar PR a `main` (la Action reconstruye, pasa gates y despliega); nunca
+> `wrangler deploy` a mano. Comprueba `git branch --show-current` antes de cada `git add`:
+> el árbol es compartido con Codex y Kimi.
+>
+> Encargo: esta noche la cadena del pulso debía funcionar entera SIN manos por primera vez.
+> Verifícalo eslabón a eslabón, con comando y salida, y deja la evidencia en docs/TESTING.md:
+>
+> 1. **Productor del clon** (03:43, widget-task de kimi): en `~/MADClon-Storage/front-office`,
+>    `git branch --show-current` debe decir `main` (el 05/08 amaneció desviado a
+>    `codex/pulso-pages-auto` y hubo que recuperarlo — si ha vuelto a pasar, ese es el fallo),
+>    y `git log origin/main -1` debe ser el commit «kimi: datos front office 2026-08-06».
+> 2. **Pages del frontal**: `curl -s https://migueldadd4u.github.io/madclon-front-office/data/pulso.json`
+>    → `asOf` del 2026-08-06.
+> 3. **Schedule de la web** (04:15 UTC ≈ 06:15 CEST; también 10:15 y 16:15 UTC):
+>    `gh run list --workflow=deploy.yml` con el run de la mañana en success, y
+>    `curl -s https://loquedigalaia.com/pulso.json` con los mismos valores que el frontal.
+>    Ojo: GitHub retrasa los schedule hasta ~1 h; y si el frontal publicó después del run,
+>    el refresco de las 10:15 lo recoge — eso no es un fallo.
+> 4. **Cifra exacta** en `/` y `/pulso/` en es + al menos 3 idiomas (en, ja, eu), comparada
+>    con el frontal. El salto diario de «días» seguirá siendo >20 % unos días más (3→4 = +33 %): el consenso retiene
+>    el valor 5 min y lo confirma dentro del mismo run — verás «consenso pendiente →
+>    confirmado» en el log del run, no es un error.
+>
+> Reglas: ningún «verificado» sin comando ejecutado; si el fallo está del lado del clon
+> (productor, push, Pages), dilo explícitamente en vez de dar el pulso por cerrado. Si todo
+> está verde, anota la evidencia, marca en CONTINUACION.md la cola item 2 como cerrada y
+> sigue con la cola (revisión nativa de 6 idiomas · formulario F5).

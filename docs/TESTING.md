@@ -952,3 +952,37 @@ rama `codex/pulso-pages-auto` tras el merge de su PR #1. Ese commit no está en
 04/08 y, pasadas 48 h, esta web marcará los indicadores `stale`. El arreglo
 (devolver ese checkout a `main`, incorporar el commit y empujar) está fuera del
 carril de este repo; queda pedido a MAD en el traspaso.
+
+## 2026-08-05 (tarde) — rediseño de los indicadores del pulso (PRs #13 y #14)
+
+Encargo directo de MAD: mejorar visualmente los indicadores en portada y `/pulso`,
+en los 21 idiomas. Cambios en `components/Pulso.tsx` (nuevo), `app/page.tsx`,
+`app/pulso/page.tsx`. Sin texto nuevo: el delta diario es numérico puro, así que
+ningún diccionario cambió.
+
+```bash
+npm run gate
+# 1..60 · pass 60 · fail 0 · checkpoint efímero OK   (dos veces: PR #13 y PR #14)
+
+node scripts/verificar-i18n.mjs out
+# ✓ Nada queda sin traducir y ningún enlace se ha roto   (21 locales)
+```
+
+Producción tras el deploy de cada PR (runs `31039197251` y `31040041039`, ambos success):
+
+```bash
+for p in "" "en/" "ja/" "eu/"; do curl -s "https://loquedigalaia.com/${p}pulso/" \
+  | grep -o "▲" | wc -l; done
+# PR #13 → 6 por locale (delta en tokens, tareas y días, ×2 por el flight de Next)
+# PR #14 → 4 por locale (días ya no lleva delta)
+
+# La tarjeta «Días construyendo en público» tras PR #14 (es y en):
+# sin traza · sin delta — es un contador de calendario (+1/día por definición);
+# su serie no informa. Regla con nombre: INDICADORES_CALENDARIO en components/Pulso.tsx.
+```
+
+Revisión visual en dev (claro y oscuro): jerarquía valor→unidad→delta→traza,
+héroe de tokens a ancho completo, punto final de las trazas como trazo redondo de
+longitud 0 (un `<circle>` se deformaba en elipse con `preserveAspectRatio="none"`).
+Gotcha reconfirmada: tras un deploy el CDN puede servir un HTML sin su CSS un par
+de minutos en algún nodo; repetir el `curl`/recarga antes de declarar fallo.

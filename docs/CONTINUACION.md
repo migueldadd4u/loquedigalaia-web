@@ -2,21 +2,21 @@
 
 Este documento existe para que **cualquier agente** (Kimi K3, Codex, otro Claude) o persona pueda retomar el proyecto sin contexto previo. Léelo entero antes de tocar nada; después, tu fuente de trabajo es [PLAN.md](../PLAN.md) y tu contrato es [AGENTS.md](../AGENTS.md).
 
-## Estado a 2026-08-03 (cierre de jornada) — TODO CONSOLIDADO EN `main`
+## Estado a 2026-08-05 (cierre de jornada) — TODO CONSOLIDADO EN `main`
 
-`main` es la única base. Ya no hay ramas divergentes que reconciliar: lo que estaba
-repartido entre `f1-scaffold`, `legal-pie`, `f2-contenido` y `f4-fotos-problemas` está
-fusionado, verificado y desplegado.
+`main` es la única base y **la única vía de publicación es la Action**: fusionar un PR
+a `main` reconstruye, pasa los gates y despliega. No se despliega a mano desde
+ninguna máquina.
 
 | Qué | Estado |
 |---|---|
-| **Web en producción** | https://loquedigalaia.add4u.workers.dev — 13 rutas × 21 locales (280 HTML) |
+| **Web en producción** | https://loquedigalaia.com (dominio propio, TLS, `www`→apex 301; respaldo workers.dev) — 13 rutas × 21 locales |
 | **Idiomas** | **12 diccionarios completos** (es fuente + en, zh, zh-TW, ja, ko, pt, ca, gl, eu, va, oc-aranes, ast), 419 cadenas cada uno; 8 variantes por país heredan es/pt |
 | **Páginas legales** | `/aviso-legal`, `/privacidad`, `/cookies`, `/accesibilidad`, `/respaldo` en los 21 idiomas |
 | **Imágenes** | Un hero IA por página con etiqueta oficial UE + 8 fotos reales acreditadas en `/problemas` |
-| **Pulso** | ✅ datos reales del front office del clon, publicación sin commits vía GitHub Actions (3 refrescos/día); modelo completo en [DESPLIEGUE.md](DESPLIEGUE.md) §«Publicación automática del pulso» |
+| **Pulso** | ✅ datos reales del front office del clon, publicación sin commits vía GitHub Actions (schedule 04:15/10:15/16:15 UTC); modelo completo en [DESPLIEGUE.md](DESPLIEGUE.md) §«Publicación automática del pulso». Rediseño 05/08 (PRs #13-#14): tarjetas con delta diario y mini-traza en `components/Pulso.tsx`; los indicadores de calendario (`INDICADORES_CALENDARIO`) van sin traza ni delta |
 | **Controles** | `npm test` 45/45 · `npm run gate` OK · `node scripts/antes-de-publicar.mjs` publicable |
-| **Dominio propio** | ⏳ en curso por MAD + Codex en la rama `codex/domain-launch` |
+| **Dominio propio** | ✅ activo desde el 04/08; evidencia DNS/TLS en [TESTING.md](TESTING.md) |
 
 Para verla en local: `npm install && npm run dev` (puerto 3210). Para la salida real de
 producción: `npm run build:static` y servir `out/` — el dev server **no** genera las
@@ -39,8 +39,8 @@ antes de cada `git add`** y `git pull` antes de empezar.
 
 ## Cola de trabajo, por orden
 
-1. **Dominio propio** (en curso, MAD + Codex): que `loquedigalaia.com` sea el punto final de despliegue. Ver [DESPLIEGUE.md](DESPLIEGUE.md).
-2. ~~**Pulso con datos reales**~~ ✅ resuelto (04-05/08): pulso conectado al front office y publicado sin commits desde GitHub Actions. ⚠️ Deuda del lado del clon (05/08): el checkout local de `front-office/` quedó desviado a la rama `codex/pulso-pages-auto` tras el merge de su PR #1, y el productor nocturno (03:43) commitea allí sin que llegue a `main` → el frontal público se queda congelado. Necesita que MAD (o el clon) devuelva ese repo a `main`, incorpore el commit de datos pendiente y lo empuje; mientras tanto la web sirve el último dato publicado, y a las 48 h lo marcará `stale`.
+1. ~~**Dominio propio**~~ ✅ activo (04/08).
+2. **Verificar la cadena autónoma del pulso (mañana 06/08, primera hora)**: esta noche debe funcionar TODO sin manos por primera vez — productor del clon (03:43, en `main` de `front-office/`; el 05/08 se recuperó de un checkout desviado a `codex/pulso-pages-auto`) → Pages del frontal → schedule de la web (06:15 CEST) → cifras del 06/08 en producción. El prompt exacto está en [PROMPTS-AGENTES.md](PROMPTS-AGENTES.md) §«Relevo 06/08». Si el fallo está del lado del clon, decirlo explícitamente, no darlo por cerrado.
 3. **Revisión nativa de seis idiomas**: catalán, gallego, euskera, valenciano, aranés y asturiano están publicados sin lectura de hablante nativo, y las páginas legales llevan terminología jurídica. Funcionan, pero antes de dar publicidad al lanzamiento conviene una revisión humana.
 4. **Formulario de contacto** (F5): worker + D1, **primer campo obligatorio: «¿Qué problema grande del mundo crees que puedes arreglar con nuestra ayuda?»**.
 5. **Checks de producción** (F6): patrón deploy-check de add4u-web.
