@@ -90,3 +90,17 @@ Los encargos vigentes, tal y como se entregaron. Si retomas el proyecto, comprue
 > (productor, push, Pages), dilo explícitamente en vez de dar el pulso por cerrado. Si todo
 > está verde, anota la evidencia, marca en CONTINUACION.md la cola item 2 como cerrada y
 > sigue con la cola (revisión nativa de 6 idiomas · formulario F5).
+
+## Revisión 13/08 — chequeo semanal de la cadena del pulso (orden de MAD, 06/08)
+
+> La cadena del pulso funcionó sola por primera vez la noche del 05→06/08 (evidencia en
+> TESTING.md §2026-08-06). MAD pidió revisarla a los siete días. El 13/08/2026 (o cuando
+> se retome, si es más tarde), repite el checklist del §«Relevo 06/08» con las fechas del
+> día: (1) productor del clon en `main` de `~/MADClon-Storage/front-office` con el commit
+> nocturno empujado, (2) Pages del frontal con `asOf` de hoy, (3) run `schedule` de
+> deploy.yml en success y `/pulso.json` de producción igual al frontal, (4) cifra exacta
+> en `/` y `/pulso/` en es + 3 idiomas. Mira además `source-status` dentro de
+> `https://loquedigalaia.com/pulso-state.json` (rachas de fallo: `consecutiveFailures`
+> debe ser 0) y que la serie de `history` tenga un punto por día sin huecos. Evidencia en
+> TESTING.md; si algo falló días atrás en silencio, eso es exactamente lo que hay que
+> contar — nada muere en silencio.
