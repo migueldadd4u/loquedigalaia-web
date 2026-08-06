@@ -986,3 +986,34 @@ héroe de tokens a ancho completo, punto final de las trazas como trazo redondo 
 longitud 0 (un `<circle>` se deformaba en elipse con `preserveAspectRatio="none"`).
 Gotcha reconfirmada: tras un deploy el CDN puede servir un HTML sin su CSS un par
 de minutos en algún nodo; repetir el `curl`/recarga antes de declarar fallo.
+
+## 2026-08-06 — primera noche 100 % autónoma del pulso: VERIFICADA ✅
+
+Nadie tocó nada entre el cierre del 05/08 y esta comprobación. Los cuatro
+eslabones, con comando y salida:
+
+```bash
+git -C ~/MADClon-Storage/front-office branch --show-current && \
+git -C ~/MADClon-Storage/front-office log --oneline -1
+# main
+# d6f3007 kimi: datos front office 2026-08-06 (refresco automático nocturno)
+#   → el productor de las 03:43 commiteó en main (no volvió a desviarse) y empujó
+
+curl -s https://migueldadd4u.github.io/madclon-front-office/data/pulso.json
+# asOf 2026-08-06T01:43:28Z · tokens 588975106 · dias 4 · tareas-7d 284 · canales 3
+
+gh run list --workflow=deploy.yml --limit 1
+# 31073933049  2026-08-06T05:22:41Z  schedule  success
+
+curl -s https://loquedigalaia.com/pulso.json
+# asOf 2026-08-06 · generatedAt 2026-08-06T05:28:13Z · MISMOS valores que el frontal
+
+for p in "" "en/" "ja/" "eu/"; do for page in "" "pulso/"; do
+  curl -s "https://loquedigalaia.com/${p}${page}" | grep -oE '588[.,]975[.,]106' | head -1
+done; done
+# 588.975.106 en las 8 rutas (portada y /pulso · es, en, ja, eu)
+```
+
+El item 2 de la cola de CONTINUACION.md queda cerrado. Siguiente revisión de la
+cadena: **13/08/2026** (orden de MAD del 06/08: «anota mirarlo en siete días») —
+checklist en PROMPTS-AGENTES.md §«Revisión 13/08».

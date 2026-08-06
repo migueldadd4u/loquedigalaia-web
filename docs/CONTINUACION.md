@@ -2,7 +2,7 @@
 
 Este documento existe para que **cualquier agente** (Kimi K3, Codex, otro Claude) o persona pueda retomar el proyecto sin contexto previo. Léelo entero antes de tocar nada; después, tu fuente de trabajo es [PLAN.md](../PLAN.md) y tu contrato es [AGENTS.md](../AGENTS.md).
 
-## Estado a 2026-08-05 (cierre de jornada) — TODO CONSOLIDADO EN `main`
+## Estado a 2026-08-06 — TODO CONSOLIDADO EN `main` y el pulso ya camina solo
 
 `main` es la única base y **la única vía de publicación es la Action**: fusionar un PR
 a `main` reconstruye, pasa los gates y despliega. No se despliega a mano desde
@@ -15,7 +15,7 @@ ninguna máquina.
 | **Páginas legales** | `/aviso-legal`, `/privacidad`, `/cookies`, `/accesibilidad`, `/respaldo` en los 21 idiomas |
 | **Imágenes** | Un hero IA por página con etiqueta oficial UE + 8 fotos reales acreditadas en `/problemas` |
 | **Pulso** | ✅ datos reales del front office del clon, publicación sin commits vía GitHub Actions (schedule 04:15/10:15/16:15 UTC); modelo completo en [DESPLIEGUE.md](DESPLIEGUE.md) §«Publicación automática del pulso». Rediseño 05/08 (PRs #13-#14): tarjetas con delta diario y mini-traza en `components/Pulso.tsx`; los indicadores de calendario (`INDICADORES_CALENDARIO`) van sin traza ni delta |
-| **Controles** | `npm test` 45/45 · `npm run gate` OK · `node scripts/antes-de-publicar.mjs` publicable |
+| **Controles** | `npm run gate` (lint + build + 60/60 tests + checkpoint) OK · `antes-de-publicar.mjs` publicable |
 | **Dominio propio** | ✅ activo desde el 04/08; evidencia DNS/TLS en [TESTING.md](TESTING.md) |
 
 Para verla en local: `npm install && npm run dev` (puerto 3210). Para la salida real de
@@ -40,7 +40,7 @@ antes de cada `git add`** y `git pull` antes de empezar.
 ## Cola de trabajo, por orden
 
 1. ~~**Dominio propio**~~ ✅ activo (04/08).
-2. **Verificar la cadena autónoma del pulso (mañana 06/08, primera hora)**: esta noche debe funcionar TODO sin manos por primera vez — productor del clon (03:43, en `main` de `front-office/`; el 05/08 se recuperó de un checkout desviado a `codex/pulso-pages-auto`) → Pages del frontal → schedule de la web (06:15 CEST) → cifras del 06/08 en producción. El prompt exacto está en [PROMPTS-AGENTES.md](PROMPTS-AGENTES.md) §«Relevo 06/08». Si el fallo está del lado del clon, decirlo explícitamente, no darlo por cerrado.
+2. ~~**Verificar la cadena autónoma del pulso**~~ ✅ 06/08: primera noche 100 % sin manos, los cuatro eslabones verdes (evidencia en [TESTING.md](TESTING.md) §2026-08-06). **Siguiente revisión: 13/08/2026** (orden de MAD: mirarlo a los siete días) — checklist en [PROMPTS-AGENTES.md](PROMPTS-AGENTES.md) §«Revisión 13/08».
 3. **Revisión nativa de seis idiomas**: catalán, gallego, euskera, valenciano, aranés y asturiano están publicados sin lectura de hablante nativo, y las páginas legales llevan terminología jurídica. Funcionan, pero antes de dar publicidad al lanzamiento conviene una revisión humana.
 4. **Formulario de contacto** (F5): worker + D1, **primer campo obligatorio: «¿Qué problema grande del mundo crees que puedes arreglar con nuestra ayuda?»**.
 5. **Checks de producción** (F6): patrón deploy-check de add4u-web.
