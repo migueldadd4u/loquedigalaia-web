@@ -209,6 +209,70 @@ function translate(html, r) {
   return shield.restore(restoreNames(html));
 }
 
+// Las filas de texto largo del payload RSC (`<id>:T<lenHex>,<contenido>`) declaran la
+// longitud de su contenido en BYTES UTF-8. La sustitución cambia el contenido pero no
+// ese prefijo: el lector RSC del navegador lee los bytes declarados, pisa la fila
+// siguiente y la página entera cae con «Connection closed» (pasó en producción:
+// /en/manifiesto y /en/faq devolvían la página de error de Next; lo cazó la revisión
+// visual del gauntlet i18n — el verificador solo mira texto visible y lo daba por bueno).
+// Ojo con el reparto: el stream flight llega troceado entre varios <script> push, y una
+// fila T puede cruzar el corte — hay que recomponer el stream entero antes de medir.
+// Estrategia: el español está íntegro por construcción, así que de él se aprende cómo
+// sigue cada fila T (los caracteres estructurales de la fila siguiente); tras traducir
+// se localiza ese cierre en el stream recomponido y se reescribe SOLO el prefijo hex,
+// que vive en el mismo <script> donde arranca la fila.
+const FLIGHT_RE = /<script>self\.__next_f\.push\(\[1,"((?:[^"\\]|\\.)*)"\]\)<\/script>/g;
+
+function flightStream(html) {
+  const parts = [];
+  for (const m of html.matchAll(FLIGHT_RE)) {
+    try { parts.push(JSON.parse(`"${m[1]}"`)); } catch { /* literal ajeno: fuera */ }
+  }
+  return parts.join("");
+}
+
+function flightTextRowTails(esHtml) {
+  const stream = flightStream(esHtml);
+  const buf = Buffer.from(stream, "utf8");
+  const tails = new Map();
+  for (const row of stream.matchAll(/\n([0-9a-f]{1,2}):T([0-9a-f]+),/g)) {
+    const byteStart = Buffer.byteLength(stream.slice(0, row.index + row[0].length), "utf8");
+    const endByte = byteStart + parseInt(row[2], 16);
+    const endChar = buf.subarray(0, endByte).toString("utf8").length;
+    const tail = stream.slice(endChar, endChar + 24);
+    if (!/^[0-9a-f]{1,2}:/.test(tail)) {
+      throw new Error(`i18n-build: la fila T «${row[1]}» del español no cierra donde declara; el formato RSC ha cambiado y este ajuste hay que revisarlo`);
+    }
+    tails.set(row[1], tail);
+  }
+  return tails;
+}
+
+function fixFlightTextRows(html, tails) {
+  if (!tails.size) return html;
+  const stream = flightStream(html);
+  for (const [id, tail] of tails) {
+    const m = new RegExp(`\\n${id}:T([0-9a-f]+),`).exec(stream);
+    if (!m) continue;
+    const contentStart = m.index + m[0].length;
+    const end = stream.indexOf(tail, contentStart);
+    if (end === -1) {
+      throw new Error(`i18n-build: no se encuentra el cierre de la fila T «${id}» tras traducir; no se escribe HTML con el payload RSC corrupto`);
+    }
+    const hex = Buffer.byteLength(stream.slice(contentStart, end), "utf8").toString(16);
+    if (hex === m[1]) continue;
+    // El prefijo vive, escapado como literal JS («\n» son dos caracteres), en el <script>
+    // donde arranca la fila; el contenido puede seguir en scripts posteriores y no se toca.
+    const rawMarker = new RegExp(`(\\\\n${id}:T)${m[1]},`, "g");
+    const hits = html.match(rawMarker);
+    if (!hits || hits.length !== 1) {
+      throw new Error(`i18n-build: el prefijo de la fila T «${id}» aparece ${hits ? hits.length : 0} veces; se esperaba exactamente 1`);
+    }
+    html = html.replace(rawMarker, `$1${hex},`);
+  }
+  return html;
+}
+
 function localize(html, l, route, entries) {
   html = translate(html, entries);
   html = prefixLinks(html, l.prefix);
@@ -264,11 +328,12 @@ for (const rel of sources) {
   if (!esOut.includes('rel="canonical"')) esOut = esOut.replace("</head>", `${canonicalTag(locales[0], route)}</head>`);
   if (!esOut.includes('hreflang="x-default"')) esOut = esOut.replace("</head>", `${alternatesBlock(route)}</head>`);
   if (esOut !== es) await writeFile(join(OUT, rel), esOut);
+  const flightTails = flightTextRowTails(esOut);
   for (const l of locales) {
     if (!l.prefix) continue;
     const out = join(OUT, l.prefix, rel);
     await mkdir(dirname(out), { recursive: true });
-    await writeFile(out, localize(esOut, l, route, entriesBySource[l.source]));
+    await writeFile(out, fixFlightTextRows(localize(esOut, l, route, entriesBySource[l.source]), flightTails));
     written++;
   }
 }
