@@ -19,9 +19,24 @@ export const nav = [
   { href: "/contacto/", label: "Contacto" },
 ];
 
-// Pie de página. Dos grupos porque responden a preguntas distintas: «con qué
-// capacidad contáis» y «quién responde jurídicamente de esto». Los href con el
-// formato "/segmento/" los lee scripts/i18n-build.mjs para prefijar los idiomas.
+// Portal de la denuncia contra esPublico, dentro de la web de GestdocAI. Existe en
+// castellano (/es/), inglés (/en/) y francés (/fr/); esta web no tiene francés.
+// Es un enlace EXTERNO y absoluto: scripts/i18n-build.mjs solo prefija los href
+// "/segmento/", así que este nunca lleva /en/ ni /zh/ delante. El HTML español
+// enlaza `es` y, al generar cada idioma, el build lo cambia por `en` en los
+// locales cuyo `source` (content/locales.ts) está en `enIngles`: quien lee en
+// inglés, chino, coreano, japonés o portugués llega mejor por el inglés. El
+// castellano, sus variantes y las lenguas de España se quedan en /es/.
+export const portalDenuncia = {
+  es: "https://www.todolocontrarioaespublico.es/es/",
+  en: "https://www.todolocontrarioaespublico.es/en/",
+  enIngles: ["en", "zh", "zh-TW", "ko", "ja", "pt"],
+};
+
+// Pie de página. Tres grupos porque responden a preguntas distintas: «con qué
+// capacidad contáis», «quién responde jurídicamente de esto» y «qué más hacéis
+// fuera de aquí». Los href con el formato "/segmento/" los lee
+// scripts/i18n-build.mjs para prefijar los idiomas; los absolutos no se tocan.
 export const pie = {
   identificacion:
     "Iniciativa promovida a título personal por Miguel Ángel Domínguez Castellano y Luis Garvía Vega, que responden de este sitio web mientras la sociedad está en constitución. Sus datos identificativos completos figuran en el aviso legal.",
@@ -37,6 +52,12 @@ export const pie = {
         { href: "/privacidad/", label: "Privacidad" },
         { href: "/cookies/", label: "Cookies" },
         { href: "/accesibilidad/", label: "Accesibilidad" },
+      ],
+    },
+    {
+      titulo: "Otras webs",
+      enlaces: [
+        { href: portalDenuncia.es, label: "Lo contrario a esPublico — la denuncia" },
       ],
     },
   ],
