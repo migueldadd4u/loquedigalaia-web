@@ -197,6 +197,21 @@ function shieldMachineValues(html) {
     html = html.split(match[0]).join(stash(match[0]));
   }
 
+  // Los segmentos de ruta del árbol del router (fila 0 del payload RSC) van sin barra,
+  // así que la regla de rutas de abajo no los ve. La clave corta «manifiesto»→«宣言» de
+  // zh.json convertía `"children":["manifiesto",{…` en `["宣言",{…` y el router de Next
+  // lanzaba `InvalidCharacterError` en btoa (createSegmentRequestKeyPart) al abrir
+  // /zh/manifiesto/ (producción, 26/09/2026); en los alfabetos latinos no había
+  // excepción, pero el árbol nombraba una ruta que no existe. Dos posiciones:
+  //  - el árbol: `"<hueco>":["<segmento>",{…` — un hijo React nunca es `"texto",{`;
+  //  - las partes de la URL canónica: `"c":["","<segmento>",…,""]`, entera.
+  const segAlt = [...APP_SEGMENTS].map(escRe).join("|");
+  html = html.replace(
+    new RegExp(`(\\\\"[^"\\\\]+\\\\":\\[\\\\")(${segAlt})(?=\\\\",\\{)`, "g"),
+    (m, head, segment) => head + stash(segment),
+  );
+  html = html.replace(/\\"c\\":\[\\"\\"(?:,\\"[^"\\]*\\")*\]/g, (value) => stash(value));
+
   html = html.replace(
     // La barra suelta solo abre una ruta si NO viene pegada a letra o cifra. Sin
     // ese matiz se blindaban trozos de prosa —«ISO/IEC 42001», «Ley 34/2002»— y
