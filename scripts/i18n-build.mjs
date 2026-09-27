@@ -40,6 +40,23 @@ const navSource = await readFile(new URL("../content/es/site.ts", import.meta.ur
 const navSegments = [...navSource.matchAll(/href: "\/([a-z-]+)\/"/g)].map(([, s]) => s);
 if (navSegments.length < 6) throw new Error(`i18n-build: solo ${navSegments.length} secciones leídas de content/es/site.ts; el formato cambió y los enlaces saldrían sin prefijo`);
 const APP_SEGMENTS = new Set(navSegments);
+
+// Enlace externo del pie con versión por idioma: el portal de la denuncia contra
+// esPublico (content/es/site.ts → portalDenuncia). El HTML español lleva la URL
+// /es/; aquí se cambia por la /en/ en los locales cuyo `source` está en `enIngles`.
+// Misma longitud en bytes, así que las filas T del payload RSC no se descuadran.
+const portalMatch = navSource.match(
+  /export const portalDenuncia = \{\s*es: "(https:\/\/[^"]+)",\s*en: "(https:\/\/[^"]+)",\s*enIngles: \[([^\]]*)\],?\s*\}/,
+);
+if (!portalMatch) throw new Error("i18n-build: no se lee portalDenuncia de content/es/site.ts; el formato cambió y el enlace a la denuncia saldría en castellano en todos los idiomas");
+const PORTAL_DENUNCIA = {
+  es: portalMatch[1],
+  en: portalMatch[2],
+  enIngles: new Set([...portalMatch[3].matchAll(/"([^"]+)"/g)].map(([, s]) => s)),
+};
+for (const s of PORTAL_DENUNCIA.enIngles) {
+  if (!locales.some((l) => l.source === s)) throw new Error(`i18n-build: portalDenuncia.enIngles nombra «${s}», que no es el source de ningún locale`);
+}
 const TRANSLATABLE_ATTRS = ["alt", "title", "aria-label"];
 const META_KEYS = new Set(["description"]);
 const OG_TW = /^(og:(title|description|image:alt)|twitter:(title|description|image:alt))$/;
@@ -276,6 +293,7 @@ function fixFlightTextRows(html, tails) {
 function localize(html, l, route, entries) {
   html = translate(html, entries);
   html = prefixLinks(html, l.prefix);
+  if (PORTAL_DENUNCIA.enIngles.has(l.source)) html = html.split(PORTAL_DENUNCIA.es).join(PORTAL_DENUNCIA.en);
   html = html.replace(/<html lang="es">/, `<html lang="${l.hreflang}">`);
   html = html.replace(/\\"lang\\":\\"es\\"/g, `\\"lang\\":\\"${l.hreflang}\\"`);
   html = html.replace(
