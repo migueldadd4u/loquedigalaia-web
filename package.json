@@ -24,7 +24,7 @@
     "deploy": "npm run pulso:restore && npm run snapshot && npm run gate && npm run deploy:out"
   },
   "dependencies": {
-    "next": "16.2.6",
+    "next": "16.3.3",
     "react": "19.2.6",
     "react-dom": "19.2.6"
   },
