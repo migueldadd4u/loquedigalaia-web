@@ -9,6 +9,10 @@ import { parse } from "node-html-parser";
 const OUT = resolve(process.argv[2] ?? "out");
 const BASE_URL = "https://loquedigalaia.com";
 const SKIP_TAGS = new Set(["SCRIPT", "STYLE", "NOSCRIPT", "TEMPLATE", "SVG"]);
+// El HTML decide con `hidden` lo que no aplica (en el pulso: «ejemplo», «último
+// valor válido», el aviso de datos de ejemplo). El espejo tampoco lo publica: un
+// lector sin CSS leía como ciertas etiquetas que la página no enseña.
+const isHidden = (node) => node.hasAttribute?.("hidden") ?? false;
 
 async function filesBelow(dir) {
   const files = [];
@@ -73,7 +77,7 @@ function inline(node) {
   if (node.nodeType !== 1) return "";
 
   const tag = node.tagName;
-  if (SKIP_TAGS.has(tag)) return "";
+  if (SKIP_TAGS.has(tag) || isHidden(node)) return "";
   const children = () => inlineChildren(node);
 
   if (tag === "BR") return "  \n";
@@ -128,7 +132,7 @@ function renderBlock(node) {
     const text = markdownText(node.text ?? node.textContent ?? "").trim();
     return text;
   }
-  if (node.nodeType !== 1 || SKIP_TAGS.has(node.tagName)) return "";
+  if (node.nodeType !== 1 || SKIP_TAGS.has(node.tagName) || isHidden(node)) return "";
 
   const tag = node.tagName;
   const heading = tag.match(/^H([1-6])$/);
