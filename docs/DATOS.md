@@ -41,6 +41,11 @@ publicado.
 6. **Racha visible** — los fallos consecutivos quedan en `source-status` y, a
    partir de siete ejecuciones, `snapshot.mjs` emite una advertencia explícita
    en el log de Actions.
+7. **Frescura del publicado** — una fuente que responde con un dato viejo no
+   es un fallo para el gate: se publica atenuada. Por eso el último paso del
+   workflow, ya desplegado, pone el run en rojo si algún indicador de
+   `out/pulso.json` supera las 48 h (`npm run pulso:frescura`). Del 23/10 al
+   01/11/2026 el pulso salió congelado en 28 publicaciones seguidas en verde.
 
 ## Continuidad sin commits
 

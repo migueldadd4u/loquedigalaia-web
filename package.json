@@ -13,6 +13,7 @@
     "snapshot:daily": "node scripts/snapshot-daily.mjs",
     "pulso:restore": "node scripts/restore-pulso-state.mjs",
     "pulso:publish-state": "node scripts/publish-pulso-state.mjs out data",
+    "pulso:frescura": "node scripts/frescura-pulso.mjs out/pulso.json",
     "build:static": "next build && node scripts/agents-build.mjs out && node scripts/i18n-build.mjs out",
     "start": "npx serve out",
     "lint": "tsc --noEmit --incremental false",
