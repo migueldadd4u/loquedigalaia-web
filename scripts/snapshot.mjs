@@ -21,8 +21,9 @@
 //   5. Fallback por indicador: cada indicador cae individualmente a su último
 //      valor válido de data/history.json. La página nunca se rompe ni inventa
 //      un número.
-//   6. Nada muere en silencio: 7 ejecuciones fallidas seguidas → aviso para
-//      abrir issue (la Action lo convierte en issue real).
+//   6. Nada muere en silencio: 7 ejecuciones fallidas seguidas → ::warning en
+//      el resumen del run. El workflow no abre issues; lo que pone el run en
+//      rojo es el paso de frescura, cuando el dato servido pasa de 48 h (§7).
 //
 // Salida: 0 si se pudo escribir data/pulso.json (aunque todo sea fallback);
 // 1 si no hay ni dato válido ni historia — eso sí rompería la página.
@@ -45,7 +46,7 @@ if (Number.isNaN(NOW.getTime())) {
 const INPUT_OVERRIDE = arg("input");
 
 const HISTORY_CAP = 90; //                 lecturas conservadas por indicador
-const FAIL_ISSUE_DAYS = 7; //              §6: racha que abre issue
+const FAIL_WARN_RUNS = 7; //               §6: racha que se anota como ::warning
 
 const p = (rel) => resolve(ROOT, rel); // resolve: respeta rutas absolutas (--input=/tmp/…)
 const readJson = (rel) => JSON.parse(readFileSync(p(rel), "utf-8"));
@@ -187,9 +188,10 @@ for (const src of sources) {
     }
   }
 
-  if (st.consecutiveFailures >= FAIL_ISSUE_DAYS)
+  if (st.consecutiveFailures >= FAIL_WARN_RUNS)
     console.log(
-      `  ⚠ NADA MUERE EN SILENCIO: ${src.clone} lleva ${st.consecutiveFailures} ejecuciones fallando → la Action abre issue (DATOS.md §6)`,
+      `::warning title=Fuente del pulso fallando::${src.clone} lleva ${st.consecutiveFailures} ejecuciones fallando ` +
+        `(${st.lastError?.trim() ?? "sin detalle"}); se sirve su último valor válido (DATOS.md §6)`,
     );
 
   if (indicators.length) {

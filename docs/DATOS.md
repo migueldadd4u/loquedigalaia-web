@@ -39,8 +39,8 @@ publicado.
    separadas al menos cinco minutos.
 5. **Fallback por indicador** — un dato rechazado cae a su último valor válido.
 6. **Racha visible** — los fallos consecutivos quedan en `source-status` y, a
-   partir de siete ejecuciones, `snapshot.mjs` emite una advertencia explícita
-   en el log de Actions.
+   partir de siete ejecuciones, `snapshot.mjs` emite una anotación
+   `::warning` que sale en el resumen del run. El workflow no abre issues.
 7. **Frescura del publicado** — una fuente que responde con un dato viejo no
    es un fallo para el gate: se publica atenuada. Por eso el último paso del
    workflow, ya desplegado, pone el run en rojo si algún indicador de
