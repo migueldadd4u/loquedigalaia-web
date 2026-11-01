@@ -34,6 +34,14 @@ test("restaura, ingiere, pasa el gate y solo entonces despliega", () => {
   assert.match(workflow, /PULSO_STATE_URL:\s*https:\/\/loquedigalaia\.com\/pulso-state\.json/);
 });
 
+test("la frescura del pulso se comprueba después del deploy, sin frenarlo", () => {
+  const deploy = workflow.indexOf("npm run deploy:out");
+  const frescura = workflow.indexOf("npm run pulso:frescura");
+  assert.ok(frescura >= 0, "falta npm run pulso:frescura");
+  assert.ok(frescura > deploy, "la frescura debe ir después de deploy:out");
+  assert.doesNotMatch(workflow, /continue-on-error/);
+});
+
 test("el workflow tiene Git de solo lectura y nunca commitea el estado", () => {
   assert.match(workflow, /permissions:\s*\n\s+contents:\s*read/);
   assert.doesNotMatch(executableLines(workflow), /\bgit\s+(?:add|commit|push)\b/);

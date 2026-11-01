@@ -71,3 +71,9 @@ jobs:
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+
+      # Después del deploy, a propósito: una fuente que responde con un dato
+      # viejo pasa el gate y la web lo publica atenuado, que es lo honesto. Este
+      # paso no frena la publicación; solo impide que el run salga verde.
+      - name: Frescura del pulso publicado
+        run: npm run pulso:frescura
