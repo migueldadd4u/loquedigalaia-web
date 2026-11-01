@@ -42,9 +42,12 @@ function lexicalTokens(value) {
   return value.normalize("NFC").match(/[\p{L}\p{M}\p{N}]+|[^\s\p{L}\p{M}\p{N}]/gu) ?? [];
 }
 
+// `[hidden]` no es texto visible: el espejo no debe publicarlo.
+const INVISIBLE = "script, style, noscript, template, svg, [hidden]";
+
 function htmlLexicalTokens(main) {
   const clean = parse(main.toString());
-  for (const hidden of clean.querySelectorAll("script, style, noscript, template, svg")) {
+  for (const hidden of clean.querySelectorAll(INVISIBLE)) {
     hidden.remove();
   }
   const tokens = [];
@@ -61,7 +64,7 @@ function htmlLexicalTokens(main) {
 
 function visibleHtmlText(main) {
   const clean = parse(main.toString());
-  for (const hidden of clean.querySelectorAll("script, style, noscript, template, svg")) {
+  for (const hidden of clean.querySelectorAll(INVISIBLE)) {
     hidden.remove();
   }
   return normalizeText(clean.structuredText);
@@ -164,6 +167,23 @@ test("cada página canónica tiene un espejo Markdown textual generado", async (
   }
 
   assert.ok(existsSync(join(OUT, "index.md")), "falta el índice Markdown /index.md");
+});
+
+test("los espejos no publican lo que el HTML esconde con hidden", async () => {
+  let comprobados = 0;
+  for (const page of await canonicalPages()) {
+    const markdown = visibleMarkdownText(await readFile(join(OUT, page.mirror), "utf8"));
+    const visible = visibleHtmlText(page.main);
+    for (const el of page.main.querySelectorAll("[hidden]")) {
+      const text = normalizeText(el.structuredText);
+      // Texto corto o que también se ve en otro sitio de la página: no prueba nada.
+      if (text.length < 8 || visible.includes(text)) continue;
+      comprobados += 1;
+      assert.ok(!markdown.includes(text), `${page.route}: /${page.mirror} publica el texto oculto «${text}»`);
+    }
+  }
+  // El pulso siempre esconde al menos «último valor válido» o el aviso de ejemplo.
+  assert.ok(comprobados > 0, "ningún texto oculto comprobado: el test ya no mira nada");
 });
 
 test("llms.txt enlaza todos los espejos y documenta el contrato de Pulso", async () => {
