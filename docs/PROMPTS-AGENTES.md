@@ -104,3 +104,10 @@ Los encargos vigentes, tal y como se entregaron. Si retomas el proyecto, comprue
 > debe ser 0) y que la serie de `history` tenga un punto por día sin huecos. Evidencia en
 > TESTING.md; si algo falló días atrás en silencio, eso es exactamente lo que hay que
 > contar — nada muere en silencio.
+
+<!-- NORMAS-REDACCION-DIGEST v1 (fuente: 00_SISTEMA/NORMAS-REDACCION.md — editar allí, no aquí) -->
+## Normas de redacción (globales)
+TODO texto: 1) cero alucinaciones — ninguna cita/cifra/fecha/nombre sin verificar contra la fuente real; ante la duda «[PENDIENTE — no verificado]», nunca rellenar con algo plausible; 2) voz de MAD, no estilo genérico de IA — fuera clichés («crucial», «cabe señalar», «es importante destacar»…) y toda frase que se pueda borrar sin perder información; 3) idioma del destinatario real, no el de la fuente.
+ENTREGABLES (informes, propuestas, memorias, correos a terceros, webs): 4) loop de calidad en 3 vueltas con checklist del tipo de documento; 5) revisión ética ligera (lenguaje inclusivo, ejemplos sin generalizar, accesibilidad); 6) formato que el destinatario necesita de verdad; 7) verificar el FICHERO final guardado en disco, no lo que el proceso dice.
+Detalle y checklists: MAD-brain/00_SISTEMA/NORMAS-REDACCION.md
+<!-- /NORMAS-REDACCION-DIGEST -->
