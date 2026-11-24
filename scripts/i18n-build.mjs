@@ -212,6 +212,17 @@ function shieldMachineValues(html) {
   );
   html = html.replace(/\\"c\\":\[\\"\\"(?:,\\"[^"\\]*\\")*\]/g, (value) => stash(value));
 
+  // Las claves de los elementos React del payload (`["$","<tipo>","<clave>",{…`) son
+  // identificadores, no texto. La clave corta «tareas»→«tasks» de en.json convertía
+  // `"tareas-despachadas-7d"` en `"tasks-despachadas-7d"`; esa clave abre la fila que
+  // sigue a la fila T del gráfico de /pulso, fixFlightTextRows ya no encontraba el
+  // cierre de la fila T y la build abortaba: Deploy producción en rojo del 17/11 al
+  // 24/11/2026. Se blindan todas: la clave del idioma debe ser la del español.
+  html = html.replace(
+    /(\\"\$\\",\\"[^"\\]+\\",\\")([^"\\]+)(?=\\",)/g,
+    (m, head, key) => head + stash(key),
+  );
+
   html = html.replace(
     // La barra suelta solo abre una ruta si NO viene pegada a letra o cifra. Sin
     // ese matiz se blindaban trozos de prosa —«ISO/IEC 42001», «Ley 34/2002»— y
